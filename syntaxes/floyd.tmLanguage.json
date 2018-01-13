@@ -21,10 +21,16 @@
 	],
 	"repository": {
 		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.floyd",
-				"match": "\\b(if|while|for|return|break|halt|case|default|switch|do|else)\\b"
-			}]
+			"patterns": [
+				{
+					"name": "keyword.control.floyd",
+					"match": "\\b(if|while|for|return|break|halt|case|default|switch|do|else|fetch)\\b"
+				},
+				{
+					"name": "keyword.other",
+					"match": "\\b(abstract|day|firstWord|getKey|isfirst|moveto|objectsInside|random|serial|setPlayer|split|stopDaemon|verb|write|addScores|getLong|has|issecond|name|pluralInside|setColor|setShort|startDaemon|stopTimer|strstr|getShort|location|noun|pnoun|room|setLong|setTime|startTimer|strrstr|time|box|count|gender|getWord|menu|quit|scores|setNoun|sizeof|StatusLineFormat|strlen|substr|toggle|with)\\b"
+				}
+			]
 		},
 		"strings": {
 			"name": "string.quoted.double.floyd",
@@ -35,7 +41,7 @@
 		"storage": {
 			"patterns": [{
 				"name": "storage.type.floyd",
-				"match": "\\b(int|string|object|class)\\b"
+				"match": "\\b(int|string|object|class|void|super|array)\\b"
 			}]
 		},
 		"comment": {
