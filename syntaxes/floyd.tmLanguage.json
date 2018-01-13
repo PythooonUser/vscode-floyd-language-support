@@ -13,7 +13,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.floyd",
-				"match": "\\b(if|while|for|return)\\b"
+				"match": "\\b(if|while|for|return|break|halt|case|default|switch|do|else)\\b"
 			}]
 		},
 		"strings": {
