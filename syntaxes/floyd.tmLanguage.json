@@ -7,6 +7,9 @@
 		},
 		{
 			"include": "#strings"
+		},
+		{
+			"include": "#storage"
 		}
 	],
 	"repository": {
@@ -21,6 +24,12 @@
 			"begin": "\"",
 			"end": "\"",
 			"patterns": []
+		},
+		"storage": {
+			"patterns": [{
+				"name": "storage.type.floyd",
+				"match": "\\b(int|string|object|class)\\b"
+			}]
 		}
 	},
 	"scopeName": "source.floyd"
