@@ -20,12 +20,7 @@
 			"name": "string.quoted.double.floyd",
 			"begin": "\"",
 			"end": "\"",
-			"patterns": [
-				{
-					"name": "constant.character.escape.floyd",
-					"match": "\\\\."
-				}
-			]
+			"patterns": []
 		}
 	},
 	"scopeName": "source.floyd"
