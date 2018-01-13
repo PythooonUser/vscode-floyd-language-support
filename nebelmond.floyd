@@ -1,0 +1,5443 @@
+/*
+Der Nebelmond 3
+(c)2002-2003 Oliver Berse
+*/
+
+#include <stdconst.floyd>
+#include <stdlist.floyd>
+#include <stdobject.floyd>
+#include <stdcreature.floyd>
+#include <stdroom.floyd>
+#include <stditem.floyd>
+#include <stdexit.floyd>
+#include <stderror.floyd>
+
+#define A_LEFT        	100
+#define A_RIGHT     	101
+#define A_AHEAD     	102
+#define A_BACK        	103
+#define A_SIT1        	104
+#define A_SIT2        	105
+#define A_SIT3        	106
+#define A_SIT4        	107
+#define A_STAND1      	108
+#define A_STAND2      	109
+#define A_LOOKTHROUGH 	110
+#define A_TYPE        	111
+#define A_PRESS     	112
+#define A_CONNECT     	113
+#define A_DISCONNECT	114
+#define A_RUNAROUND		116
+#ifndef A_PULL
+#define A_PULL			117
+#endif
+#define A_FASTEN		118
+#define A_MOVE1			119
+#define A_FOLLOW		120
+#define A_KOLLER		121
+#define A_LOOKUP		122
+#define A_LOOKDOWN		123
+#define A_THROWDOWN		124
+#define A_EAT			125
+#define A_BLOCKDOOR		126
+#define A_JUMP1     	127
+#define A_JUMP2     	128
+#define A_THROWAT     	129
+#define A_STEPUP      	130
+#define A_STEPDOWN    	131
+#define A_GROPE     	132
+#define A_CONSULT     	133
+#define A_PRAY        	134
+#define A_DRINK     	135
+#define A_SWIM        	136
+#define A_SLEEP     	137
+#define A_SMELL     	138
+#define A_HEAR        	140
+#define A_REMOVE1     	141
+#define A_REMOVE2     	142
+#define A_FLAP        	143
+#define A_HELP        	200
+#define A_SCORES      	201
+#define A_XYZZY			202
+
+#define debug
+
+#ifdef debug
+#define A_DXYZ        203
+#endif
+
+#define I_MAX 4 // Dinge im Inventar mit Kiste
+#define P_MAX 10 // Eintraege in EC
+
+// links rechts vorne hinten sollen nur im Raumschiff
+// moeglich sein, daher muessen sie von der
+// normalen Richtung/Aktion unterscheidbar sein
+verb("vorne",A_AHEAD,0);
+verb("gehe nach vorne",A_AHEAD,0);
+verb("hinten",A_BACK,0);
+verb("gehe nach hinten",A_BACK,0);
+verb("sitz",A_SIT1,0);
+verb("links",A_LEFT,0);
+verb("gehe nach links",A_LEFT,0);
+verb("rechts",A_RIGHT,0);
+verb("gehe nach rechts",A_RIGHT,0);
+verb("setze dich",A_SIT1,0);
+verb("setze dich hin",A_SIT1,0);
+verb("setze dich in #single",A_SIT2,0);
+verb("klettere|klettre|steige in|ins #single",A_SIT2,0);
+verb("klettere|klettre|steige aus #single",A_STAND2,0);
+verb("verlasse #single",A_STAND2,0);
+verb("setze dich auf #single",A_SIT3,0);
+verb("stehe auf",A_STAND1,0);
+verb("schaue|blicke aus|durch|durchs #noun",A_LOOKTHROUGH,0);
+verb("tippe #topic",A_TYPE,0);
+verb("drücke #noun",A_PRESS,0);
+verb("verbinde #noun mit #noun",A_CONNECT,0);
+verb("verbinde mit #noun #noun",A_CONNECT,0);
+verb("verbinde #multi",A_CONNECT,0);
+verb("binde|mache|knote #noun an|am #noun fest",A_CONNECT,0);
+verb("binde|befestige|knote #noun an|am #noun",A_CONNECT,0);
+verb("binde #noun um #noun",A_CONNECT,0);
+verb("stecke #noun in|ins #noun",A_CONNECT,0);
+verb("ziehe #single aus #noun",A_DISCONNECT,0);
+verb("trenne|löse #multi",A_DISCONNECT,0);
+verb("trenne #noun von|vom #noun",A_DISCONNECT,0);
+verb("löse #noun von|vom #noun",A_DISCONNECT,0);
+verb("laufe um #single",A_RUNAROUND,0);
+verb("verstecke dich hinter #single",A_RUNAROUND,0);
+verb("gehe in #single",A_SIT4,0);
+verb("betrete #single",A_SIT4,0);
+verb("schaue nach draußen",A_LOOKINTO);
+verb("schaue raus",A_LOOKINTO);
+verb("ziehe an|am #noun",A_PULL,0);
+verb("ziehe #single",A_PULL,0);
+verb("betätige #noun",A_PULL,0);
+verb("bewege #single",A_MOVE1,0);
+verb("schnalle dich an",A_FASTEN,0);
+verb("lege #single an",A_FASTEN,0);
+verb("klettere|klettre #single hoch",D_UP,0);
+verb("klettere|klettre an|am #single hoch",D_UP,0);
+verb("klettere|klettre auf #single",D_UP,0);
+verb("klettere|klettre hoch",D_UP,0);
+verb("klettere|klettre runter",D_DOWN,0);
+verb("schaue hoch|rauf",A_LOOKUP,0);
+verb("schaue runter|hinab",A_LOOKDOWN,0);
+verb("werfe|wirf|schmeisse #held runter|herunter",A_THROWDOWN,0);
+verb("stelle|schiebe #single unter|in #single",A_BLOCKDOOR,0);
+verb("schiebe|bewege #single weg|runter|herum",A_REMOVE1,0);
+verb("schiebe #single",A_REMOVE1,0);
+verb("schiebe|bewege #single vom|von #single runter",A_REMOVE2,0);
+verb("schiebe|bewege #single vom|von #single",A_REMOVE2,0);
+verb("lege #held unter #single",A_BLOCKDOOR,0);
+verb("setze #single auf",A_WEAR,0);
+verb("setze|nimm #single ab",A_DISROBE,0);
+verb("fluche|hüpfe|schreie|singe",A_KOLLER,0);
+//verb("iß|esse|verspeise #noun",A_EAT,0);
+verb("iß|esse #noun auf",A_EAT,0);
+verb("springe|hüpfe runter|herunter|herab",A_JUMP1,0);
+verb("springe|hüpfe von|vom #single",A_JUMP2,0);
+verb("springe|hüpfe von|vom #single runter|herunter|herab",A_JUMP2,0);
+verb("werfe|wirf|schmeisse #held nach|auf #reachable",A_THROWAT,0);
+verb("steige|gehe #noun hoch|rauf",A_STEPUP,0);
+verb("steige|gehe #noun runter",A_STEPDOWN,0);
+verb("greife|fasse in|durch #noun",A_GROPE,0);
+verb("ziehe #noun hoch",A_FLAP,0);
+verb("info #topic",A_CONSULT,0);
+verb("bete",A_PRAY,0);
+verb("trinke #single",A_DRINK,0);
+verb("schwimme in|im #single",A_SWIM,0);
+verb("tauche in|im|unter #single",A_SWIM,0);
+verb("schwimme|tauche",A_SWIM,0);
+verb("schlafe",A_SLEEP,0);
+verb("höre|horche",A_HEAR,0);
+verb("rieche",A_SMELL,0);
+verb("rieche an|am #single",A_SMELL,0);
+verb("hilfe",A_HELP,1);
+verb("xyzzy",A_XYZZY,1);
+verb("punkte",A_SCORES,1);
+#ifdef debug
+verb("dxyz",A_DXYZ,1);
+#endif
+
+
+// 0:im Raumschiff 1:auf dem Mond
+int position;
+
+void parserError(int errno, string lastWord, object lastClass) {
+	string s,noHelm="Den Helm deines Raumanzugs mußt du in diesem Spiel nicht erwähnen.";
+	switch(errno) {
+		case(0);
+			// unbekanntes Wort
+			if ((lastWord=="helm") && (spieler.scope(anzug))) {
+				s=noHelm;
+			}
+			else {
+				s="Ich kenne das Wort \"+lastWord+"\ nicht.";
+			}
+			break;
+		case(1);
+			// Klasse ausser Scope
+			if ((lastClass==helm) && (spieler.scope(anzug))) {
+				s=noHelm;
+			}
+			else {
+				s="Ich kann hier k<einen lastClass> entdecken.";
+			}
+			break;
+		case(2);
+			// #single
+			s="Dieses Verb erlaubt leider keine Aufzählungen.";
+			break;
+		case(3);
+			// #multi
+			s="Dieses Verb erfordert neben <dem lastClass> mindestens ein weiteres Objekt.";
+			break;
+		case(4);
+			// #reachable
+			s="Hierfür <mußt muß> <der actor> <den lastClass> erst ablegen.";
+			setNoun(lastClass);
+			break;
+		case(5);
+			// #held
+			s="Hierfür <mußt muß> <der actor> <den lastClass> halten.";
+			setNoun(lastClass);
+			break;
+		case(6);
+			// #inside
+			s="<Der lastClass muß müssen> sich hierfür in einem Behälter befinden.";
+			setNoun(lastClass);
+			break;
+		case(7);
+			// #function
+			s="Ich bin mir nicht sicher, was ich mit <dem lastClass> machen soll.";
+			setNoun(lastClass);
+			break;
+		case(8);
+			// nur erstes Wort erkannt, unvollstaendige Eingabe
+			s="Dieses Verb erfordert noch mindestens ein Objekt.";
+			break;
+		case(9);
+			// angesprochnenen NPC nicht gefunden
+			s="Ich kann nicht erkennen, wen du anreden möchtest.";
+			break;
+		case(10);
+			//  erstes Wort nicht erkannt
+			s="Dieses Verb kenne ich leider nicht.";
+			break;
+		case(11);
+			// sonstige Fehler beim parsen
+			s="Ich verstehe deine Eingabe leider nicht.";
+	}
+	write(s+"^");
+}
+
+// laesst Spieler nicht an Dinge ausserhalb seines Containers kommen
+int erreichbar(object x) {
+	object l1,l2;
+	int ok;
+	l1=spieler.location();
+	l2=x.location();
+	ok=(!l1.has(container)) || (l1==l2) || (l2==spieler);
+	if (!ok) {
+		write("Aus <dem l1> kannst du <den x> nicht ereichen.^");
+	}
+	return(ok);
+}
+
+void death() {
+	write("*** Du stirbst ***^");
+	quit;
+}
+
+class scoring {
+	int n[7]=(5,3,6,4,3,6,3); // Punkte fuer einzelne Aufgaben
+		int s[7]; // Einzelne Aufgabe schon geloest?
+		string tasks[7]=("Du hast den Roboter mit dem Interface verbunden und den Hilferuf empfangen (",
+		"Du bist die Raumratte losgeworden (",
+		"Du hast den Nebelmond erreicht (",
+		"Du hast den Memokristall gefunden (",
+		"Du hast die Kiste unter das Tor geschoben (",
+		"Du bist dem Untoten ausgewichen (",
+		"Du hast in der Encyclopedia gelesen (");
+	void achieved(int task) {
+		if (!s[task]) {
+			addScores(n[task]);
+			s[task]=1;
+			if (isverbose) {
+				write("^*** Damit hast du dir "+n[task]+" Punkte verdient ***^");
+			}
+		}
+	}
+	void taskList() {
+		if (scores()>0) {
+			int i;
+			for(i=0;i<7;i++) {
+				if (s[i]) {
+					write(tasks[i]+n[i]+" Punkte) ");
+				}
+			}
+			write("^Damit hast du in "+moves()+" Zügen "+scores()+" Punkte von 30 möglichen Punkten erreicht.^");
+		}
+		else {
+			write("Mit 0 Punkten bist du leider noch ein sehr erfolgloser Abenteurer.^");
+		}
+	}
+
+}
+
+void showInformation() {
+	string hints[16]=("Du mußt seine Quelle näher heranholen.^","Der Bordcomputer kann es nicht alleine entschlüsseln.^",
+		"Der Roboter im Laderaum wird dir helfen.^","Verbinde den Roboter mit dem Interface.^",
+		"Auch die Raumratte kann ohne Sauerstoff nicht leben.^","Lasse die Luft aus dem Schiff.^",
+		"Aber passe auf, daß du den Raumanzug trägst und nicht verloren gehst.^","Finde ein Hilfsmittel im Wrack auf der Lichtung.^",
+		"Versuche, mit der Frachtkiste auf den Baum zu gelangen.^","Du kannst die Sicherheitsleine an die Kiste binden.^",
+		"Wenn du im Nest bist, darf der Vogel dich nicht sehen.^","Er wird dir nicht überall folgen.^",
+		"Behalte ihn in den Augen, ohne daß er dich sieht.^","Der Laser braucht Energie, um dir gefährlich zu werden.^",
+		"Schalte den Reaktor aus.^","Aber blockiere vorher den Ausgang.^");
+	string etappe[5]=("1 Das Signal: u instrumente; lies anleitung; drücke grüne taste; s; u container; nimm kabel;
+	u robot; robot,n; n; verbinde interface mit robot; drücke blaue taste;^",
+		"2 Die Raumratte: tippe die Koordinaten ein; s; w; u anzug; ziehe anzug an; o; o; binde leine an haken; o;
+	schließe äußeres schott;^",
+		"3 Der Flug: w; n; drücke rote taste; drücke blaue taste; s; s; schließe luke; ziehe hebel; z; z; z; z;^",
+		"4 Im Sumpf: raus; sw; s; schalte scheinwerfer ein; nimm helm und kiste; n; schalte scheinwerfer aus; o; o; s;^",
+		"5 In der Kuppel: s; o; schiebe kiste unter tor; w; w; lege anzug ab; setze helm auf; schalte reaktor aus; o;
+	s; sw; o; u boden; nimm encyclopedia; w; no; n; o; s; u späher; steige in späher; schließe cockpit;
+	u encyclopedia; info Name eines bekannten Planeten; tippe die Koordinaten ein; drücke taste;
+	... und gewonnen!^");
+	string taste;
+	int i,j,k,hstart[5]=(0,4,7,11,13),hlen[5]=(4,3,4,2,3);
+	object where;
+	do {
+		i=menu(0,"Über das Spiel^Hilfe! Wie kann ich ... ?^Die Reise zum Nebelmond^\Desert Places\^Danksagungen");
+		switch(i) {
+			case(0);
+				break;
+			case(1);
+				write("Der Nebelmond ist mein Beitrag zum textfire.de-Grand Prix 2003, dem Wettbewerb für Hobby-Autoren deutscher
+					Adventurespiele. Um Weihnachten 2002 hatte ich die erste Idee zur Handlung. Dann schrieb sich
+					die Geschichte mit wechselndem Tempo fort, bis ich mich entschloß, sie zum Grand Prix einzureichen. Nach dem
+					Wettbewerb möchte ich das Spiel und seinen Quelltext zur Grundlage einer genauen Dokumentation des Floyd-Interpreters
+					machen. Neben dem Spiel wird sie sich dann auf meiner Homepage unter www.oliver-berse.de finden.^^Bevor du dich jetzt
+					mit dem Spiel in die Zukunft stürzt, lese bitte auch noch die Hinweise zur Eingabe und den wichtigsten Kommandos
+					im Hilfe-Menü des Interpreters.^^Für Fragen und Kommentare ist der Autor unter oliver.berse@ollis-stern.de zu
+					erreichen.^^Gute Unterhaltung wünscht^Oliver Berse^");
+				break;
+			case(2);
+				do {
+					j=menu(0,"Wie läßt sich das Signal entschlüsseln?^Wie werde ich die Raumratte los?^Wie gelange ich an den Kristall?^
+						Wie werde ich meinen Verfolger los?^Wie komme ich hier sicher weg?");
+					if (j>0) {
+						j--;
+						write(hlen[j]+" Hinweise  H:nächster Hinweis  Q:Zurück^^");
+						k=hstart[j];
+						do {
+							taste=getKey();
+							if (taste=="h") {
+								write(hints[k]);
+								k++;
+							}
+						} while ((k<(hstart[j]+hlen[j])) && (taste!="q"));
+						j++;
+					}
+					if ((j>0) && (taste!="q")) {
+						write("^[LEERTASTE]");
+						getKey();
+					}
+				} while (j>0);
+				break;
+			case(3);
+				write("Der kürzeste Weg durch das Spiel ist in fünf Etappen eingeteilt. Er führt nicht zur maximalen Punktzahl.
+					Deshalb schauen sich richtige Abenteurer natürlich hier und dort noch einmal genauer um.^H:nächste Etappe  Q:Zurück^^");
+				j=0;
+				do {
+					taste=getKey();
+					if (taste=="h") {
+						write(etappe[j]);
+						j++;
+					}
+				} while ((j<5) && (taste!="q"));
+				break;
+			case(4);
+				write("Sie können mich nicht schrecken mit ihren leeren Räumen^Zwischen den Sternen - auf Sternen ohne Menschen,^
+					bar von Bäumen.^Ich hab' es in mir, soviel näher am Zuhaus^Mit öden Plätzen mich zu schrecken in den Träumen.^
+					-- Robert Frost^");
+				break;
+			case(5);
+				write("Mein Dank gilt den Betatestern Jan Abor, Nikolai Geffken und Alexander Resner.^
+					Für verbleibende Probleme bin ich natürlich allein verantwortlich.^");
+				break;
+		}
+		if ((i!=0) && (i!=2) && (taste!="q")) {
+			write("^[LEERTASTE]");
+			getKey();
+		}
+		taste="";
+	} while (i>0);
+	where=spieler.room();
+	where.with(~visited);
+	where.description();
+}
+
+class maxTake:stditem {
+	int istVoll() {
+		return(kiste.in(spieler) && objectsInside(spieler)>I_MAX);
+	}
+	void nichtAufnehmen() {
+		write("<Den this> kannst du neben der Frachtkiste nicht mehr in den Händen halten.^");
+	}
+	int onAction(int action) {
+		switch (action) {
+			case(A_REMOVE1);
+				write("Das führt zu nichts.^");
+				return(1);break;
+			case(A_MOVETO);
+				if (location()!=schleuse || strstr("o",topic)!=0) {
+					return(super.onAction(A_MOVETO));
+				}
+				else {
+					write("<Der this> würde im Weltraum nur verloren gehen.^");
+				}
+				return(1);break;
+			case(A_TAKE);
+			case(A_TAKEOUT);
+				if (istVoll() && !in(spieler)) {
+					nichtAufnehmen();
+					halt(1);
+					return(1);break;
+				}
+				if (this==vorStation2ko1.blocker) {
+					vorStation2ko1.blocker=NULL;
+					with(~hidden);
+				}
+				if (this==ko22platt.blocker) {
+					ko22platt.blocker=NULL;
+					with(~hidden);
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+/*-----------------------------------------------*/
+/*  Spieler                          			*/
+/*-----------------------------------------------*/
+
+class spieler:stdcreature {
+	setShort("$Tyler Mandrill,$mich,$dich");
+	setLong("Dein Name ist Tyler Mandrill. In einer der Turmstädte auf Babel wurdest du vor mehr als vierzig Standardjahren geboren.
+		Als während des Krieges die Akademie deiner Heimatwelt den Betrieb einstellte, mußtest du das Studium der Xenobiologie aufgeben
+		und bist zur Armee gegangen. Am Kriegsende reichte der gesparte Sold gerade für das kleine Prospektorschiff Nachtfee, mit dem du
+		seither die Sternsysteme der Randzone durchstreifst.^");
+	int sitzend=1;
+	// um Spieler in Haengematte legen zu koennen: Behaelter in stditem
+	// verlangen, dass hineinlegbare Dinge takeable haben.
+	with(takeable);
+	int onAction(int action) {
+		int i,j,ok;
+		string s;
+		object x;
+		switch(action) {
+			case(A_SIT1);
+				if (!sitzend) {
+					if (location()==cockpit) {
+						sitz.onAction(A_SIT2);
+					}
+					if (location()==kabine1) {
+						matte.onAction(A_SIT2);
+					}
+					if (!sitzend) {
+						write("Hier willst du dich nicht hinsetzen.^");
+					}
+				}
+				else {
+					write("Du sitzt bereits.^");
+				}
+				return(1);
+				break;
+			case(A_STAND1);
+			case(A_STANDUP);
+				x=location();
+				if (sitzend) {
+					moveto(room());
+					sitzend=0;
+					write("Du stehst jetzt auf deinen Beinen.^");
+				}
+				else {
+					write("Du stehst bereits auf beiden Beinen.^");
+				}
+				return(1);
+				break;
+			case(A_TYPE);
+				if (room()==cockpit || location()==gleiter) {
+					ok=1;
+					j=0;
+					for (i=0;i<strlen(topic);i++) {
+						s=substr(topic,i,1);
+						if (strstr(s,"0123456789 ")<0) {
+							ok=0;
+						}
+						if (s==" ") {
+							j++;
+						}
+					}
+					if (ok && j==2) {
+						display1.k1=topic;
+						write("Das neue Sprungziel ist "+topic+".^");
+					}
+					else {
+						write("Das ist kein Koordinatentripel.^");
+					}
+					if (raumratte.zustand==1) {
+						raumratte.entdeckung();
+					}
+				}
+				else {
+					write("Hier gibt es keine Tastatur.^");
+				}
+				return(1);
+				break;
+			case(A_CONSULT);
+				encyclopedia.consult();
+				return(1);break;
+			case(A_CONNECT);
+				// wenn das Kabel nicht erwaehnt wurde
+				if (!kabel.isfirst() && !kabel.issecond()) {
+					if ((robot.isfirst() || robot.issecond()) || (interface.isfirst() || interface.issecond())) {
+						if (kabel.room()==room()) {
+							write("(mit dem Kabel)^");
+						}
+						else {
+							write("Dafür brauchst du ein Kabel.^");
+							halt(1);
+						}
+						fetch(x,x.isfirst() || x.issecond(),0) {
+							// max. 2x verbinden, Kabel kann schon in x stecken
+							if (kabel.n<2) {
+								kabel.connect(x);
+							}
+						}
+					}
+					else {
+						write("Das läßt sich nicht verbinden.^");
+					}
+
+				}
+				return(1);
+				break;
+			case(A_DISCONNECT);
+				if (!kabel.isfirst() && !kabel.issecond()) {
+					fetch(x,x.isfirst() || x.issecond(),0) {
+						kabel.disconnect(x);
+					}
+				}
+				return(1);
+				break;
+			case(A_LOOKINTO);
+				// rausschauen
+				if (in(kapsel)) {
+					luke.onAction(A_LOOKTHROUGH);
+					ok=1;
+				}
+				if (in(sitz) || in(cockpit) || in(schleuse)) {
+					fenster.onAction(A_LOOKINTO);
+					ok=1;
+				}
+				if (in(gleiter)) {
+					plattform.with(~visited);
+					plattform.description();
+					plattform.with(visited);
+					ok=1;
+				}
+				if (in(kiste)) {
+					if (!kiste.has(open)) {
+						write("(Du öffnest erst die Frachtkiste)^");
+						kiste.with(open);
+					}
+					x=kiste.location();
+					x.with(~visited);
+					x.description();
+					x.with(visited);
+					ok=1;
+				}
+				if (!ok) {
+					write("Wo möchtest du rausschauen?^");
+				}
+				return(1);
+				break;
+			case(A_EXIT);
+			case(A_ENTER);
+				// Standardroutinen uebergehen
+				x=room();
+				if (x==cockpit) {
+					return(sitz.onAction(action));
+					ok=1;
+				}
+				if (x==kabine1) {
+					return(matte.onAction(action));
+					ok=1;
+				}
+				if ((x==laderaum) || (x==kapsel) || (x==sumpf)) {
+					if ((!leine.anOese) && (!kiste.in(spieler))) {
+						if (spieler.in(kiste)) {
+							write("(Du verläßt erst die Frachtkiste)^");
+							kiste.with(open);
+							spieler.moveto(sumpf);
+						}
+						return(kapsel.onAction(action));
+					}
+					else {
+						write("Die Frachtkiste paßt nicht durch die enge Luke.^");
+					}
+					break;
+				}
+				if (x==kiste.room()) {
+					if (x!=plattform && x!=grabkammer) {
+						return(kiste.onAction(action));
+					}
+					else {
+						if (ko22platt.blocker==kiste) {
+							return(gleiter.onAction(action));
+						}
+						else {
+							// wenn kiste und gleiter auf plattform
+							x=spieler.location();
+							if (action==A_ENTER && x==plattform) {
+								write("Gib bitte an, ob du in die Kiste oder in den Gleiter
+									steigen möchtest.^");
+								return(1);
+							}
+							else {
+								if (x==gleiter) {
+									return(gleiter.onAction(action));
+								}
+								else {
+									return(kiste.onAction(action));
+								}
+							}
+						}
+					}
+					ok=1;
+				}
+				if (!ok) {
+					write("Ich weiß nicht, wo du hier rein oder raus möchtest.^");
+					return(1);
+				}
+				break;
+			case(A_LOOKUP);
+				x=room();
+				if (x.isLight()) {
+					if (x.has(wall)) {
+						waende.onAction(A_EXAMINE);
+					}
+					else {
+						if (x!=vorWrack && x!=vogelnest) {
+							write("Hoch über dir siehst du die Baumkronen, die hier und dort den Blick auf die Wolken freigeben.^");
+						}
+						else {
+							write("Du schaust in die Wolken hoch über dir.^");
+						}
+					}
+				}
+				else {
+					write(waende.zu_dunkel);
+				}
+				return(1);
+				break;
+			case(A_LOOKDOWN);
+				x=room();
+				if (x.isLight()) {
+					if (x.has(wall)) {
+						waende.onAction(A_EXAMINE);
+					}
+					else {
+						if (x==halberStamm || x==vogelnest) {
+							write("Dir wird schwindelig.^");
+						}
+						else {
+							write("Du schaust in den Sumpf.^");
+						}
+					}
+				}
+				else {
+					write(waende.zu_dunkel);
+				}
+				return(1);
+				break;
+			case(A_THROWDOWN);
+				x=room();
+				if (x==halberStamm || x==vogelnest) {
+					fetch(x,x.isfirst(),0) {
+						if (x!=spieler) {
+							if ((x==anzug || x==kiste) && (leine.anOese)) {
+								leine.anOese=0;
+							}
+							write("Du wirfst <den x> vom Baum herunter.^");
+							x.moveto(vorWrack);
+						}
+						else {
+							write("Mach das besser nicht.^");
+						}
+					}
+				}
+				else {
+					write("Das geht hier nicht.^");
+				}
+				return(1);
+				break;
+			case(A_EAT);
+				fetch(x,x.isfirst(),0) {
+					if (x!=spieler) {
+						write("<Der x sieht sehen> dir zu unbekömmlich aus.^");
+					}
+					else {
+						write("Raumkoller?^");
+					}
+				}
+				return(1);
+				break;
+			case(A_JUMP1);
+				x=location();
+				ok=0;
+				if (x==halberStamm || x==vogelnest || x==bruecke) {
+					x.onAction(A_JUMP2);
+				}
+				else {
+					write("Wo möchtest du hier runterspringen?^");
+				}
+				return(1);
+				break;
+			case(A_KOLLER);
+			case(A_KILL);
+				write("Das sind die ersten Zeichen von Raumkoller. Es wird Zeit, daß du mal wieder eine
+					Raumhafenkneipe aufsuchst.^");
+				return(1);
+				break;
+			case(A_PRAY);
+				write("Während des Krieges warst du einige Monate auf Pagan stationiert und hast die Tempelstädte besucht. Aber keiner
+					der vielen Götter, deren Kulte du dort erlebt hast, wird dir hier weiterhelfen.^");
+				return(1);break;
+			case(A_SLEEP);
+				if (in(matte)) {
+					write("Du schläfst in deiner Hängematte aus dem Fell eines Eisriesen. Bilder von endlosen Schneewüsten und
+						tiefen Schlafhöhlen tauchen vor deinen Augen auf, dann erwachst du wieder.^");
+				}
+				else {
+					s=(position==0) ? "Dafür legst du dich lieber in deine Hängematte.^":"Hier wirst du keine Ruhe finden.^";
+					write(s);
+				}
+				return(1);break;
+			case(A_SMELL);
+			case(A_HEAR);
+				x=room();
+				if (position==0) {
+					// in Schiff/Kapsel
+					s=(action==A_SMELL) ? "Die sterile Luft in Raumschiffen ist völlig geruchlos.^":
+						"Du hörst nur das leise Brummen des Triebwerks.^";
+				}
+				else {
+					// Nebelmond Kuppel
+					if (x.has(wall) && x!=imWrack) {
+						s=(action==A_SMELL) ? "Die Luft ist stickig, riecht aber nicht so stark wie draußen.^":
+							"War da nicht was?^";
+					}
+					else {
+						// Nebelmond frei
+						s=(action==A_SMELL) ? "Ein unangenehmer Modergeruch liegt über dem Sumpf.^":
+							"Du hörst die Laute fremder Tiere, mal ganz fern und leise, dann schriller und näher. Aber
+							die Tiere selbst zeigen sich nicht.^";
+					}
+				}
+				write(s);
+				return(1);break;
+			case(A_DRINK);
+				write("Warte damit besser, bis du wieder in einer Raumhafenkneipe bist.^");
+				return(1);break;
+			case(A_SWIM);
+				write("Du bist ein Raumfahrer, kein Matrose.^");
+				return(1);break;
+			case(A_SCORES);
+				scoring.taskList();
+				return(1);break;
+			case(A_HELP);
+				showInformation();
+				return(1);break;
+			case(A_XYZZY);
+				write("Wer bis du? Was machst du hier?^");
+				return(1);break;
+			case(A_VERSION);
+				write("Der Nebelmond^Version "+serial()+" Geschrieben 2003 von Oliver Berse^");
+				return(1);break;
+			case(A_AHEAD);
+			case(A_BACK);
+				// vorne/hinten in Nord/Sued umsetzen
+				if (action!=A_LOOK) {
+					if (position==0) {
+						if (action==A_AHEAD) {
+							action=D_NORTH;
+						}
+						if (action==A_BACK) {
+							action=D_SOUTH;
+						}
+					}
+					else {
+						write("Benutze hier bitte die normalen Richtungsangaben wie Norden, Süden usw.^");
+						return(1);
+						break;
+					}
+				}
+			case(A_LEFT);
+			case(A_RIGHT);
+				// links/rechts in West/Ost umsetzen
+				if (action!=A_LOOK) {
+					if (position==0) {
+						if (action==A_LEFT) {
+							action=D_WEST;
+						}
+						if (action==A_RIGHT) {
+							action=D_EAST;
+						}
+					}
+					else {
+						write("Benutze hier bitte die normalen Richtungsangaben wie Westen, Osten usw.^");
+						return(1);
+						break;
+					}
+				}
+			case(D_NORTH);
+			case(D_NORTHEAST);
+			case(D_EAST);
+			case(D_SOUTHEAST);
+			case(D_SOUTH);
+			case(D_SOUTHWEST);
+			case(D_WEST);
+			case(D_NORTHWEST);
+			case(D_UP);
+			case(D_DOWN);
+				x=location();
+				if ((action<=D_DOWN) && ((x==sitz) || (x==matte) || (x==kiste) || (x==gleiter))) {
+					if (x==sitz) {
+						s="dem Pilotensitz";
+						moveto(cockpit);
+					}
+					if (x==matte) {
+						s="der Hängematte";
+						moveto(kabine1);
+					}
+					if (x==kiste) {
+						s="der Frachtkiste";
+						moveto(kiste.location());
+						kiste.with(open);
+					}
+					if (x==gleiter) {
+						s="dem Späher";
+						moveto(plattform);
+						gleiter.with(open);
+					}
+					write("(Du kletterst erst aus "+s+")^");
+					sitzend=0;
+					return(super.onAction(action));
+					break;
+				}
+				if (x==schleuse) {
+					if (action==D_EAST) {
+						i=schleuse2weltraum.vakuum;
+						if (!schleuse2weltraum.has(open)) {
+							ok=schleuse2weltraum.onAction(A_OPEN);
+						}
+						if (i==schleuse2weltraum.vakuum && schleuse2weltraum.has(open)) {
+							if (leine.amHaken) {
+								write("Du unternimmst einen kurzen Weltraumspaziergang. Um an das Trümmerfeld zu gelangen, ist die
+									Sicherheitsleine aber zu kurz, so kehrst wieder um.^");
+							}
+							else {
+								write("Du begibst dich in den offenen Weltraum und entfernst dich von der Nachtfee. Hilflos paddelst du in
+									der Schwerelosigkeit, aber jede Bewegung entfernt dich nur noch weiter von deinem Schiff. Noch bevor es
+									in dem Raumanzug zu kalt wird, ist dein Sauerstoffvorrat verbraucht.^");
+								death();
+							}
+						}
+						return(1);
+						break;
+					}
+					if (action==D_WEST) {
+						draussen.moveto(cockpit);
+						schrott1.moveto(cockpit);
+						if (leine.amHaken) {
+							write("(Du trennst erst die Sicherheitsleine von dem Karabinerhaken)^");
+							leine.amHaken=0;
+						}
+					}
+				}
+				// rein/raus fuer Kapsel
+				if (kapsel.location()==NULL) {
+					write(kapsel.nogo);
+					return(1);
+					break;
+				}
+				if (x==laderaum && action==D_SOUTH) {
+					return(kapsel.onAction(A_SIT1));
+					break;
+				}
+				if ((location()==kapsel) && (action<=D_DOWN)) {
+					if ((action==D_NORTH) && (position==0 || kapsel.in(laderaum))) {
+						return(kapsel.onAction(A_STAND1));
+						break;
+					}
+					else {
+						write("Du mußt erst die Rettungskapsel verlassen.^");
+						return(1);
+						break;
+					}
+				}
+				// Kiste hinterherziehen
+				if ((action<=D_DOWN) && (leine.anOese) && (anzug.in(spieler)) && (kiste.location()==spieler.location())) {
+					kiste.ziehen(action);
+				}
+				if ((action==D_UP || action==D_DOWN) && (kiste.in(spieler))) {
+					s="Mit der großen Frachtkiste in den Händen kannst du unmöglich den Baum ";
+					s+=(action==D_UP) ? "hochklettern.^" : "herabklettern.^";
+					write(s);
+					return(1);
+					break;
+				}
+				if ((x==sumpf) && (action<=D_DOWN)) {
+					// Baeume im Sumpf hochklettern
+					if (action==D_UP) {
+						return(staemme.onAction(D_UP));
+						break;
+					}
+					else {
+						// SuedWest und Sued suchen lassen
+						if ((action!=D_SOUTHWEST) && (action!=D_SOUTH)) {
+							write("Orientierungslos irrst du durch den Sumpf und den Nebel. Erst als du wieder die Rettungskapsel
+								siehst, merkst du, daß du nur im Kreis gelaufen bist. Aber vielleicht versuchst du es noch mit
+								einer anderen Richtung.^");
+							return(1);
+							break;
+						}
+					}
+				}
+				if ((location()==imWrack) && (action==D_WEST) && (!imWrack.isLight())) {
+					write("Hier geht's nicht weiter.^");
+					return(1);
+					break;
+				}
+			default;
+				ok=super.onAction(action);
+				x=location();
+				if ((x==vorWrack) || (x==halberStamm) || (x==vogelnest)) {
+					baum.moveto(x);
+					aeste.moveto(x);
+				}
+				// Kiste hinterherschleppen
+				if ((leine.anOese) && (anzug.in(spieler)) && (!kiste.in(spieler) && (!spieler.in(kiste)))) {
+					kiste.moveto(x);
+				}
+				return(ok);
+		}
+	}
+}
+
+class zombie:stdcreature {
+	setShort("+Mann,+Zombie,+Untote,+Säbel");
+	setLong("Der Mann trägt die dunkle Uniform der Flotte. Sie ist zerrissen und läßt dich seine furchtbaren Verletzungen
+		sehen. Verletzungen, an denen der Mann schon vor langer Zeit gestorben sein muß, und mit denen kein Mensch mehr einen
+		Säbel führen kann.^");
+	with(hidden,~underground);
+	string verfolgung[3]=("^Die irrsinnigen Blicke des Mannes verfolgen dich.^",
+		"^Der Mann starrt dich mit aufgerissenen Augen an und kommt dir mit seiner Klinge bedrohlich nahe.^",
+		"^Nur noch eine Armlänge trennt dich von dem Mann.^"),
+		warnung[4]=("^Da! Ein leises Wimmern, du hörst es deutlich.^","^Hat da jemand gegen das Tor geschlagen?^",
+		"^Du bleibst starr stehen! Schritte hallen durch die steinernen Gänge.^",
+		"^Metall klirrt gegen Stein, es ist deutlich zu hören.^");
+	int z,n;
+	object where;
+	// Spieler in Kuppel verfolgen
+	// z: 0:nur hoeren 1:Zombie erscheint >1:von Zombie verfolgt
+	void daemon() {
+		if (z>0) {
+			if (spieler.location()!=where && z>1) {
+				write("^Der Mann mit dem Säbel folgt dir langsam.");
+			}
+			where=spieler.location();
+			moveto(where);
+			if (z==1) {
+				write("^Säbel sind altertümliche Waffen, und du hast in der Armee nur wenige Male welche gesehen. Der Mann, der
+					einige Meter vor dir auftaucht, ist schrecklich zugerichtet, hält den Säbel aber sicher in seiner Hand. Du ahnst
+					sofort, daß er damit besser umgehen kann als du.^");
+			}
+			else {
+				if (where.has(light) || (scheinwerfer.has(light) && anzug.room()==spieler.room())) {
+					// Spieler hat bei Licht 3 Runden, um den Helm aufzusetzen
+					if (z<5) {
+						write(verfolgung[z-2]);
+					}
+					else {
+						write("^Verzweifelt versuchst du, dem Mann auszuweichen, aber schon sein erster Streich trifft dich.^");
+						death();
+					}
+				}
+				else {
+					if (helm.has(worn)) {
+						write("^In der Finsternis kann sich der Mann nicht orientieren und tastet mit dem Säbel langsam um sich.
+							Du preßt dich vorsichtig gegen die durch das Nachtsichtgerät grün schimmernde Wand und weichst ihm aus.
+							Erst als du seine Schritte nicht mehr hörst, atmest du wieder.^");
+						scoring.achieved(5);
+						stopDaemon();
+						z=-1;
+					}
+					else {
+						write("^Du kannst dem Mann in der Finsternis nicht ausweichen und stolperst blind in seine Klinge.^");
+						death();
+					}
+				}
+			}
+			z++;
+		}
+		else {
+			if (random(5)==0) {
+				write(warnung[n]);
+				n=(n<3) ? n+1 : 0;
+			}
+		}
+	}
+	int onAction(int action) {
+		if (name()<3) {
+			object x;
+			int ok;
+			switch(action) {
+				case(A_THROWAT);
+					if (issecond()) {
+						ok=1;
+						fetch(x,x.isfirst(),0) {
+							if (x.has(worn)) {
+								x.with(~worn);
+							}
+							write("<Der x> trifft deinen Verfolger am Kopf und fällt zu Boden. Den Mann irritiert das überhaupt nicht.^");
+							x.moveto(spieler.room());
+						}
+					}
+					return(ok);break;
+				case(A_KILL);
+					write("Wie du befürchtet hast, ist der Mann schon lange tot.^");
+					return(1);break;
+				case(A_DROPINTO);
+				case(A_KISS);
+				case(A_TOUCH);
+				case(A_SMELL);
+					write("Überleg's dir doch noch einmal.^");
+					return(1);break;
+				case(A_ASK);
+				case(A_TELL);
+					write("Undeutlich dringen aus dem Mund des Mannes einige Worte einer Sprache, die du noch nie gehört hast.^");
+					return(1);break;
+				case(A_EXAMINE);
+				case(A_LOOKON);
+					if (z==0) {
+						write("Er ist doch schon weg. Beeile dich besser, bevor er wiederkommt.^");
+						return(1);break;
+					}
+				default;
+					return(super.onAction(action));
+			}
+		}
+		else {
+			if (action==A_EXAMINE) {
+				write("Die Klinge ist schon etwas rostig, was sie in den Händen des Untoten aber nicht weniger gefährlich macht.^");
+			}
+			else {
+				write("Du mußt dem Säbel nur entkommen, sonst ist er nicht weiter wichtig.^");
+			}
+			return(1);
+		}
+	}
+	int onOrder(int action) {
+		write("Der Mann befolgt deine Anweisungen nicht. Aber aus freien Stücken läuft er hier auch nicht herum.^");
+		return(1);
+	}
+	void stop() {
+		if (z>1) {
+			write("^Dein unheimlicher Verfolger scheint die Kuppel nicht verlassen zu wollen.^");
+		}
+		stopDaemon();
+		z=0;
+	}
+}
+
+/*-------------------------------------------------------*/
+/* Verbindungen                           */
+/*-------------------------------------------------------*/
+
+class cockpit2laderaum:stdexit {
+	setShort("+Durchgang");
+	with(hidden,detail);
+}
+
+class laderaum2schleuse:stdexit {
+	setShort("inner* Schleusenschott,inner* Schott,-inner* Schleusentür,inner* Schleusentor");
+	with(openable,closeable,~open,schott,~underground);
+	int onAction(int action) {
+		switch(action) {
+			case(A_OPEN);
+				if (schleuse2weltraum.vakuum==1) {
+					schleuse2weltraum.oeffneSchotte(1);
+					return(1);
+					break;
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class schleuse2weltraum:stdexit {
+	setShort("äußer* Schleusenschott,äußer* Schott,-äußer* Schleusentür,äußer* Schleusentor");
+	with(hidden,openable,closeable,~open,schott,~underground);
+	int vakuum,ok;
+	void oeffneSchotte(int schott) {
+		if (schott==1) {
+			laderaum2schleuse.with(open);
+		}
+		else {
+			schleuse2weltraum.with(open);
+		}
+		vakuum=2;
+		write("Als beide Schotte offen sind, sinkt der Luftdruck an Bord schlagartig auf Null.
+			Dabei entsteht ein so starker Sog, daß du durch das äußere Schott aus dem Schiff gerissen
+			wirst. ");
+		if (raumratte.zustand==2) {
+			write("Kurz siehst du auch den toten Körper der erstickten Raumratte an deinem Helm vorbeifliegen.^");
+			ok=1;
+			raumratte.zustand=3;
+			raumratte.stopDaemon();
+			raumratte.moveto(weltraum);
+		}
+		if (leine.amHaken) {
+			write("An der Sicherheitsleine ziehst du dich wieder in die Schleuse.^");
+			if (robot.location()==schleuse) {
+				write("Der kleine Roboter ist bei dem Druckabfall knapp neben dem äußeren Schott gegen
+					die Wand geknallt, scheint aber keinen Schaden genommen zu haben.^");
+			}
+			if (ok) {
+				scoring.achieved(1);
+			}
+		}
+		else {
+			write("Hilflos ruderst du mit Armen und Beinen in der Schwerelosigkeit. Mit jeder Bewegung
+				entfernst du dich weiter von der Nachtfee, und dein Sauerstoffvorrat geht langsam zur Neige.^");
+			death();
+		}
+	}
+	int onAction(int action) {
+		string s;
+		switch(action) {
+			case(A_CLOSE);
+				if (has(open)) {
+					s=(vakuum==1) ? "die Schleuse" : "das Schiff";
+					write("Als du das Schott verriegelst, läßt der Bordcomputer wieder Sauerstoff in "+s+" pumpen.^");
+					with(~open);
+					vakuum=0;
+				}
+				else {
+					write("Das äußere Schleusenschott ist bereits geschlossen.^");
+				}
+				return(1);
+				break;
+			case(A_OPEN);
+				if (!has(open)) {
+					if (anzug.has(worn)) {
+						draussen.moveto(schleuse);
+						schrott1.moveto(schleuse);
+						if (laderaum2schleuse.has(open)) {
+							oeffneSchotte(2);
+						}
+						else {
+							write("Mit einem leichten Sog entweicht die Luft aus der Schleuse, als du das äußere Schott öffnest.^");
+							with(open);
+							vakuum=1;
+						}
+					}
+					else {
+						write("Hinter dem Schott liegt der eisige und luftleere Weltraum. Du trägst keinen Raumanzug und hängst
+							noch an deinem Leben.^");
+					}
+					return(1);
+					break;
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class laderaum2kabine1:stdexit {
+	setShort("+Durchgang");
+	with(hidden,detail);
+}
+
+class sumpf2wrack:stdexit {
+}
+
+class sumpf2pfad:stdexit {
+}
+
+class pfad2bruecke:stdexit {
+	setShort("+Pfad");
+	with(hidden,detail,~underground);
+	void init() {
+		setLong(pfad.hinweis);
+	}
+}
+
+class wrack2stamm:stdexit {
+}
+
+class stamm2nest:stdexit {
+}
+
+class wrack2pfad:stdexit {
+	setShort("+Pfad");
+	with(hidden,detail,~underground);
+	void init() {
+		setLong(pfad.hinweis);
+	}
+}
+
+class vorwrack2imwrack:stdexit {
+}
+
+class wrack2weltraum:stdexit {
+	setShort("-Tür");
+	setLong("Die Tür ist geschlossen, und weil es in dem Wrack schon lange keine Energie mehr gibt, wird sie das auch bleiben.^");
+	with(locked,~open,~underground);
+	int onAction(int action) {
+		switch(action) {
+			case(A_OPEN);
+				write("Der Schiffsreaktor arbeitet nicht mehr, und ohne Energie wird sich die Tür nicht öffnen.^");
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class bruecke2vorStation:stdexit {
+}
+
+class vorStation2ko1:stdexit {
+	setShort("Tor,Metalltor,&Tore");
+	string hinweis[4]=("Das Tor bleibt geschlossen, weil du den Reaktor ausgeschaltet hast.^",
+		"Es dauert ein paar Minuten, bis du dich unter dem Tor durchgezwängt hast. Ohne den dicken Raumanzug wäre es etwas einfacher
+		gewesen.^",
+		"Du zwängst dich unter dem Tor hindurch.^",
+		"Mit dem dicken Raumanzug kommst du nicht schnell genug unter dem Tor durch. Als du gerade mit deinem Kopf durch bist,
+		spürst du den Säbel deines unheimlichen Verfolgers.^");
+	object blocker;
+	with(~open);
+	void blockade() {
+		object where;
+		where=spieler.room();
+		if (where==from || where==to) {
+			if (blocker==NULL) {
+				write("Das Tor schließt sich wieder.^");
+			}
+			else {
+				// wenn blocker noch unter tor liegt
+				if (blocker.location()==from || blocker.location()==to) {
+					if (blocker==kiste) {
+						write("Das Tor schiebt sich langsam herunter und kommt auf der Frachtkiste zum Stehen. Der Spalt zwischen Tor
+							und Boden ist gerade hoch genug, um hindurchzukriechen.^");
+					}
+					else {
+						write("Das Tor schließt sich und schiebt <den blocker> zur Seite.^");
+						blocker.moveto(where);
+						blocker=NULL;
+					}
+				}
+				else {
+					write("Das Tor schließt sich wieder.^");
+					blocker=NULL;
+				}
+			}
+			if (blocker!=NULL) {
+				blocker.moveto(where);
+			}
+		}
+		with(~open);
+	}
+	int onAction(int action) {
+		object x,where;
+		switch(action) {
+			case(A_OPEN);
+			case(A_CLOSE);
+				if (!has(blocked)) {
+					write("Du brauchst dieses Tor nicht zu öffnen und zu schließen. Es ist mit einem Bewegungsmelder ausgestattet und
+						funktioniert automatisch.^");
+				}
+				else {
+					if (action==A_OPEN) {
+						write(hinweis[0]);
+					}
+					else {
+						write("Das Tor ist bereits geschlossen.^");
+					}
+				}
+				return(1);
+				break;
+			case(A_EXAMINE);
+			case(A_LOOKON);
+				if (!has(blocked)) {
+					if (blocker!=NULL) {
+						write("Unter dem Tor liegt <der blocker>.^");
+					}
+					else {
+						write("Das schwere Metalltor wurde offenbar von Menschen eingebaut. Du kannst keinen Hebel oder Schalter
+							entdecken, um das Tor zu öffnen und zu schließen. Es ist mit einem Bewegungsmelder ausgestattet und
+							funktioniert automatisch.^");
+					}
+				}
+				else {
+					if (blocker==kiste) {
+						write("Zwischen dem Tor und dem Boden ist die Frachtkiste eingeklemmt. Das Tor kann sich erst wieder öffnen,
+							wenn du den Reaktor einschaltest. Der Spalt zwischen Tor und Boden ist aber gerade groß genug,
+							um hindurchzukriechen.^");
+					}
+					else {
+						write("Dieses Tor öffnet und schließt sich automatisch. Weil du aber den Reaktor ausgeschaltet hast, bleibt es
+							geschlossen.^");
+					}
+				}
+				return(1);
+				break;
+			case(A_BLOCKDOOR);
+			case(A_DROPINTO);
+				if (!isfirst()) {
+					if (blocker==NULL) {
+						if (has(open) || reaktor.has(on)) {
+							where=spieler.room();
+							fetch(x,x.isfirst(),0) {
+								blocker=x;
+								if (blocker==kiste && leine.anOese) {
+									write("(Du trennst erst die Sicherheitsleine von der Frachtkiste)^");
+									leine.anOese=0;
+								}
+								if (!has(open)) {
+									write("Das Tor öffnet sich, als du dich mit <dem x> näherst.^");
+									where.startTimer(1);
+									with(open);
+								}
+								write("<Der blocker> liegt jetzt unter dem Tor.^");
+								if (blocker==kiste) {
+									scoring.achieved(4);
+								}
+								blocker.moveto(where);
+							}
+						}
+						else {
+							write(hinweis[0]);
+						}
+					}
+					else {
+						write("Unter dem Tor liegt schon <der blocker>.^");
+					}
+				}
+				else {
+					write("Versuche es doch einmal umgekehrt.^");
+				}
+				return(1);
+				break;
+			case(A_TAKEOUT);
+				if (issecond()) {
+					fetch(x,x.isfirst(),0) {
+						if (x==blocker) {
+							blocker=NULL;
+							x.onAction(A_TAKE);
+						}
+					}
+				}
+				else {
+					write("Das Tor befindet sich nur in der Mauer.^");
+					halt(1);
+				}
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+	int licht() {
+		return(has(open) || blocker==kiste);
+	}
+	string zeigeBlocker(int z) {
+		string s;
+		if (z) {
+			if (blocker!=NULL) {
+				s="<Ein blocker> liegt unter dem Tor.^";
+				blocker.with(hidden);
+			}
+		}
+		else {
+			if (blocker!=NULL) {
+				blocker.with(~hidden);
+			}
+		}
+		return(s);
+	}
+}
+
+class ko12reaktor:stdexit {
+	setShort("&Durchgänge,+Durchgang");
+	with(hidden,detail);
+}
+
+class ko12ko2:stdexit {
+}
+
+class ko12grab:stdexit {
+}
+
+class ko22platt:vorStation2ko1 {
+	setShort("Tor,Metalltor,&Tore");
+}
+
+class grab2ko4:stdexit {
+}
+
+class ko42unterkunft:stdexit {
+	with(~open);
+}
+
+/*-------------------------------------------------------*/
+/* Raeume                               */
+/*-------------------------------------------------------*/
+
+class cockpit:stdroom {
+	setShort("Cockpit");
+	setLong("Das kleine Cockpit der Nachtfee wird von einem Pilotensitz und einem Instrumentenpult ausgefüllt. Ein breites
+		Fenster läßt dich einen Blick über zwei Greifarme hinaus in das All werfen. Hinter dem Pilotensitz befindet sich der
+		Durchgang zum Laderaum.^");
+	with(wall);
+	void init() {
+		addExit(D_SOUTH,laderaum,cockpit2laderaum);
+	}
+	void description() {
+		super.description();
+		if (kabel.robot_interface()) {
+			write("Das Kabel verbindet den Roboter mit dem Interface des Bordcomputers.^");
+		}
+	}
+}
+
+class laderaum:stdroom {
+	setShort("+Laderaum");
+	with(wall);
+	void init() {
+		addExit(D_WEST,kabine1,laderaum2kabine1);
+		addExit(D_EAST,schleuse,laderaum2schleuse);
+	}
+	void description() {
+		if (spieler.location()!=kapsel) {
+			string s="Deine Ausbeute der Schlachtfelder auf Ares hast du gestern verkauft und bist zum Charon-System aufgebrochen.
+				Was du hier bisher gefunden hast, liegt in einem großen Container.";
+			if (robot.location()==laderaum) {
+				s=s+" Neben dem Container steht ein kleiner Roboter.";
+			}
+			s=s+"^Durchgänge führen vorne in das Cockpit und links in deine Kabine. Das innere Schott der Luftschleuse liegt rechts,
+				und am hinteren Ende des Laderaums gelangst du in die Rettungskapsel.^";
+			setLong(s);
+			super.description();
+		}
+		else {
+			kapsel.onAction(A_EXAMINE);
+		}
+	}
+}
+
+class schleuse:stdroom {
+	setShort("-Luftschleuse,-Schleuse");
+	with(wall);
+	void init() {
+		addExit(D_EAST,weltraum,schleuse2weltraum);
+	}
+	void description() {
+		string s1="Die Luftschleuse ist breit genug, um auch größere Schrotteile in den Laderaum zu bringen.";
+		string s2,s3;
+		s2=(laderaum2schleuse.has(open)) ? "offen" : "geschlossen";
+		s3=(schleuse2weltraum.has(open)) ? "offen" : "geschlossen";
+		s1+=" Das innere Schleusenschott links ist "+s2+". Das äußere Schleusenschott rechts ist "+s3+". Neben dem äußeren
+			Schott ist ein Karabinerhaken angebracht.^";
+		if (leine.amHaken) {
+			s1+=leine.wennFestgebunden;
+		}
+		setLong(s1);
+		super.description();
+	}
+	int onAction(int action) {
+		switch(action) {
+			case(A_OPEN);
+			case(A_CLOSE);
+				if (spieler.in(laderaum)) {
+					return(laderaum2schleuse.onAction(action));
+				}
+				break;
+
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+// nur fuer Verbindung der Schleuse nach Osten
+// und des Wracks nach Westen
+class weltraum:stdroom {
+}
+
+class kabine1:stdroom {
+	setShort("Kabine");
+	with(wall);
+	void description() {
+		string s="Wenn du die Nachtfee nicht gerade durch interstellare Trümmerfelder steuerst oder deine Fundstücke auf den
+			Märkten der Randzone verkaufst, hältst du dich in deiner Kabine auf. In ihr stapeln sich Erinnerungsstücke von vielen
+			Welten und Menschen, gefundene Artefakte fremder Völker, deren Funktion dir ein Rätsel ist, und viele weitere Dinge,
+			die dir die Zeit im All nicht langweilig werden lassen. In einer Ecke der Kabine baumelt eine Hängematte. ";
+		if (objectsInside(matte)>0) {
+			s+=contentList(matte,"liegt","liegen",1)+".^";
+		}
+		s+="Rechts führt ein Durchgang in den Laderaum.^";
+		setLong(s);
+		super.description();
+	}
+}
+
+class sumpf:stdroom {
+	setShort("Sumpf");
+	int first1=1,first2=1;
+	void init() {
+		addExit(D_SOUTHWEST,vorWrack,sumpf2wrack);
+		addExit(D_SOUTH,pfad,sumpf2pfad);
+	}
+	void description() {
+		string s;
+		if (first1) {
+			s="Die Rettungskapsel ist in einem Sumpfgebiet heruntergekommen. ";
+			first1=0;
+		}
+		if (spieler.in(sumpf)) {
+			s+="Bis zu den Knien stehst du in einer warmen, grünbraunen Brühe, aus der sich ein Labyrinth aus Wurzeln,
+				Baumstämmen und großen Blättern fremdartiger Pflanzen erhebt. Nur wenig Licht dringt durch das hohe
+				Blätterdach der Bäume herab. Dichte Nebelschwaden erschweren die Orientierung zusätzlich.^";
+		}
+		else {
+			s+="Dicke Baumstämme und Wurzeln ragen vor der Luke aus dem Sumpf. Mehr läßt dich der dichte Nebel nicht erkennen.^";
+		}
+		if (first2 && spieler.in(sumpf)) {
+			with(~visited);
+			s+="Die Rettungskapsel hat bei der Landung zahllose Vögel in den Baumkronen aufgeschreckt. Hoch über dir fliegen
+				sie nun wild und laut durcheinander.^";
+			first2=0;
+		}
+		else {
+			if (spieler.in(sumpf)) {
+				s+="Deine Rettungskapsel liegt hier halb im Sumpf versunken.^";
+			}
+		}
+		setLong(s);
+		super.description();
+	}
+}
+
+class vorWrack:stdroom {
+	setShort("Lichtung");
+	void init() {
+		addExit(D_UP,halberStamm,wrack2stamm);
+		addExit(D_EAST,pfad,wrack2pfad);
+		addExit(D_SOUTH,imWrack,vorwrack2imwrack);
+	}
+	void description() {
+		string s;
+		if (!has(visited)) {
+			s="Zuerst entdeckst du die Lichtung, auf der nur wenige kleine Bäume stehen. Dann gibt der Nebel vor dir
+				das Wrack des Raumschiffs frei, das bei seiner Notlandung diese Schneise in den Wald geschlagen haben muß.
+				Deutlich ist auf dem langen Rumpf noch der Name des Schiffes zu lesen: Erebus. Das Wrack liegt auf der Seite.
+				Einige verschlossene Schleusentüren liegen unerreichbar hoch, aber südlich von dir durchzieht ein Riß den Rumpf,
+				durch den du in das Wrack gelangen kannst.";
+		}
+		else {
+			s="Das Wrack der Erebus liegt hier auf der Lichtung, die das Schiff bei seiner Notlandung geschlagen hat. Südlich
+				von dir durchzieht ein Riß den Rumpf, durch den du in das Wrack gelangen kannst.";
+		}
+		s+=" Nicht weit davon entfernt steht ein hoher Baum, der bei der Bruchlandung nicht umgerissen wurde. Irgendwo im Nordosten
+			liegt deine Rettungskapsel im Sumpf, und ein schmaler Pfad führt in den Osten.^";
+		setLong(s);
+		super.description();
+	}
+}
+
+class imWrack:stdroom {
+	setShort("Wrack");
+	with(~light,wall,~underground);
+	int first=1,licht;
+	void description() {
+		string s1,s2;
+		s1=(kiste.has(open)) ? "offene" : "geschlossene";
+		licht=isLight();
+		if (licht) {
+			s2="Ein Feuer muß in der Erebus gewütet haben, die Wände dieses großen Raumes sind rußgeschwärzt. Eine geschlossene
+				Tür im Westen führt tiefer in das Wrack.^";
+			if (first) {
+				if ((helm.in(imWrack)) && (kiste.in(imWrack))) {
+					s2+="Auf dem Boden liegen eine "+s1+" Frachtkiste und ein Helm, der wohl einmal zu einem Kampfanzug der Flotte
+						gehörte.^";
+				}
+				else {
+					if (helm.in(imWrack)) {
+						s2+="Auf dem Boden liegt ein Helm, der wohl einmal zu einem Kampfanzug der Flotte gehörte.^";
+					}
+					if (kiste.in(imWrack)) {
+						s2+="Auf dem Boden liegt eine "+s1+" Frachtkiste.^";
+					}
+				}
+			}
+			setLong(s2);
+		}
+		else {
+			darkness="Wrack^Du stehst in einem größeren Raum des Wracks, aber durch den Riß in der Schiffswand im Norden dringt zu wenig
+				Licht, um hier Details erkennen zu können.^";
+		}
+		super.description();
+		if (first && licht) {
+			first=0;
+			kiste.with(~hidden);
+			helm.with(~hidden);
+		}
+	}
+	void init() {
+		addExit(D_WEST,weltraum,wrack2weltraum);
+	}
+}
+
+class halberStamm:stdroom {
+	setShort("Baumstamm");
+	setLong("Du klammerst dich an einen dicken Ast auf halber Höhe zwischen der Erde und dem Baumwipfel. Das Dickicht aus
+		Ästen und Blättern über dir ist nicht zu durchblicken.^");
+	void init() {
+		addExit(D_UP,vogelnest,stamm2nest);
+	}
+	int onAction(int action) {
+		switch(action) {
+			case(A_JUMP2);
+				write("Dafür bist du auf diesem Ast schon zu hoch.^");
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+	void goto(int dir, object item) {
+		if (dir==D_UP && vogelnest.vogel) {
+			vogelnest.startTimer(5);
+		}
+		super.goto(dir,item);
+	}
+}
+
+class vogelnest:stdroom {
+	setShort("Vogelnest,Nest");
+	// vogel: 1:kommt nach 5 Runden im Nest 0:war schon da
+	int vogel=1;
+	string warnung="Du näherst dich lieber nicht den Eiern und dem Kristall. Ein Vogel ist hier zwar nicht zu sehen, aber trotzdem.
+		Manche Tiere können sehr aggressiv werden, wenn man ihrem Nachwuchs zu nahe kommt.^";
+	void description() {
+		string s="Du hast in schwindelerregender Höhe die Baumkrone erreicht und hockst jetzt in einem runden Geflecht aus Ästen und
+			Blättern, das offensichtlich künstlich angelegt wurde. Als du die drei blauen Eier siehst, gibt es keinen Zweifel mehr:
+			dies ist ein Vogelnest. In jedem der Eier haben zwei Menschenkinder Platz, und du kennst keine Vögel, die so große Nester
+			bauen.";
+		if (kristall.in(vogelnest)) {
+			if (!has(visited) || isverbose) {
+				kristall.with(hidden);
+			}
+			s+=" Aber du denkst nicht mehr an fremde Tiere, als du zwischen den Eiern einen kopfgroßen, rot funkelnden Memokristall
+				liegen siehst.^";
+		}
+		else {
+			s+="^";
+		}
+		setLong(s);
+		super.description();
+	}
+	int onAction(int action) {
+		switch(action) {
+			case(A_JUMP2);
+				write("Das Nest liegt mindestens achtzig Meter über dem Boden, überleg's dir noch einmal.^");
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+	void goto(int dir, object item) {
+		if (dir==D_DOWN && vogel) {
+			stopTimer();
+		}
+		super.goto(dir,item);
+	}
+	void timeout() {
+		if ((spieler.in(kiste)) && (!kiste.has(open))) {
+			write("Du hörst plötzlich das Schlagen von großen Flügeln, dann ein lautes Krähen. Etwas kratzt gegen dein Versteck, aber
+				es bleibt geschlossen. Erst viele Minuten später wird es wieder ruhig.^");
+			vogel=0;
+		}
+		else {
+			write("Ein Schatten fällt über das Nest, und für einen Augenblick siehst du, wie groß die Vögel auf dem Nebelmond werden.
+				Dann wirst du auch schon von scharfen Krallen zerrissen.^");
+			death();
+		}
+	}
+}
+
+class pfad:stdroom {
+	setShort("+Pfad");
+	setLong("Ein schmaler Pfad verläuft hier vom Westen her weiter nach Osten in den Sumpf. Im Westen endet er auf einer Lichtung, und
+		irgendwo im Norden muß deine Rettungskapsel im Sumpf liegen.^");
+	string hinweis="Du weißt nicht, wer ihn angelegt hat, aber er weist dir den Weg durch den Sumpf.^";
+	void init() {
+		addExit(D_EAST,bruecke,pfad2bruecke);
+	}
+}
+
+class bruecke:stdroom {
+	setShort("-Brücke,&Mauern");
+	int first=1;
+	void description() {
+		string s="Auf niedrigen Pfeilern führt eine schmale steinerne Brücke über den Sumpf. Links und rechts wird sie von Mauern
+			begrenzt, die dir gerade bis zu den Knien reichen. Die Brücke ist aus kleinen grauen Steinen erbaut, die von einem
+			schwarzen Mörtel zusammengehalten werden. ";
+		if (first) {
+			s+="Sie sind stark verwittert, und wo sie nicht von Pflanzen überwachsen sind, geben sie etwas frei, das du zuerst für
+				Zweige und Holzstäbchen hältst, obwohl sich totes Holz in der Feuchtigkeit und Hitze des Sumpfes nicht lange halten
+				kann. Ein genauerer Blick zeigt dir, daß zwischen den Steinen unzählige kleine Knochen eingemauert sind.^";
+		}
+		else {
+			s+="Zwischen den verwitterten Steinen ragen die schwarzen Knochen kleiner, fremdartiger Wesen hervor.^";
+		}
+		s+="Die Brücke führt weiter nach Süden in den Sumpf und den Nebel. Im Westen endet sie und wird von einem Pfad
+			fortgesetzt.^";
+		if (!imWrack.has(visited) && first) {
+			s+="Dein Gespür für Gefahr sagt dir, daß du besser noch einmal umkehren solltest.^";
+		}
+		setLong(s);
+		super.description();
+		first=0;
+	}
+	void goto(int dir, object item) {
+		if (dir==D_SOUTH) {
+			pfeiler.moveto(vorStation);
+			knochen.moveto(vorStation);
+		}
+		super.goto(dir,item);
+	}
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKUNDER);
+				write("Du siehst die niedrigen Pfeiler und den Sumpf.^");
+				return(1);
+				break;
+			case(A_JUMP2);
+				write("Du springst von der Brücke in den Sumpf und kletterst wieder hoch. Spätestens jetzt hast du eine
+					Dusche nötig.^");
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class vorStation:stdroom {
+	setShort("-Kuppel");
+	void init() {
+		addExit(D_NORTH,bruecke,bruecke2vorStation);
+		addExit(D_SOUTH,korridor1,vorStation2ko1);
+	}
+	void description() {
+		string s;
+		s="Eine Kuppel aus Steinen und Knochen erhebt sich auf Pfeilern über den Sumpf. Die einzige Öffnung, die du darin sehen
+			kannst, ist ein Metalltor im Süden, vor dem die schmale Brücke endet, die nach Norden in den Nebel führt. Ganz oben auf der
+			Kuppel sitzt das Lasergeschütz, das der Nachtfee zum Verhängnis wurde. Das Tor und die Waffe wurden hier offensichtlich von
+			Menschen nachträglich in die viel ältere Kuppel eingebaut. Sie sind hier so fremd und nicht hierhergehörig wie du.^";
+		setLong(s+vorStation2ko1.zeigeBlocker(1));
+		super.description();
+		vorStation2ko1.zeigeBlocker(0);
+
+	}
+	// automatisches oeffnen und schliessen
+	void goto(int dir, object item) {
+		object x;
+		int ok=1;
+		if (dir==D_SOUTH) {
+			if (!vorStation2ko1.has(open) && reaktor.has(on)) {
+				write("Das Tor öffnet sich, als du dich näherst.^");
+				vorStation2ko1.with(open);
+				korridor1.startTimer(1);
+				if (vorStation2ko1.blocker!=NULL) {
+					x=vorStation2ko1.blocker;
+					x.moveto(korridor1);
+				}
+			}
+			else {
+				if (!reaktor.has(on)) {
+					if (vorStation2ko1.blocker==kiste) {
+						if (anzug.has(worn)) {
+							write(vorStation2ko1.hinweis[1]);
+						}
+						else {
+							write(vorStation2ko1.hinweis[2]);
+						}
+						spieler.moveto(korridor1);
+						kiste.moveto(korridor1);
+						korridor1.description();
+					}
+					else {
+						write(vorStation2ko1.hinweis[0]);
+					}
+					ok=0;
+				}
+			}
+		}
+		else {
+			if (dir==D_NORTH) {
+				pfeiler.moveto(bruecke);
+				knochen.moveto(bruecke);
+			}
+		}
+		if (ok) {
+			super.goto(dir,item);
+			if (dir==D_SOUTH) {
+				laser.moveto(schacht);
+				deckenlampen.moveto(spieler);
+				zombie.startDaemon();
+			}
+		}
+	}
+	// auf anderer Seite wieder zu
+	void timeout() {
+		vorStation2ko1.blockade();
+	}
+}
+
+class korridor1:stdroom {
+	setShort("+Korridor");
+	with(wall);
+	int first=1;
+	void init() {
+		addExit(D_WEST,reaktorraum,ko12reaktor);
+		addExit(D_EAST,korridor2,ko12ko2);
+		addExit(D_SOUTH,grabkammer,ko12grab);
+	}
+	void description() {
+		string s;
+		if (first) {
+			write("Du gehst durch das Tor in die Kuppel über dem Sumpf. Wann ging zuletzt jemand, Mensch oder Fremder, durch
+				dieses Tor? Wer hat die Kuppel erbaut? Und welche Geschöpfe mußten für sie ihr Leben lassen?^^");
+			reaktor.lichtschalter(1);
+			first=0;
+		}
+		if (has(light) || vorStation2ko1.licht()) {
+			s="Hinter dem Eingangstor im Norden führt ein breiter Korridor nach Osten. ";
+			if (!anzug.has(worn)) {
+				s+="Die Luft ist hier stickig, aber kühler als draußen im Sumpf. ";
+			}
+			s+="Schmale Durchgänge lassen dich auch nach Westen und Süden gelangen.^";
+			if (reaktor.has(on)) {
+				s+="Elektrische Deckenlampen beleuchten das Innere der Kuppel.^";
+			}
+			setLong(s+vorStation2ko1.zeigeBlocker(1));
+		}
+		super.description();
+		vorStation2ko1.zeigeBlocker(0);
+		if (reaktor.has(on)) {
+			write("Im Westen hörst du ein lautes Summen.^");
+		}
+	}
+	// automatisches oeffnen und schliessen
+	void goto(int dir, object item) {
+		object x;
+		int ok=1;
+		if (dir==D_NORTH) {
+			if (!vorStation2ko1.has(open) && reaktor.has(on)) {
+				write("Das Tor öffnet sich, als du dich näherst.^");
+				vorStation2ko1.with(open);
+				vorStation.startTimer(1);
+				if (vorStation2ko1.blocker!=NULL) {
+					x=vorStation2ko1.blocker;
+					x.moveto(vorStation);
+				}
+			}
+			else {
+				if (!reaktor.has(on)) {
+					if (vorStation2ko1.blocker==kiste) {
+						if (anzug.has(worn)) {
+							if (zombie.z>0) {
+								write(vorStation2ko1.hinweis[3]);
+								death();
+							}
+							write(vorStation2ko1.hinweis[1]);
+						}
+						else {
+							write(vorStation2ko1.hinweis[2]);
+						}
+						zombie.stop();
+						spieler.moveto(vorStation);
+						kiste.moveto(vorStation);
+						vorStation.description();
+					}
+					else {
+						write(vorStation2ko1.hinweis[0]);
+					}
+					ok=0;
+				}
+			}
+		}
+		if (ok) {
+			super.goto(dir,item);
+			if (dir==D_NORTH) {
+				laser.moveto(vorStation);
+				deckenlampen.moveto(draussen);
+				zombie.stop();
+			}
+		}
+	}
+	// auf anderer Seite wieder zu
+	void timeout() {
+		vorStation2ko1.blockade();
+	}
+}
+
+class korridor2:stdroom {
+	setShort("+Korridor");
+	with(wall);
+	void init() {
+		addExit(D_SOUTH,plattform,ko22platt);
+	}
+	void description() {
+		string s;
+		if (has(light) || ko22platt.licht()) {
+			s="Der breite Korridor, der von Westen nach Osten führt, endet hier. Ein Metalltor, ähnlich dem, durch das
+				du die Kuppel betreten hast, befindet sich in der Wand im Süden.^";
+			setLong(s+ko22platt.zeigeBlocker(1));
+		}
+		super.description();
+		ko22platt.zeigeBlocker(0);
+	}
+	// automatisches oeffnen und schliessen
+	void goto(int dir, object item) {
+		object x;
+		int ok=1;
+		if (dir==D_SOUTH) {
+			if (!ko22platt.has(open) && reaktor.has(on)) {
+				write("Das Tor öffnet sich, als du dich näherst.^");
+				ko22platt.with(open);
+				plattform.startTimer(1);
+				if (ko22platt.blocker!=NULL) {
+					x=ko22platt.blocker;
+					x.moveto(plattform);
+				}
+			}
+			else {
+				if (!reaktor.has(on)) {
+					if (ko22platt.blocker==kiste) {
+						if (anzug.has(worn)) {
+							if (zombie.z>0) {
+								write(ko22platt.hinweis[3]);
+								death();
+							}
+							write(ko22platt.hinweis[1]);
+						}
+						else {
+							write(ko22platt.hinweis[2]);
+						}
+						zombie.stop();
+						spieler.moveto(plattform);
+						kiste.moveto(plattform);
+						plattform.description();
+					}
+					else {
+						write(ko22platt.hinweis[0]);
+					}
+					ok=0;
+				}
+			}
+		}
+		if (ok) {
+			if (dir==D_SOUTH) {
+				laser.moveto(plattform);
+				zombie.stop();
+			}
+			super.goto(dir,item);
+		}
+	}
+	// auf anderer Seite wieder zu
+	void timeout() {
+		ko22platt.blockade();
+	}
+}
+
+class grabkammer:stdroom {
+	setShort("-Steinkammer");
+	setLong("Der Steinsarg steht unten im Rund. Um ihn herum führen hohe Stufen zu den Wänden wie die Sitzreihen uralter Theater.
+		Über der obersten Stufe siehst du Dutzende bunter Klappen in den Wänden. Aber es können auch die Wappenschilde der
+		fremden Herrscher über die Sumpfländer des Nebelmondes sein.^Du kannst die Kammer nach Norden und nach Südwesten verlassen.^");
+	with(wall);
+	int oben;
+	void init() {
+		addExit(D_SOUTHWEST,schacht,grab2ko4);
+	}
+	void goto(int dir, object item) {
+		int n;
+		string s;
+		if (dir==D_UP || dir==D_DOWN) {
+			n=oben;
+			if (dir==D_UP && !oben) {
+				write("Du steigst die Stufen hoch.^");
+				oben=1;
+			}
+			if (dir==D_DOWN && oben) {
+				write("Du steigst die Stufen runter.^");
+				oben=0;
+			}
+			if (n==oben) {
+				s=(oben) ? "oben.^" : "unten.^";
+				write("Du bist schon "+s);
+			}
+		}
+		else {
+			if ((dir==D_SOUTHWEST || dir==D_NORTH) && oben) {
+				write("Du steigst die Stufen runter.^");
+				oben=0;
+			}
+			if (dir!=D_SOUTHWEST || isLight() || zombie.z>0) {
+				super.goto(dir,item);
+				// Zombie erscheinen lassen
+				if (dir==D_SOUTHWEST && zombie.z==0) {
+					zombie.z=1;
+				}
+			}
+			else {
+				write("Dein Arm! Hat dich da etwas berührt? Du wagst dich keinen Schritt weiter.^");
+			}
+		}
+	}
+}
+
+class schacht:stdroom {
+	setShort("+Schacht");
+	with(wall);
+	void init() {
+		addExit(D_EAST,unterkunft,ko42unterkunft);
+	}
+	void description() {
+		string s;
+		s="Ein hoher Schacht führt über dir bis unter das Dach der Kuppel. Oben siehst du jedoch keine Steine oder
+			Wolken, sondern Maschinenteile, die zu dem Lasergeschütz gehören müssen, das du vor dem Eingang auf
+			dem Dach gesehen hast. ";
+		s+=(reaktor.has(on)) ? "Ein leises Brummen dringt von dem Laser herab. ":
+			"Das typische Brummen des Lasers ist nicht zu hören. Du wirst ihn wohl mit dem Reaktor abgeschaltet haben. ";
+		s+="Eine Möglichkeit, dort hochzugelangen, siehst du nicht. Zwei einfache Metalltüren führen
+			nach Norden und nach Osten. ";
+		s+=(ko42unterkunft.has(open)) ? "Die Tür im Norden ist geschlossen, die im Osten steht offen":"Beide Türen sind geschlossen";
+		setLong(s+". Im Nordosten führt ein Durchgang zurück in die große Steinkammer.^");
+		super.description();
+	}
+	void goto(int dir, object item) {
+		if (dir!=D_NORTH) {
+			if (dir==D_EAST && !ko42unterkunft.has(open)) {
+				write("(Du öffnest erst die Tür)^");
+				ko42unterkunft.with(open);
+			}
+			super.goto(dir,item);
+			// Zombie erscheinen lassen
+			if (dir==D_NORTHEAST && zombie.z==0 && isLight()) {
+				zombie.z=1;
+			}
+		}
+		else {
+			write("Als du versuchst, die Tür im Norden zu öffnen, poltert auf der anderen Seite etwas laut dagegen. Du läßt die
+				Tür besser zu.^");
+		}
+	}
+}
+
+class tuer:stditem {
+	setShort("-Tür im Norden,-Tür im Osten,-Tür,&Türen,&Metalltüren,-Metalltür");
+	with(hidden);
+	moveto(schacht);
+	int onAction(int action) {
+		string s1,s2,s3="Die Tür im Norden ist bereits geschlossen, und du meinst, daß sie besser so bleibt.^",s4;
+		if (ko42unterkunft.has(open)) {
+			s1="Die Tür im Osten ist schon geöffnet.^";
+			s2="Du schließt die Tür im Osten.^";
+		}
+		else {
+			s1="Du öffnest die Tür im Osten.^";
+			s2="Die Tür im Osten ist schon geschlossen.^";
+
+		}
+		switch(action) {
+			case(A_EXAMINE);
+				s1="Die Türen sind ganz normale mechanische Metalltüren, die du einfach öffnen und schließen kannst. ";
+				s1+=(ko42unterkunft.has(open)) ? "Die Tür im Osten ist geöffnet, die im Norden geschlossen.^":
+					"Beide Türen sind geschlossen.^";
+				write(s1);
+				return(1);break;
+			case(A_OPEN);
+				if (name()>1) {
+					write(s1);
+					ko42unterkunft.with(open);
+					schacht.goto(D_NORTH,NULL);
+				}
+				else {
+					if (name()==0) {
+						schacht.goto(D_NORTH,NULL);
+					}
+					else {
+						write(s1);
+						ko42unterkunft.with(open);
+					}
+				}
+				return(1);break;
+			case(A_CLOSE);
+				if (name()>1) {
+					write(s2);
+					write(s3);
+					ko42unterkunft.with(~open);
+				}
+				else {
+					if (name()==0) {
+						write(s3);
+					}
+					else {
+						write(s2);
+						ko42unterkunft.with(~open);
+					}
+				}
+				return(1);break;
+			case(A_LOCK);
+			case(A_UNLOCK);
+				write("Du siehst hier keinen Mechanismus, um die Türen auf- oder abzuschließen.^");
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class reaktorraum:stdroom {
+	setShort("+Reaktorraum");
+	void description() {
+		string s;
+		if (has(light)) {
+			s="In der Mitte dieses Raumes steht einer der kleinen Fusionsreaktoren, die von der Flotte zur Energiegewinnung
+				auf planetaren Stützpunkten gebraucht wurden. ";
+			if (reaktor.has(on)) {
+				s+="Sein lautes Summen und die Deckenbeleuchtung zeigen dir, daß er noch immer aktiv ist.^";
+			}
+			else {
+				s+="Bevor du ihn ausgeschaltet hast, war er vielleicht jahrzehntelang ununterbrochen in Betrieb.^";
+			}
+			s+="Ein schmaler Durchgang führt im Osten hinaus in den Korridor.^";
+			setLong(s);
+		}
+		else {
+			if (reaktor.has(on)) {
+				s+="Irgend etwas verursacht hier ein lautes Summen.^";
+			}
+		}
+		super.description();
+	}
+}
+
+class unterkunft:stdroom {
+	setShort("-Unterkunft");
+	setLong("An den staubigen, grauen Wänden hängen in langen Reihen schmale Betten übereinander. Spinde stehen offen oder
+		sind umgefallen. Ihr Inhalt ist über den Boden verstreut. Du stößt bei jedem Schritt gegen zerstörte Ausrüstungsteile
+		und Unrat. Im Westen führt eine Metalltür zurück in den Schacht.^");
+	with(wall);
+}
+
+class plattform:stdroom {
+	setShort("-Plattform");
+	void description() {
+		setLong("An der Außenmauer der Kuppel ist eine kleine Start- und Landeplattform angebracht. Hier können Raumgleiter starten,
+			um Passagiere zu größeren Schiffen im Orbit zu bringen. Ein Späher wartet hier seit einer Ewigkeit auf den Abflug.
+			Hoch über dir weist das Lasergeschütz immer noch drohend in die Wolken. Ein Tor am Nordrand führt zurück in
+			die Kuppel.^"+ko22platt.zeigeBlocker(1));
+		super.description();
+		ko22platt.zeigeBlocker(0);
+	}
+	// automatisches oeffnen und schliessen
+	void goto(int dir, object item) {
+		object x;
+		int ok=1, i;
+		if (dir==D_NORTH) {
+			if (!ko22platt.has(open) && reaktor.has(on)) {
+				write("Das Tor öffnet sich, als du dich näherst.^");
+				ko22platt.with(open);
+				korridor2.startTimer(1);
+				if (ko22platt.blocker!=NULL) {
+					x=ko22platt.blocker;
+					x.moveto(korridor2);
+				}
+			}
+			else {
+				if (!reaktor.has(on)) {
+					if (ko22platt.blocker==kiste) {
+						if (anzug.has(worn)) {
+							write(ko22platt.hinweis[1]);
+						}
+						else {
+							write(ko22platt.hinweis[2]);
+						}
+						spieler.moveto(korridor2);
+						kiste.moveto(korridor2);
+						korridor2.description();
+					}
+					else {
+						write(ko22platt.hinweis[0]);
+					}
+					ok=0;
+				}
+			}
+		}
+		if (ok) {
+			super.goto(dir,item);
+			if (dir==D_NORTH) {
+				laser.moveto(schacht);
+				zombie.startDaemon();
+			}
+		}
+	}
+	// auf anderer Seite wieder zu
+	void timeout() {
+		ko22platt.blockade();
+	}
+}
+
+/*-------------------------------------------------------*/
+/* Gegenstaende                           */
+/*-------------------------------------------------------*/
+
+// laesst Spieler ins All schauen
+class draussen:stditem {
+	setShort("+Weltraum,All");
+	with(hidden,detail);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_EXAMINE);
+			case(A_LOOKINTO);
+				if (!spieler.in(kapsel)) {
+					fenster.onAction(A_LOOKINTO);
+				}
+				else {
+					write("Du siehst die grauweiße Kugel des Nebelmondes näher kommen.^");
+				}
+				return(1);
+				break;
+			case(A_LOOKUNDER);
+			case(A_LOOKON);
+				write("Wie soll das gehen?^");
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class overall:stditem {
+	setShort("+Overall");
+	with(worn,wearable);
+	moveto(spieler);
+	int onAction(int action) {
+		switch(action) {
+			case(A_EXAMINE);
+			case(A_LOOKON);
+				if (!anzug.has(worn)) {
+					write("Der praktische Overall ist seit Jahren deine Arbeitskleidung. Zwischen Öl- und Schmutzflecken scheint an manchen
+						Stellen noch seine ursprüngliche blaue Farbe durch.^");
+				}
+				else {
+					write("Dafür mußt du erst den Raumanzug ausziehen, den du über dem Overall trägst.^");
+				}
+				return(1);
+				break;
+			case(A_DISROBE);
+			case(A_DROP);
+				write("Warum? Deinen Overall hast du erst ein paar Mal ausgezogen. An das letzte Mal kannst du
+					dich nicht mehr erinnern.^");
+				return(1);
+				break;
+			case(A_SMELL);
+				if (!anzug.has(worn)) {
+					write("Würg.^");
+				}
+				else {
+					write("Unter dem Raumanzug riechst du ihn zum Glück nicht.^");
+				}
+				return(1);break;
+			case(A_TOUCH);
+				if (anzug.has(worn)) {
+					write("Du trägst doch den Raumanzug darüber.^");
+					return(1);break;
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class dekoKabine:stditem {
+	setShort("&Erinnerungsstücke,&Artefakte");
+	with(hidden,detail);
+	moveto(kabine1);
+	int onAction(int action) {
+		write("Diese Dinge sind für dein Abenteuer nicht weiter wichtig.^");
+		halt(1);
+		return(1);
+	}
+}
+
+class matte:stditem {
+	setShort("-Hängematte,-Matte,Fell");
+	setLong("Deine Hängematte ist aus dem Fell eines Eisriesen von Wintergarten gefertigt. Du würdest sie nie gegen ein
+		Bett eintauschen wollen.^");
+	with(container,enterable,hidden,open);
+	moveto(kabine1);
+	int onAction(int action) {
+		switch(action) {
+			case(A_ENTER);
+			case(A_SIT2);
+				if (!spieler.sitzend) {
+					write("Du setzt dich in die Hängematte.^");
+					spieler.sitzend=1;
+					spieler.moveto(matte);
+				}
+				else {
+					write("Du befindest dich bereits in deiner Hängematte.^");
+				}
+				return(1);
+				break;
+			case(A_EXIT);
+			case(A_STAND2);
+				if (spieler.sitzend) {
+					write("Du kletterst aus deiner Hängematte.^");
+					spieler.sitzend=0;
+					spieler.moveto(kabine1);
+				}
+				else {
+					write("Du befindest dich nicht in der Hängematte.^");
+				}
+				return(1);
+				break;
+			case(A_TAKE);
+				write("Laß sie lieber hängen. Es ist hier so eng, daß du beim Abhängen nur Chaos anrichten kannst.^");
+				return(1);
+				break;
+			case(A_DROPINTO);
+				if (spieler.isfirst()) {
+					if (spieler.location()==matte) {
+						write("Du befindest dich schon in der Hängematte.^");
+						return(1);
+						break;
+					}
+					else {
+						spieler.sitzend=1;
+					}
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class anzug:maxTake {
+	setShort("+Raumanzug,+Anzug");
+	with(takeable,wearable);
+	moveto(matte);
+	int onAction(int action) {
+		object x;
+		string s;
+		int ok;
+		if (erreichbar(anzug)) {
+			switch(action) {
+				case(A_EXAMINE);
+				case(A_LOOKON);
+					write("Der klobige, schwere Raumanzug ist deine Lebensversicherung im All. Im Helm ist ein Scheinwerfer integriert,
+						und am Gürtel ist eine Sicherheitsleine befestigt.^");
+					if (leine.amHaken) {
+						write(leine.wennFestgebunden);
+					}
+					if (leine.anOese) {
+						write(leine.wennOese);
+					}
+					scheinwerfer.onAction(A_EXAMINE);
+					return(1);
+					break;
+				case(A_DROP);
+					x=room();
+					if ((!x.has(light)) && (!helm.in(spieler)) && (!has(worn))) {
+						scheinwerfer.warnung(anzug);
+					}
+					else {
+						super.onAction(A_DROP);
+					}
+					return(1);
+					break;
+				case(A_WEAR);
+					if (helm.has(worn)) {
+						write("Um den Raumanzug anzuziehen, mußt du erst den Helm absetzen.^");
+					}
+					else {
+						if (!in(spieler) && istVoll()) {
+							nichtAufnehmen();
+						}
+						else {
+							super.onAction(A_WEAR);
+						}
+					}
+					return(1);
+					break;
+				case(A_MOVETO);
+					if (leine.amHaken || leine.anOese) {
+						s=(leine.amHaken) ? "dem Karabinerhaken" : "der Frachtkiste";
+						write("(Du trennst erst die Sicherheitsleine von "+s+")^");
+						leine.amHaken=0;
+						leine.anOese=0;
+					}
+					ok=super.onAction(A_MOVETO);
+					return(1);
+					break;
+				case(A_DISROBE);
+					if (schleuse2weltraum.vakuum>0) {
+						write("Du befindest dich im Vakuum und bist kein Selbstmörder.^");
+						return(1);
+						break;
+					}
+				default;
+					return(super.onAction(action));
+			}
+		}
+		else {
+			return(1);
+		}
+	}
+}
+
+// Leine wird vom daemon des Scheinwerfers mitin Anzug gelegt
+class leine:stditem {
+	setShort("-Sicherheitsleine,-Leine,Seil,+Gürtel");
+	with(hidden,detail);
+	int amHaken,anOese;
+	string wennFestgebunden="Die Sicherheitsleine ist an dem Karabinerhaken befestigt.^",
+		wennOese="Die Sicherheitsleine ist an der Öse der Frachtkiste befestigt.^";
+	int onAction(int action) {
+		object x;
+		switch(action) {
+			case(A_EXAMINE);
+			case(A_LOOKON);
+				write("Mit der Sicherheitsleine gehst du in der Unendlichkeit des Weltraums nicht verloren.^");
+				if (amHaken) {
+					write("Das Ende der Sicherheitsleine ist mit dem Haken an der Schleusenwand verbunden.^");
+				}
+				if (anOese) {
+					write("Das Ende der Sicherheitsleine ist mit der Öse an der Frachtkiste verbunden.^");
+				}
+				return(1);
+				break;
+			case(A_TAKE);
+				write("Du brauchst die Leine nicht erst aufzunehmen, um ihr loses Ende irgendwo zu befestigen.^");
+				return(1);
+				break;
+			case(A_PULL);
+				write("Du ziehst an der Sicherheitsleine.^");
+				return(1);
+				break;
+			case(A_CONNECT);
+				fetch (x,x.isfirst() || x.issecond(),0) {
+					if ((x==haken) || (x==kiste)) {
+						if (x==haken) {
+							if (!amHaken) {
+								write("Du befestigst das lose Ende der Sicherheitsleine an dem Karabinerhaken.^");
+								amHaken=1;
+							}
+							else {
+								write("Die Sicherheitsleine ist schon mit dem Karabinerhaken verbunden.^");
+							}
+						}
+						else {
+							if (kiste.istKisteFrei()) {
+								if (!anOese) {
+									write("Du befestigst das lose Ende der Sicherheitsleine an der Öse der Frachtkiste.^");
+									anOese=1;
+								}
+								else {
+									write("Die Sicherheitsleine ist schon mit der Öse der Frachtkiste verbunden.^");
+								}
+							}
+							else {
+								write(kiste.festgeklemmt);
+							}
+						}
+					}
+					else {
+						if (x!=leine) {
+							if (x!=baum && x!=aeste) {
+								write("Die Sicherheitsleine läßt sich nicht mit <dem x> verbinden.^");
+							}
+							else {
+								write("Du mußt dich hier nicht fesseln.^");
+							}
+						}
+					}
+				}
+				return(1);
+				halt(1);
+				break;
+			case(A_DISCONNECT);
+				fetch (x,x.isfirst() || x.issecond(),0) {
+					if  ((x==haken) || (x==kiste)) {
+						if (x==haken) {
+							if (amHaken) {
+								write("Du trennst die Sicherheitsleine von dem Karabinerhaken.^");
+								amHaken=0;
+							}
+							else {
+								write("Die Sicherheitsleine ist gar nicht mit dem Karabinerhaken verbunden.^");
+							}
+						}
+						else {
+							if (anOese) {
+								write("Du trennst die Sicherheitsleine von der Frachtkiste.^");
+								anOese=0;
+							}
+							else {
+								write("Die Sicherheitsleine ist gar nicht mit der Frachtkiste verbunden.^");
+							}
+						}
+					}
+					else {
+						if (x!=leine) {
+							write("Die Sicherheitsleine ist nicht mit <dem x> verbunden.^");
+						}
+					}
+				}
+				return(1);
+				halt(1);
+				break;
+			default;
+				return(super.onAction(action));
+
+		}
+	}
+}
+
+class scheinwerfer:stditem {
+	setShort("+Scheinwerfer,-Lampe");
+	with(hidden,detail,switchable);
+	void init() {
+		moveto(matte);
+		startDaemon();
+	}
+
+	void warnung(object x) {
+		write("Kein Abenteurer möchte in einem finsteren Verlies seine Fackel wegwerfen. Deshalb lasse <den x> besser nicht los.^");
+	}
+
+	// Scheinwerfer und Leine befinden sich immer mit dem Raumanzug an einem Ort
+	void daemon() {
+		moveto(anzug.location());
+		leine.moveto(anzug.location());
+	}
+	int onAction(int action) {
+		object x;
+		int licht,z,ok;
+		x=room();
+		switch (action) {
+			case(A_SWITCHOFF);
+				if ((!x.has(light)) && (!helm.in(spieler)) && (!in(spieler)) && (has(light))) {
+					write(warnung(anzug));
+					return(1);
+					break;
+				}
+			default;
+				licht=x.isLight();
+				z=has(on);
+				ok=super.onAction(action);
+				if (has(on)) {
+					with(light);
+					// wenn im dunkeln angeschaltet
+					if (!licht && (!spieler.in(kiste) || kiste.has(open))) {
+						x.with(~visited);
+						x.description();
+					}
+
+				}
+				else {
+					if (z && helm.has(worn) && (!x.has(light))) {
+						write("Du siehst jetzt mit dem Nachtsichtgerät im Helm.^");
+					}
+					with(~light);
+				}
+				return(ok);
+		}
+	}
+}
+
+class haken:stditem {
+	setShort("+Karabinerhaken,+Haken,+Karabiner");
+	with(hidden);
+	moveto(schleuse);
+	int onAction(int action) {
+		switch(action) {
+			case(A_EXAMINE);
+				if (leine.amHaken) {
+					write(leine.wennFestgebunden);
+					return(1); break;
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class sitz:stditem {
+	setShort("+Pilotensitz,+Sitz,+Pilotensessel,+Sessel");
+	setLong("Der schalenförmigen Sitz aus weichem Leder ist für Angehörige humanoider Völker gedacht.^");
+	with(container,enterable,hidden,open);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_ENTER);
+			case(A_SIT2);
+				if (!spieler.sitzend) {
+					write("Du setzt dich in den Pilotensitz.^");
+					spieler.sitzend=1;
+					spieler.moveto(sitz);
+				}
+				else {
+					write("Du sitzt bereits.^");
+				}
+				return(1);
+				break;
+			case(A_SIT3);
+				write("Versuche besser, dich in den Pilotensitz zu setzen.^");
+				return(1);
+				break;
+			case(A_EXIT);
+			case(A_STAND2);
+				if (spieler.sitzend) {
+					write("Du kletterst aus dem Pilotensitz.^");
+					spieler.sitzend=0;
+					spieler.moveto(cockpit);
+				}
+				else {
+					write("Du sitzt nicht im Pilotensitz.^");
+				}
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class greifarm:stditem {
+	setShort("&Greifarme,&Arme,+Greifarm");
+	with(hidden,detail);
+	moveto(cockpit);
+	int fest;
+	string s;
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				s="Aus dem Bug der Nachtfee ragen zwei lange Greifarme hervor, mit denen sich im All treibende
+					Trümmer heranholen lassen. ";
+				if (fest) {
+					s+=(position==0) ? "Sie halten einen alten Satelliten, der am Rande des Trümmerfelds trieb.^":
+						"Im Moment sind sie angezogen und geschlossen.^";
+				}
+				else {
+					s+=(position==0) ? "In ihrer Reichweite schwebt ein alter Satellit.^" : "Im Moment sind sie geöffnet.^";
+				}
+				write(s);
+				return(1);
+				break;
+			case(A_CLOSE);
+			case(A_OPEN);
+				write("Öffne und schließe die Greifarme bitte mit der grünen Taste.^");
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+	void bewegen() {
+		fest=1-fest;
+		if (fest) {
+			if (position==0) {
+				write("Du siehst, wie sich die beiden Greifarme langsam schließen und dabei einen vor deinem Schiff
+					treibenden Satelliten einfangen und heranziehen.^");
+			}
+			else {
+				write("Draußen schließen sich die beiden Greifarme.^");
+			}
+		}
+		else {
+			if (position==0) {
+				write("Du siehst, wie sich die beiden Greifarme langsam öffnen und dabei den Satelliten wieder freigeben.^");
+			}
+			else {
+				write("Draußen schließen sich die beiden Greifarme.^");
+			}
+		}
+	}
+}
+
+class satellit:stditem {
+	setShort("+Satellit,+Satelliten,+Kommunikationssatellit,-Sonde,-Raumsonde");
+	with(hidden,detail);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				if (greifarm.fest) {
+					write("Du kennst solche Satelliten aus der Armee. Sie wurden zur Kommunikation zwischen planetaren
+						Stützpunkten und bis zu einigen Lichtjahren entfernten Schiffen eingesetzt.^");
+				}
+				else {
+					write("Wenn du den kleinen Satelliten näher heranholst, kannst du ihn besser erkennen.^");
+				}
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+// Schrott gibts 2x: im All und im Container
+class schrott1:stditem {
+	setShort("Trümmerfeld,&Trümmer,&Wracks,&Schiffswracks");
+	setLong("Du bist noch zu weit entfernt, um Details erkennen zu können.^");
+	with(hidden,detail);
+	moveto(cockpit);
+}
+
+class dekoBordcompi:stditem {
+	setShort("+Bordcomputer,+Computer,+Compi");
+	setLong("Der Bordcomputer steuert die Nachtfee. Du brauchst dich in diesem Spiel nicht weiter um ihn zu kümmern.^");
+	with(hidden,detail);
+	moveto(cockpit);
+}
+
+class dekoInfos:stditem {
+	setShort("&eingeblendet* Infos");
+	with(hidden,detail);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+			case(A_READ);
+				if (kabel.robot_interface() && greifarm.fest) {
+					write("Wenn du das empfangene Signal auf dem Videoschirm ausgeben läßt, zeigen sie dir, daß es sich im Abstand von
+						einer Minute ständig wiederholt. Wie lange mag es schon gesendet werden? In dem Trümmermeer da draußen hat
+						es bestimmt noch niemand empfangen.^");
+				}
+				else {
+					write("Welche Infos?^");
+				}
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+// Display fuer Instrumentenpult und Faehre
+class display1:stditem {
+	setShort("Display,-Anzeige");
+	with(hidden,detail);
+	// k1=Aktuelle Koordinaten, k2=Mithras, k3=Charon
+	string k1="648 352 509",k2,k3;
+	string pname[P_MAX]=("charon ii","mithras","minerva","wintergarten","troubadour","neu hibernia neuhibernia","cindelban","pagan",
+		"babel","ares");
+	string pName[P_MAX]=("Charon II","Mithras","Minerva","Wintergarten","Troubadour","Neu-Hibernia","Cindelban","Pagan","Babel","Ares");
+	string pxyz[P_MAX];
+	moveto(cockpit);
+	void init() {
+		int i,p1,p2,p3;
+		k3=k1;
+		pxyz[0]=k1;
+		for (i=1;i<P_MAX;i++) {
+			p1=100+random(400);
+			p2=100+random(400);
+			p3=100+random(400);
+			pxyz[i]=p1+" "+p2+" "+p3;
+		}
+		k2=pxyz[1];
+	}
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+			case(A_READ);
+				if (position==0) {
+					write("Auf dem einzeiligen, orangefarbenen Display ist die Zahlenfolge "+k1+" zu lesen. ");
+					instrumente.zustand(1);
+				}
+				else {
+					write("Auf dem einzeiligen, orangefarbenen Display kannst du die Koordinaten "+k1+" lesen.^");
+				}
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class screen_speaker:stditem {
+	setShort("+Videoschirm,+Schirm,+Monitor,+Bildschirm,&Lautsprecher");
+	with(hidden,detail);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				write("Der Videoschirm und die Lautsprecher sind dunkel und stumm. ");
+				instrumente.zustand(2);
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class mikrofon:stditem {
+	setShort("Mikrofon,Mikro");
+	with(hidden,detail);
+	moveto(cockpit);
+	int onOrder(int action) {
+		return(onAction(action));
+	}
+	int onAction(int action) {
+		int j;
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				instrumente.zustand(3);
+				return(1);
+				break;
+			case(A_TELL);
+				if (position==0) {
+					write("Dein Funkspruch verhallt ungehört zwischen den Schiffswracks und der toten Oberfläche von Charon II.^");
+				}
+				else {
+					write("Als Antwort flackert in der Wolkendecke des Monds eine Lasersalve auf. ");
+					j=laser.i;
+					laser.i=2;
+					laser.daemon();
+					laser.i=j;
+					write("Das war wohl kein gültiger Identifizierungskode.^");
+				}
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class lampe:stditem {
+	//setShort("-gelb* Lampe,gelb* Lämpchen");
+	setShort("gelb* Lämpchen");
+	with(buchse,hidden,detail);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				write("Das gelbe Lämpchen blinkt. ");
+				instrumente.zustand(4);
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class interface:stditem {
+	setShort("Interface,+Interfaceanschluß");
+	with(buchse,hidden,detail);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				instrumente.zustand(5);
+				kabel.anschluesse(interface);
+				return(1);
+				break;
+				/*case(A_CONNECT);
+				if (isfirst() || robot.isfirst() || kabel.isfirst()) {
+				return(1);break;
+				}*/
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class tastatur1:stditem {
+	setShort("-numerisch* Tastatur");
+	with(hidden,detail);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				if (position==0) {
+					instrumente.zustand(0);
+				}
+				else {
+					write("Du kannst mit der Tastatur neue Zielkoordinaten für den Autopiloten eingeben. Tippe dazu einfach
+						TIPPE X Y Z.^");
+				}
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class grueneTaste:stditem {
+	setShort("-grün* Taste,-grüne,+grün* Knopf, &Tasten");
+	with(hidden,detail,taste);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_PRESS);
+				greifarm.bewegen();
+				return(1);
+				break;
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				instrumente.zustand(6);
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class blaueTaste:stditem {
+	setShort("-blau* Taste,-blaue,+blau* Knopf, &Tasten");
+	with(hidden,detail,taste);
+	moveto(cockpit);
+	int first=1;
+	int onAction(int action) {
+		switch(action) {
+			case(A_PRESS);
+				if (position==0) {
+					if (greifarm.fest) {
+						if (kabel.robot_interface() && raumratte.zustand<2) {
+							write("Auf dem flimmernden Videoschirm erscheinen Kopf und Schultern einer jungen Frau. Sie trägt die rote
+								Mähne der Menschen von Neu-Hibernia und die schwarze Uniform der föderalen Flotte, die es schon lange
+								nicht mehr gibt. Mit einer Stimme, die ihre Aufregung nicht verbergen kann, sagt sie:^
+								\Dies ist ein Notruf. Hier spricht Major Cayle, Kommandantin des föderalen Versorgungsschiffes Erebus.
+								Wir haben Memokristalle für Minervas Werften geladen. Ein Generatorschaden zwang uns zur Bruchlandung auf
+								dem Mond von Mithras IV, dem Nebelmond. Die Koordinaten sind "+display1.k2+". Unser Außenposten auf dem Mond
+								überstand die Zani-Offensive, aber die Leute hier...\^
+								Du siehst noch, wie Major Cayle ihren Kopf herumreißt, dann endet die Nachricht.^
+								Dein erster Gedanke ist: \Memokristalle! Ein ganzer Frachter mit Memokristallen.\^");
+							scoring.achieved(0);
+							if (raumratte.zustand==0) {
+								raumratte.zustand=1;
+							}
+						}
+						else {
+							write("Der Videoschirm zeigt psychedelische Muster, und aus den Lautsprechern hörst du eine Stimme,
+								die so stark verzerrt ist, daß du sie nicht mehr verstehen kannst. Militärsatelliten verschlüsselten
+								ihre Botschaften derart. Offenbar stammt das Signal von dem kleinen Satelliten in den Greifarmen. Vom
+								Bordcomputer auf dem Schirm eingeblendete Infos zeigen dir, daß der Satellit sein Signal mit einminütiger
+								Pause ständig wiederholt.^");
+						}
+					}
+					else {
+						write("Der Videoschirm beginnt zu flackern, aus den Lautsprechern dringt ein Knistern. Die Nachtfee empfängt
+							ein sehr schwaches Signal.^");
+					}
+				}
+				else {
+					write("Aus den Lautsprechern dringt eine knarrende Computerstimme: \Nennen Sie Ihren Identifikationskode und nähern
+						Sie sich nicht weiter dem Mond\.^");
+					if (first) {
+						write("Identifikationskode? Du versuchst, dich an einen der Kodes der Flotte zu erinnern. Es gelingt dir nicht.
+							Major Cayle sprach von einem Außenposten auf dem Mond. Offenbar funktionieren da unten noch ein paar automatische
+							Systeme. Ob die auch noch zwischen Freund und Feind unterscheiden können?^");
+						first=0;
+					}
+
+				}
+				return(1);
+				break;
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				instrumente.zustand(7);
+				kabel.anschluesse(interface);
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+				return(1);
+		}
+	}
+}
+
+class roteTaste:stditem {
+	setShort("-rot* Taste,-rote,+rot* Knopf, &Tasten");
+	with(hidden,detail,taste);
+	moveto(cockpit);
+	int first=1;
+	int onAction(int action) {
+		switch(action) {
+			case(A_PRESS);
+				if (schleuse2weltraum.vakuum==0) {
+					// Koordinaten Mithras
+					if (display1.k1==display1.k2) {
+						if (raumratte.zustand==1) {
+							raumratte.entdeckung();
+						}
+						else {
+							if (raumratte.zustand==2) {
+								write("Du weißt, daß man mit einer Raumratte an Bord besser keinen Hyperraumsprung unternimmt?^");
+							}
+							else {
+								if (position==0) {
+									write("Charon II und das Licht der Sterne verschwinden als die Nachtfee in die Finsternis und
+										die Leere des Hyperraums eindringt. Ruhig und sicher bewegt sie sich durch die Abgründe
+										des Raums ihrem Ziel, der roten Sonne Mithras entgegen. Nach einer knappen Stunde tritt
+										die Nachtfee wieder in den Normalraum.^");
+									position=1;
+									fenster.onAction(A_LOOKINTO);
+									if (first) {
+										write("Dir fällt auf, daß das gelbe Lämpchen immer noch blinkt.^");
+										first=0;
+									}
+									laser.startDaemon();
+								}
+								else {
+									write("Auf dem Display siehst du die Koordinaten des Mithras-Systems. Hier bist du schon.^");
+								}
+							}
+						}
+
+					}
+					else {
+						// Koordinaten Charon
+						if (display1.k1==display1.k3) {
+							if (position==0) {
+								write("Auf dem Display siehst du die Koordinaten des Charon-Systems. Hier bist du schon.^");
+							}
+							else {
+								write("Das Mithras-System verschwindet als die Nachtfee in die Abgründe des Hyperraums eindringt.
+									Eine Stunde später tritt sie im Orbit von Charon II wieder in den Normalraum.^");
+								laser.stopDaemon();
+								position=0;
+							}
+						}
+						else {
+							write("Der Bordcomputer kann kein Sternsystem mit den angegebenen Koordinaten finden.^");
+						}
+					}
+				}
+				else {
+					write("Ein Hyperraumsprung mit offener Luftschleuse wäre Selbstmord. Das weißt du doch?^");
+				}
+				return(1);
+				break;
+			case(A_EXAMINE);
+			case(A_LOOKON);
+				instrumente.zustand(8);
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class manual:stditem {
+	setShort("-Bedienungsanleitung,-Anleitung,-winzig* Schrift");
+	with(hidden,detail);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_READ);
+			case(A_EXAMINE);
+			case(A_LOOKON);
+				write("Du liest die Bedienungsanleitung: Die numerische Tastatur dient der Eingabe eines Koordinatentripels, das auf
+					dem Display angezeigt wird und das Ziel eines mit der roten Taste auszulösenden Hyperraumsprungs darstellt.
+					Benutze TIPPE X Y Z, um neue Koordinaten einzugeben.^
+					Der Videoschirm und die Lautsprecher geben empfangene Video- und Funksignale wieder, wenn sie mit der blauen Taste
+					aktiviert werden. Das gelbe Lämpchen signalisiert den Empfang eines Signals. Mit dem Mikrofon läßt sich ein Funksignal
+					senden. Tippe dazu einfach MIKROFON, \DEINE NACHRICHT\.^
+					Das Interface verbindet den Bordcomputer mit weiteren Geräten.^
+					Die grüne Taste öffnet und schließt die Greifarme am Bug der Nachtfee.^");
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class instrumente:stditem {
+	setShort("Instrumentenpult,Pult,-Instrumente");
+	with(hidden);
+	moveto(cockpit);
+	string anleitung[9]=("die numerische Tastatur der Eingabe des vom Display angezeigten Koordinatentripels dient. Benutze TIPPE X Y Z,
+		um neue Koordinaten einzugeben.",
+		"es sich dabei um die Zielkoordinaten eines Hyperraumsprungs handelt.",
+		"der Videoschirm und die Lautsprecher empfangene Video- bzw. Funksignale wiedergeben. Wenn die Nachtfee ein Signal empfängt,
+		lassen sie sich mit der blauen Taste aktivieren.",
+		"du mit dem Mikrofon Funkssignale senden kannst. Tippe dazu einfach MIKROFON, \Dein Text\.",
+		"das Lämpchen zu blinken beginnt, wenn der Bordcomputer Signale empfängt.",
+		"sich mit dem Interface weitere Geräte an den Bordcomputer anschließen lassen, um seine Funktionalität zu erweitern.",
+		"sich mit der grünen Taste die Greifarme öffnen und schließen lassen.",
+		"die blaue Taste den Videoschirm und die Lautsprecher aktiviert, wenn die Nachtfee ein Signal empfängt.",
+		"sich mit der roten Taste ein Hyperraumsprung zu den auf dem Display angezeigten Koordinaten starten läßt.");
+	int erklaerung=1;
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				write("Auf dem Instrumentenpult befinden sich eine numerische Tastatur, ein kleines Display, ein Videoschirm mit
+					integrierten Lautsprechern, ein Mikrofon, ein gelbes Lämpchen, ein Interface und drei einzelne Tasten:
+					eine grüne, eine blaue und eine rote. Daneben ist in winziger Schrift die Bedienungsanleitung aufgedruckt.^");
+				erklaerung=0;
+				display1.onAction(A_EXAMINE);
+				lampe.onAction(A_EXAMINE);
+				erklaerung=1;
+				return(1);
+				break;
+			case(A_READ);
+				write("(Ich nehme an, du meinst die aufgedruckte Bedienungsanleitung)^");
+				manual.onAction(A_READ);
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+	void zustand(int i) {
+		if (erklaerung) {
+			write("Der Bedienungsanleitung entnimmst du, daß "+anleitung[i]+"^");
+		}
+		else {
+			write("^");
+		}
+	}
+}
+
+class fenster:stditem {
+	setShort("Fenster,-Fensterscheibe,-Scheibe");
+	setLong("Das breites Fenster läßt dich einen Blick über die beiden Greifarme der Nachtfee hinaus in das All werfen.^");
+	with(hidden);
+	moveto(cockpit);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKINTO);
+			case(A_LOOKTHROUGH);
+				if (position==0) {
+					write("Weit vor der Nachtfee bilden zahllose Schiffswracks ein gewaltiges Trümmerfeld, das den Äquator der
+						Strahlenwüste Charon II umspannt. ");
+					greifarm.onAction(A_LOOKON);
+				}
+				else {
+					write("Aus dem Orbit des Nebelmonds siehst du nur seine dichte graue Wolkenhülle, die jeden Blick auf
+						die Oberfläche verwehrt. Weit hinter dem Mond liegt der gewaltige Gasplanet Mithras IV.^");
+				}
+				return(1);
+				break;
+			case(A_OPEN);
+				write("Um frische Luft hereinzulassen?^");
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class raumratte:stditem {
+	setShort("-Raumratte,-Ratte");
+	/*
+	Zustand:
+	0:noch nicht entdeckt;
+	1:nach Nachricht, wird im naechsten Zug entdeckt;
+	2:irgendwo im Schiff;
+	3:tot
+	*/
+	int zustand;
+	string r[3];
+	with(hidden,detail);
+	moveto(cockpit);
+	void init() {
+		r[0]="^Die Raumratte rast über den Boden, wuselt über deine Füße und verschwindet wieder.^";
+		r[1]="^Zwischen den Kabelsträngen und Röhren unter der Decke siehst du kurz die Raumratte.^";
+		r[2]="^An der gegenüberliegenden Wand siehst du die Raumratte einen Kabelstrang hochkrabbeln und schnell
+			wieder verschwinden.^";
+	}
+	void daemon() {
+		int i;
+		if ((zustand==2) && (random(10)<3) && (spieler.room()!=cockpit)) {
+			if (!spieler.in(kapsel)) {
+				i=random(3);
+				write(r[i]);
+			}
+			else {
+				write("Kurz siehst du die Raumratte über die Außenseite der Luke huschen.^");
+			}
+		}
+	}
+	void entdeckung() {
+		write("Plötzlich gibt der kleine Roboter ein panisches Piepsen von sich. Qualm dringt aus seinem Inneren, dann fällt ein
+			kleines Stück aus seiner Frontseite herunter. Blitzschnell krabbelt aus dem Loch eine faustgroße, metallisch-grün
+			schimmernde Raumratte. Panik! Du hast dir mit dem Roboter den Alptraum aller Prospektoren an Bord geholt. Raumratten
+			fressen sich innerhalb von Minuten durch dickste Metallwände. Wenn sie die Außenwand eines Raumschiffes erwischen, ist
+			die Besatzung (plus der Ratten) binnen Sekunden schockgefroren oder, wenn sich das Schiff im Hyperraum befindet, in ihre
+			Atome zerlegt. Bevor du nach ihm treten kannst, ist dein Exemplar schon in den Laderaum entwischt.^");
+		moveto(spieler);
+		roehren.moveto(spieler);
+		startDaemon();
+		zustand=2;
+	}
+	int onAction(int action) {
+		write("Wenn du die Raumratte nur finden könntest.^");
+		return(1);
+		break;
+	}
+}
+
+class roehren:stditem {
+	setShort("&Kabelstränge,&Röhren,+Kabelstrang");
+	with(hidden,detail);
+	int onAction(int action) {
+		string s="Du mußt dich nicht weiter um die Kabelstränge und Röhren an den Wänden kümmern.^";
+		if (raumratte.zustand==2) {
+			s+=" Die Raumratte findest du darin ohnehin niemals.";
+		}
+		write(s+"^");
+		return(1);
+	}
+}
+
+class waende:stditem {
+	setShort("&Wände,-Wand,-Decke,+Boden");
+	with(hidden,detail);
+	string zu_dunkel="Hier ist es zu finster.^";
+	void init() {
+		moveto(spieler);
+	}
+	int onAction(int action) {
+		object where;
+		string s;
+		where=spieler.room();
+		if (where.isLight()) {
+			if (where.has(wall)) {
+				if ((where!=grabkammer && where!=unterkunft) || name()>1) {
+					write("Wände, Decke und Boden sind nicht weiter wichtig.^");
+				}
+				else {
+					if (where==grabkammer) {
+						write("Über den Stufen befinden sich bunt bemalte Metallklappen in der Wand.^");
+					}
+					else {
+						unterkunft.onAction(A_EXAMINE);
+					}
+				}
+			}
+			else {
+				write("Du befindest dich doch im Freien.^");
+			}
+		}
+		else {
+			write(zu_dunkel);
+		}
+		return(1);
+	}
+}
+
+class deckenlampen:stditem {
+	setShort("&Deckenlampen,&Lampen,-Deckenbeleuchtung");
+	with(hidden);
+	int onAction(int action) {
+		string s;
+		object where;
+		where=room();
+		if (where.isLight()) {
+			switch(action) {
+				case(A_EXAMINE);
+					s=(reaktor.has(on)) ? "an.^" : "aus.^";
+					write("Die elektrischen Deckenlampen sind "+s);
+					return(1);
+					break;
+				default;
+					return(super.onAction(action));
+			}
+		}
+		else {
+			write(waende.zu_dunkel);
+		}
+	}
+}
+
+class robot:stdcreature {
+	setShort("+klein* Roboter, +klein* Robot");
+	with(hidden,buchse);
+	moveto(laderaum);
+	string tot="Die Raumratte hat den Roboter zerstört. In diesem Abenteuer ist er nicht mehr zu gebrauchen.^";
+	int bewegung;
+	int onAction(int action) {
+		int ok;
+		if (erreichbar(robot)) {
+			if (raumratte.zustand==0) {
+				switch(action) {
+					case(A_LOOKON);
+					case(A_EXAMINE);
+						write("Diesen Roboter hast du vor einigen Stunden im Wrack eines föderalen Kreuzers gefunden. Sein verchromter
+							Körper hat die Form einer zweibeinigen Kugel und ist von Rostflecken überzogen. An seiner Frontseite befinden
+							sich einige Buchsen und Kabelanschlüsse. Er ist klein, breit und etwas zu schwer, um ihn herumzutragen. Um ihn
+							in den Laderaum zu schaffen, mußtest du ihm seine Laufrichtung ansagen.^");
+						kabel.anschluesse(robot);
+						return(1);
+						break;
+					case(A_ASK);
+					case(A_TELL);
+						write("\Beep...Beep...Beep\. Gegenüber Menschen ist der kleine Roboter offenbar nicht sehr gesprächig,
+							obwohl er deine Anweisungen verstanden hat, als du ihn in den Laderaum geschafft hast. Vielleicht kann
+							er sich mit einem Computer besser verständigen.^");
+						return(1);
+						break;
+					case(A_TAKE);
+						write("Der kleine Roboter reicht dir bis zum Bauch, ist zum Herumtragen aber doch etwas und schwer.
+							Um ihn zu bewegen, schicke ihn einfach in die gewünschte Richtung: ROBOTER, GEHE NACH LINKS.^");
+						return(1);
+						break;
+					case(A_DROPINTO);
+						if (container.issecond()) {
+							write("Der Roboter kann noch auf seinen Beinen stehen und ist auch etwas zu unhandlich, um ihn über die
+								Containerwand zu heben.^");
+							halt(2);
+							return(1);
+						}
+						if (kapsel.issecond()) {
+							write("Der kleine Roboter ist für die schmale Luke der Rettungskapsel etwas zu breit.^");
+							halt(2);
+							return(1);
+						}
+						break;
+					case(A_GIVE);
+						write("Das kann der kleine Roboter mit seinen zwei Beinen nicht annehmen.^");
+						return(1);
+						halt(1);
+						break;
+					case(A_KILL);
+					case(A_DESTROY);
+						if (raumratte.zustand<2) {
+							write("Du kannst den Roboter vielleicht noch gebrauchen und solltest ihn nicht verängstigen.^");
+						}
+						else {
+							write("Das hat die Raumratte schon erledigt.^");
+						}
+						return(1);
+						break;
+					case(A_REMOVE1);
+						write("Der Roboter ist zu schwer, um ihn herumzuschieben.^");
+						return(1); break;
+					default;
+						if (location()==laderaum && action==D_SOUTH) {
+							write("Der kleine Roboter ist für die schmale Luke der Rettungskapsel etwas zu breit.^");
+							return(1);
+							break;
+						}
+						ok=super.onAction(action);
+						if (location()==laderaum) {
+							with(hidden);
+						}
+						else {
+							with(~hidden);
+						}
+						return(ok);
+				}
+			}
+			else {
+				if (raumratte.zustand==1) {
+					raumratte.entdeckung();
+				}
+				else {
+					write(tot);
+				}
+				halt(1);
+				return(1);
+			}
+		}
+		else {
+			halt(1);
+			return(1);
+			break;
+		}
+	}
+	int onOrder(int action) {
+		object x,exit2check;
+		int go=1,ok=1;
+		if (erreichbar(robot)) {
+			if (raumratte.zustand==0) {
+				switch(action) {
+					case(A_TELL);
+					case(A_AHEAD);
+					case(A_BACK);
+						// vorne/hinten in Nord/Sued umsetzen
+						if (action==A_AHEAD) {
+							action=D_NORTH;
+						}
+						if (action==A_BACK) {
+							action=D_SOUTH;
+						}
+					case(A_LEFT);
+					case(A_RIGHT);
+						// links/rechts in West/Ost umsetzen
+						if (action==A_LEFT) {
+							action=D_WEST;
+						}
+						if (action==A_RIGHT) {
+							action=D_EAST;
+						}
+					case(D_NORTH);
+					case(D_NORTHEAST);
+					case(D_EAST);
+					case(D_SOUTHEAST);
+					case(D_SOUTH);
+					case(D_SOUTHWEST);
+					case(D_WEST);
+					case(D_NORTHWEST);
+					case(D_UP);
+					case(D_DOWN);
+						if ((action>D_DOWN) || (!kabel.robot_interface())) {
+							if (action<=D_DOWN) {
+								x=room();
+								exit2check = x.exits[action];
+								if (exit2check!=NULL) {
+									if (!exit2check.has(open)) {
+										write("Hilflos bleibt der kleine Roboter vor dem geschlossenen Schott stehen.^");
+										go=0;
+									}
+									else {
+										if (x==schleuse && action==D_EAST) {
+											write("Der kleine Roboter würde im Weltraum verloren gehen.^");
+											go=0;
+										}
+									}
+								}
+							}
+							if (go) {
+								bewegung=action;
+								ok=onAction(action);
+								buchse.moveto(robot.room());
+								kabel.folgeRobot();
+							}
+						}
+						else {
+							write("Der kleine Roboter hängt noch am Interface.^");
+						}
+						return(ok);
+						break;
+					default;
+						if (room()==laderaum) {
+							write("Der kleine Roboter piepst kurz, läuft einmal um den Container herum und bleibt dann wieder
+								vor dir stehen.^");
+						}
+						else {
+							write("Ein kurzes Piepsen ist die einzige Reaktion des kleinen Roboters.^");
+						}
+						return(1);
+				}
+			}
+			else {
+				if (raumratte.zustand==1) {
+					raumratte.entdeckung();
+				}
+				else {
+					write(tot);
+				}
+				halt(1);
+				return(1);
+			}
+		}
+		else {
+			halt(1);
+			return(1);
+		}
+	}
+}
+
+class buchse:stditem {
+	setShort("-Buchse,&Buchsen,&Kabelanschlüsse,&Anschlüsse,+Kabelanschluß");
+	setLong("Die Buchsen dienen dem Anschluß weiterer Geräte an den Roboter.^");
+	with(buchse,hidden,detail);
+	moveto(robot);
+}
+
+class container:stditem {
+	setShort("+Container");
+	with(hidden,container,open,~underground);
+	moveto(laderaum);
+	int onAction(int action) {
+		int n;
+		if (erreichbar(container)) {
+			string s;
+			switch(action) {
+				case(A_LOOKINTO);
+				case(A_LOOKON);
+				case(A_EXAMINE);
+					write("In dem Container liegt ein Haufen diverser Schrotteile.^");
+					n=objectsInside(container);
+					if (n>0) {
+						s=(n==1) ? "liegt " : "liegen ";
+						write("Obenauf "+s);
+						longList(container,C_NOM);
+					}
+					return(1);
+					break;
+				case(A_SIT2);
+				case(A_SIT3);
+				case(A_SIT4);
+				case(A_GOINTO);
+					write("Du kommst auch von außen bequem an die Schrotteile heran.^");
+					return(1);
+					break;
+				case(A_RUNAROUND);
+					if (robot.in(laderaum)) {
+						write("Der kleine Roboter folgt dir um den Container. \Beep, Beep?\^");
+					}
+					else {
+						write("Und jetzt?^");
+					}
+					return(1);
+					break;
+				case(A_DROPINTO);
+					if (spieler.isfirst()) {
+						write("Im Container wäre es sehr unbequem.^");
+						return(1);
+						break;
+					}
+				default;
+					return(super.onAction(action));
+			}
+		}
+		else {
+			return(1);
+		}
+	}
+}
+
+class schrott2:stditem {
+	setShort("&Schrotteile,&Schrottteile,+Schrott,+Schrotthaufen");
+	with(hidden);
+	moveto(container);
+	int onAction(int action) {
+		write("Die Schrotteile bringen dir vielleicht fünfzig Verrechnungseinheiten ein. Sie sind eine schlechte Ausbeute
+			und erscheinen dir jetzt nicht weiter wichtig.^");
+		halt(1);
+		return(1);
+	}
+}
+
+class platine:maxTake {
+	setShort("-Platine,+Sockel");
+	with(takeable);
+	moveto(container);
+	int onAction(int action) {
+		object x;
+		int ok;
+		if (erreichbar(platine)) {
+			switch(action) {
+				case(A_LOOKON);
+				case(A_EXAMINE);
+					write("Ein kleiner Sockel auf der Platine verrät dir, daß sie einmal Teil eines der heute sehr seltenen
+						Kristallcomputer war. In dem Sockel steckte ein natürlicher Memokristall, mit dem gewaltige Datenmengen extrem
+						schnell gespeichert und abgerufen werden können. Während des Krieges steuerten Kristallcomputer Kreuzer in
+						Gefechten knapp unterhalb der Lichtgeschwindigkeit. In der Randzone ist der Kontakt mit den wenigen Welten,
+						auf denen die Kristalle vorkommen, abgebrochen. Und die Kristallschlösser von Troubadour sind nur noch eine
+						Legende.^Mit dem Kristall wäre die Platine also wertvoll, so bekommst du für sie nur ein paar
+						Verrechnungseinheiten.^");
+					return(1);
+					break;
+				case(A_CONNECT);
+					ok=0;
+					fetch(x,x.isfirst() || x.issecond(),0) {
+						if ((x==kristall) && (!vogelnest.vogel)){
+							write("Der Memokristall ist noch unbearbeitet und paßt so nicht in den Sockel.^");
+							ok=1;
+						}
+					}
+					return(ok);
+					break;
+				default;
+					return(super.onAction(action));
+			}
+		}
+		else {
+			return(1);
+		}
+
+	}
+}
+
+class kabel:maxTake {
+	object stecker[2];
+	int n,first=1;
+	setShort("Kabel,Datenkabel,Kabelende");
+	with(takeable);
+	moveto(container);
+
+	int robot_interface() {
+		return((stecker[0]==robot || stecker[0]==interface) && (stecker[1]==robot || stecker[1]==interface));
+	}
+
+	// versucht, Kabel mit Objekt zu verbinden
+	void connect(object x) {
+		string s;
+		object stecker1,stecker2; // temp. Hilfsvariablen
+		if (x==buchse) {
+			halt(2);
+		}
+		if ((!x.isfirst()) || (!x.issecond())) {
+			if (location()!=spieler && n==0) {
+				write("(Dafür nimmst du erst das Kabel)^");
+				with(~hidden);
+				moveto(spieler);
+			}
+			if (x.has(buchse)) {
+				if (x!=stecker[0] && x!=stecker[1]) {
+					if (n<2) {
+						s=(n==0) ? "erste" : "zweite";
+						write("Du steckst das "+s+" Kabelende in <den x>.^");
+						moveto(spieler.room());
+						stecker[n]=x;
+						if (isfirst()) {
+							halt(2);
+						}
+						n++;
+					}
+					else {
+						stecker1 = stecker[0];
+						stecker2 = stecker[1];
+						write("Das Kabel ist schon mit <dem stecker1> und <dem stecker2> verbunden.^");
+						halt(1);
+					}
+				}
+				else {
+					if (isfirst() || issecond()) {
+						write("Es steckt schon ein Kabelende in <dem x>.^");
+					}
+					halt(1);
+				}
+
+			}
+			else {
+				write("Das Kabel läßt sich nicht mit <dem x> verbinden.^");
+				halt(1);
+			}
+		}
+		else {
+			write("<Der x> kann nicht mit sich selbst verbunden werden.^");
+			halt(1);
+		}
+		if (robot_interface()) {
+			if (first) {
+				write("Der kleine Roboter ist jetzt mit dem Bordcomputer verbunden und beginnt aufgeregt zu piepsen. Du überlegst,
+					ob du so einem Roboter schon einmal bei der Arbeit zugesehen hast. Wurden sie nicht in der Flotte zum Entschlüsseln
+					von Kommunikationsprotokollen eingesetzt?^");
+				first=0;
+			}
+			else {
+				write("Der kleine Roboter beginnt aufgeregt zu piepsen.^");
+			}
+		}
+	}
+	// trennt Kabel von Objekt
+	void disconnect(object x) {
+		string s;
+		int i,j;
+		if (x==buchse) {
+			x=robot;
+		}
+		j=n;
+		for (i=0;i<2;i++) {
+			if (x==stecker[i]) {
+				write("Du ziehst das Kabel aus <dem x>.^");
+				stecker[i]=NULL;
+				n--;
+			}
+		}
+		if (n<j) {
+			if (n==0) {
+				moveto(spieler);
+			}
+		}
+		else {
+			if (isfirst() || issecond()) {
+				write("Das Kabel steckt nicht in <dem x>.^");
+			}
+			else {
+				write("<Der x> ist mit nichts verbunden.^");
+			}
+		}
+	}
+	void anschluesse(object x) {
+		int i,j;
+		object stecker1;
+		for (i=0;i<2;i++) {
+			if (x==stecker[i]) {
+				j=1-i;
+				if (stecker[j]==NULL) {
+					write("In <dem x> steckt ein Kabel.^");
+				}
+				else {
+					stecker1 = stecker[j];
+					write("<Der x> ist über ein Kabel mit <dem stecker1> verbunden.^");
+				}
+			}
+		}
+	}
+	void folgeRobot() {
+		// wenn Kabel mit einem Ende im Robot
+		if (stecker[0]==robot || stecker[1]==robot) {
+			moveto(robot.room());
+		}
+	}
+	int onAction(int action) {
+		if (erreichbar(kabel)) {
+			string s;
+			object x;
+			object stecker1,stecker2; // temp. Hilfsvariablen
+			int i;
+			switch(action) {
+				case(A_TAKE);
+				case(A_MOVETO);
+					if (stecker[0]!=NULL) {
+						if (stecker[1]!=NULL) {
+							stecker2 = stecker[1];
+							s=" und <dem stecker2>)^";
+						}
+						else {
+							s=")^";
+						}
+						stecker1 = stecker[0];
+						write("(Du trennst dabei das Kabel von <dem stecker1>"+s);
+						stecker[0]=NULL;
+						stecker[1]=NULL;
+						n=0;
+					}
+					return(super.onAction(action));
+					break;
+				case(A_TAKEOUT);
+					// nimm kabel aus x. Falls x einer der Anschluesse ist:
+					if (n>0) {
+						for (i=0;i<2;i++) {
+							if (stecker[i]!=NULL) {
+								if (stecker[i].issecond()) {
+									stecker1 = stecker[i];
+									write("Du ziehst das Kabel aus <dem stecker1>.^");
+									stecker[i]=NULL;
+									n--;
+									if (n==0) {
+										moveto(spieler);
+									}
+									halt(2);
+								}
+							}
+						}
+					}
+					// wenn x Container oder sonstwas ist:
+					return(super.onAction(A_TAKEOUT));
+					break;
+				case(A_CONNECT);
+					if (isfirst() && issecond()) {
+						write("Das Kabel kann nicht mit sich selbst verbunden werden.^");
+						halt(1);
+					}
+					fetch (x,x!=kabel && (x.isfirst() || x.issecond()),0) {
+						connect(x);
+					}
+					return(1);
+					break;
+				case(A_DISCONNECT);
+					if (isfirst() && issecond()) {
+						write("Das Kabel ist nicht mit sich selbst verbunden.^");
+						halt(1);
+					}
+					fetch(x,x!=kabel && (x.isfirst() || x.issecond()),0) {
+						disconnect(x);
+					}
+					return(1);
+					break;
+				case(A_EXAMINE);
+				case(A_LOOKON);
+					write("Ein gewöhnliches Datenkabel, wie es zur Verbindung von Computern oder Robotern benutzt wird.");
+					if (stecker[0]!=NULL) {
+						stecker2 = stecker[1];
+						stecker1 = stecker[0];
+						s=(stecker[1]!=NULL) ? ", das andere Ende steckt in <dem stecker2>.^" : ".^";
+						write(" Ein Kabelende steckt in <dem stecker1>"+s);
+					}
+					else {
+						write("^");
+					}
+					return(1);
+					break;
+				default;
+					return(super.onAction(action));
+			}
+		}
+		else {
+			return(1);
+		}
+	}
+}
+
+class kapsel:stditem {
+	setShort("-Rettungskapsel,-Kapsel");
+	with(hidden,openable,closeable,container,enterable,~open,~underground,wall,light);
+	moveto(laderaum);
+	string s,flug[4],nogo="Du wartest lieber bis die Rettungskapsel gelandet ist.^";
+	int n;
+	void init() {
+		flug[0]="Mit einem heftigen Ruck löst sich die Rettungskapsel von der Nachtfee. Der Autopilot richtet sie zum
+			Nebelmond hin aus. Du spürst, wie ihr Triebwerk sie rasend beschleunigt.^";
+		flug[1]="Die Rettungskapsel hat den halben Weg zwischen der Nachtfee und dem Nebelmond zurückgelegt, als du aus seiner
+			Wolkendecke einen Laser emporzucken siehst. Er zerreißt die Nachtfee, und nach einer kurz aufflackernden
+			Explosion ist nichts mehr von dem für dich so wichtigen Raumschiff übrig.^";
+		flug[2]="Die dichte Wolkendecke des Mondes verhindert jeden Blick nach draußen, als die Rettungskapsel in die
+			Atmosphäre eindringt.^";
+		flug[3]="Die Rettungskapsel stürzt weiter durch einen Wolkenschleier der Mondoberfläche entgegen. Wird sie mit
+			dir an einem Felsen zerschellen oder dich mit auf den Grund eines dunklen Meeres ziehen?^";
+	}
+	void innen() {
+		s=(in(laderaum)) ? "sich die Kapsel starten läßt.^" : "du die Kapsel gestartet hast.^";
+		write("Neben einem Sicherheitsgurt und einem kleinen Display ist in der engen Rettungskapsel ein Hebel angebracht, mit dem "+s);
+		if (objectsInside(kapsel)>0) {
+			write("Weiterhin siehst du hier noch ");
+			longList(this,C_NOM);
+		}
+		if (spieler.in(kapsel)) {
+			s=(has(open)) ? "offen.^" : "geschlossen.^";
+			write("Die Luke der Kapsel ist "+s);
+		}
+	}
+	// Weil es waehrend der Fahrt zum Mond keinen Raum gibt,
+	// hier noch die benoetigten Raumfunktionen
+	int isLight() {
+		return(1);
+	}
+	string StatusLine() {
+		object x;
+		string s;
+		x=location();
+		if (x!=NULL) {
+			s=(x==laderaum) ? "Laderaum (in einer Rettungskapsel)" : "Sumpf (in einer Rettungskapsel)";
+			return(s);
+		}
+		else {
+			return("Rettungskapsel");
+		}
+	}
+	void description() {
+		innen();
+	}
+	int onAction(int action) {
+		switch (action) {
+			case(A_LOOKINTO);
+				if (!spieler.in(kapsel) && !has(open)) {
+					// reinschauen
+					write("Du schaust durch das Bullauge in der Luke der Rettungskapsel.^");
+				}
+				innen();
+				return(1);
+				break;
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				if (spieler.in(kapsel)) {
+					innen();
+				}
+				else {
+					if (in(laderaum)) {
+						write("Die kleine Rettungskapsel liegt halb in der Wand des Laderaums versenkt. Durch eine Luke
+							kannst du in sie hineinklettern. Ein Bullauge in der Luke erlaubt den Blick in das Innere, bzw.
+							nach draußen, wenn Du dich in der Kapsel befindest.^");
+					}
+					else {
+						write("Die Rettungskapsel hat sich hier bei der Landung in den Sumpf gebohrt. Das Triebwerk liegt im
+							Wasser und wird die Kapsel nirgendwo mehr hinfliegen.^");
+					}
+					s=has(open) ? "offen.^" : "geschlossen.^";
+					write("Die Luke ist "+s);
+				}
+				return(1);
+				break;
+			case(A_LOOKTHROUGH);
+				if (spieler.in(kapsel)) {
+					if (!has(open)) {
+						write("(Ich nehme an, du möchtest durch das Bullauge in der Luke schauen)^");
+					}
+					luke.onAction(action);
+				}
+				else {
+					write("Du bist doch gar nicht in der Rettungskapsel.^");
+				}
+				return(1);
+				break;
+			case(A_ENTER);
+			case(A_SIT1);
+			case(A_SIT2);
+			case(A_SIT4);
+			case(A_GOINTO);
+				if (!spieler.in(kapsel)) {
+					if (!has(open)) {
+						write("(Du öffnest erst die Luke der Rettungskapsel)^");
+						with(open);
+					}
+					write("Du befindest dich jetzt in der Rettungskapsel.^");
+					innen();
+					spieler.moveto(kapsel);
+					luke.moveto(kapsel);
+					bullauge.moveto(kapsel);
+					if (position==0) {
+						roehren.moveto(draussen);
+					}
+				}
+				else {
+					write("Du bist doch schon in der Rettungskapsel.^");
+				}
+				return(1);
+				break;
+			case(A_EXIT);
+			case(A_STAND1);
+			case(A_STAND2);
+				if (spieler.in(kapsel)) {
+					if (in(laderaum) || in(sumpf)) {
+						if (gurt.amGurt) {
+							write("(Du öffnest erst den Sicherheitsgurt)^");
+							gurt.amGurt=0;
+						}
+						if (!has(open)) {
+							write("(Du öffnest erst die Luke der Rettungskapsel)^");
+							with(open);
+						}
+						write("Du verläßt die Rettungskapsel.^");
+						spieler.moveto(kapsel.location());
+						luke.moveto(spieler.location());
+						bullauge.moveto(spieler.location());
+						if (position==0) {
+							roehren.moveto(spieler.location());
+						}
+						if (spieler.in(sumpf)) {
+							sumpf.description();
+							scoring.achieved(2);
+						}
+					}
+					else {
+						write(nogo);
+					}
+				}
+				else {
+					write("Du bist doch gar nicht in der Rettungskapsel.^");
+				}
+				return(1);
+				break;
+			case(A_OPEN);
+				if (!has(open)) {
+					if (in(laderaum) || in(sumpf)) {
+						with(open);
+						write("Du öffnest die Luke der Rettungskapsel.^");
+						if (!spieler.in(kapsel)) {
+							luke.moveto(spieler.location());
+							bullauge.moveto(spieler.location());
+							innen();
+						}
+					}
+					else {
+						write(nogo);
+					}
+					return(1);
+				}
+				else {
+					return(super.onAction(action));
+				}
+				break;
+			case(A_CLOSE);
+				luke.moveto(spieler.location());
+				bullauge.moveto(spieler.location());
+				return(super.onAction(action));
+				break;
+			case(A_DROPINTO);
+			case(A_TAKEOUT);
+				if (!spieler.in(kapsel)) {
+					write("(Du öffnest erst die Luke der Rettungskapsel)^");
+					with(open);
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+	void schauRausBeiFahrt() {
+		switch(n) {
+			case(0);
+			case(1);
+				write("Durch die Luke siehst du die Scheibe des Nebelmondes schnell größer werden.^");
+				break;
+			case(2);
+			case(3);
+				write("Dichte Wolken lassen dich draußen nichts erkennen.^");
+				break;
+			case(4);
+				write("Die grauen Wolken werden von Nebelschwaden abgelöst, durch die du schwach die Baumkronen eines
+					Waldes siehst.^");
+				break;
+		}
+	}
+	// daemon fuer Flug wird vom Hebel aktiviert und
+	// schaltet sich selbst wieder aus
+	void daemon() {
+		object x;
+		if (n<4) {
+			write(flug[n]);
+			n++;
+		}
+		else {
+			stopDaemon();
+			moveto(sumpf);
+			spieler.moveto(sumpf);
+			spieler.moveto(kapsel);
+			//cockpit.setShort("nichtMehrErreichbar"); // wegen 2. Cockpit im Spaeher
+			write("Die Rettungskapsel fliegt jetzt durch weiße Nebelschwaden, und der Autopilot beginnt, sie abzubremsen.
+				Undeutlich erkennst du draußen das grüne Dach eines dichten Waldes. Dann peitschen auch schon Äste und Blätter
+				gegen die Außenwand. Mit lautem Krachen und einem letzten Ruck berührt die Rettungskapsel die Oberfläche und
+				kommt zum Stillstand. Schlammspritzer am Bullauge weisen auf den Sumpfboden hin, der dir das Leben gerettet hat.^
+				Das Display leuchtet auf und zeigt dir Daten über die Umweltbedingungen außerhalb der Kapsel an.
+				Danach sind Atmosphäre und Schwerkraft für Menschen verträglich. Die Temperatur beträgt 32 Grad
+				Celsius.^");
+		}
+	}
+}
+
+class luke:stditem {
+	setShort("-Luke");
+	with(hidden,detail);
+	moveto(laderaum);
+	int onAction(int action) {
+		string s;
+		switch(action) {
+			case(A_OPEN);
+			case(A_CLOSE);
+				return(kapsel.onAction(action));
+				break;
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				s=(kapsel.has(open)) ? "offen.^" : "geschlossen.^";
+				write("In der schmalen Luke sitzt ein Bullauge. Die Luke ist "+s);
+				return(1);
+				break;
+			case(A_LOOKTHROUGH);
+				if (spieler.in(kapsel)) {
+					if (!kapsel.has(open)) {
+						// rausschauen
+						write("Du schaust durch das Bullauge in der Luke der Rettungskapsel.^");
+					}
+					if (kapsel.in(laderaum)) {
+						laderaum.with(~visited);
+						spieler.moveto(laderaum);
+						laderaum.description();
+						spieler.moveto(kapsel);
+					}
+					else {
+						if (kapsel.in(sumpf)) {
+							sumpf.with(~visited);
+							sumpf.description();
+						}
+						else {
+							kapsel.schauRausBeiFahrt();
+						}
+					}
+				}
+				else {
+					kapsel.onAction(A_LOOKINTO);
+				}
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class bullauge:stditem {
+	setShort("Bullauge");
+	with(hidden,detail);
+	moveto(laderaum);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKTHROUGH);
+			case(A_LOOKINTO);
+				luke.onAction(A_LOOKTHROUGH);
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class gurt:stditem {
+	setShort("+Sicherheitsgurt,+Gurt");
+	setLong("Du kannst den Sicherheitsgurt anlegen (bzw. dich anschnallen) und ihn wieder öffnen. Aber der Flug mit einer
+		Rettungskapsel hinterläßt so oder so immer ein paar Schrammen.^");
+	with(hidden);
+	moveto(kapsel);
+	int amGurt;
+	int onAction(int action) {
+		switch(action) {
+			case(A_WEAR);
+			case(A_FASTEN);
+				if (spieler.in(kapsel)) {
+					if (!amGurt) {
+						write("Du hast den Sicherheitsgurt jetzt angelegt.^");
+						amGurt=1;
+					}
+					else {
+						write("Du hast den Sicherheitsgurt schon angelegt.^");
+					}
+				}
+				else {
+					write("Dafür mußt du erst in die Rettungskapsel klettern.^");
+				}
+				return(1);
+				break;
+			case(A_OPEN);
+			case(A_DISROBE);
+				if (amGurt) {
+					write("Du hast den Sicherheitsgurt jetzt abgelegt.^");
+					amGurt=0;
+				}
+				else {
+					write("Du bist gar nicht angeschnallt.^");
+				}
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+
+		}
+	}
+}
+
+class hebel:stditem {
+	setShort("+Hebel");
+	with(hidden);
+	moveto(kapsel);
+	int onAction(int action) {
+		switch(action) {
+			case(A_PULL);
+			case(A_MOVE1);
+				if (spieler.in(kapsel)) {
+					if ((!kapsel.has(open)) || (kapsel.in(sumpf))) {
+						if (position==0) {
+							write("Die Rettungskapsel würde dich in den verstrahlten Einöden von Charon II absetzen. Das wäre
+								dein sicherer Tod.^");
+						}
+						else {
+							if (kapsel.in(laderaum)) {
+								// start der rettungskapsel
+								kapsel.moveto(NULL);
+								kapsel.startDaemon();
+								laser.stopDaemon();
+								display1.with(~detail);
+								display1.k1="0 0 0";
+								display1.moveto(gleiter);
+								tastatur1.moveto(gleiter);
+							}
+							else {
+								write("Der Hebel wird die Rettungskapsel wohl nicht noch einmal starten.^");
+							}
+						}
+
+					}
+					else {
+						write("Es ist besser, du schließt erst die Luke.^");
+					}
+				}
+				else {
+					write("Dafür mußt du erst in die Rettungskapsel klettern.^");
+				}
+				return(1);
+				break;
+			case(A_EXAMINE);
+				if (kapsel.in(laderaum)) {
+					write("Im Notfall kannst du an dem Hebel ziehen, um die Rettungskapsel zu starten.^");
+				}
+				else {
+					write("Du hast mit dem Hebel die Kapsel gestartet. Jetzt brauchst du ihn nicht mehr.^");
+				}
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+// Display fuer Kapsel
+class display2:stditem {
+	setShort("Display,-Anzeige");
+	with(hidden,detail);
+	moveto(kapsel);
+	int onAction(int action) {
+		switch(action) {
+			case(A_LOOKON);
+			case(A_EXAMINE);
+				if (!kapsel.in(sumpf)) {
+					write("Das Display ist ausgeschaltet. Da du keine Möglichkeit siehst, es zu aktivieren, nimmst
+						du an, daß es sich bei passender Gelegenheit selbst einschaltet.^");
+				}
+				else {
+					write("Das Display zeigt dir Daten über die Umweltbedingungen außerhalb der Kapsel an. Danach sind Atmosphäre und
+						Schwerkraft für Menschen verträglich. Die Temperatur beträgt 28 Grad Celsius.^");
+				}
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class laser:stditem {
+	setShort("Lasergeschütz,+Laser,-Waffe,-Maschine,&Maschinenteile");
+	setLong("Es ist eines der normalen Raumabwehrgeschütze, wie sie auf Stützpunkten der Flotte gebraucht wurden. Solange du dich
+		nicht in die Luft begibst, wird es dir nicht gefährlich werden.^");
+	with(hidden);
+	moveto(vorStation);
+	int i,j;
+	string s[2];
+	void init() {
+		s[0]="Die Nachtfee wird plötzlich von einer nahen Explosion durchgeschüttelt.^";
+		s[1]="Eine weitere Explosion erschüttert die Nachtfee. Sie ist näher und heftiger als die erste.^";
+	}
+	// 3x nach 3 Zuegen schiessen
+	void daemon() {
+		if (i==2) {
+			if (j==2) {
+				write("Die nächste Explosion zerreißt die Nachtfee.^");
+				death();
+			}
+			else {
+				write(s[j]);
+				if (!blaueTaste.first && spieler.in(cockpit)) {
+					write("Auf dem Mond versucht jemand, seiner Forderung nach einem Identifikationskode Nachdruck zu verleihen.^");
+				}
+				j++;
+			}
+			i=0;
+		}
+		else {
+			i++;
+		}
+	}
+	int onAction(int action) {
+		switch(action) {
+			case(A_TOUCH);
+			case(A_SMELL);
+				write("An den Laser kommst du nicht heran.^");
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class voegel:stditem {
+	setShort("&Vögel");
+	setLong("In den Baumkronen scheinen viele Vogelarten zu leben. Du siehst viele kleine bunte, deren aufgeregtes Gezwitscher
+		zu dir herunterdringt. Dazwischen gibt es auch größere, die ein häßlicheres Krähen hören lassen.^");
+	with(hidden);
+	moveto(sumpf);
+	int onAction(int action) {
+		switch(action) {
+			case(A_TOUCH);
+			case(A_SMELL);
+				write("Die Vögel fliegen dafür viel zu hoch.^");
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class staemme:stditem {
+	setShort("&Bäume,+Baum,&Baumstämme,&Blätter,&Wurzeln,&Pflanzen");
+	setLong("Aus dem Sumpf strecken sich dicke Bäume dem wenigen Sonnenlicht entgegen, das durch die Wolkendecke fällt. Hoch über dir
+		bilden ihre verzweigten Äste und vielfarbigen Blätter das Dach des Waldes, das nur hier und dort einen Blick in den Himmel
+		erlaubt. Mancher Baum wird von dicken Schlingpflanzen auf ihrem Weg zum Licht erstickt. Jeder Quadratmeter Boden, der nicht
+		unter Wasser steht, ist von fremdartigen Gräsern und Blumen und Pilzen überwuchert. Du bedauerst wieder, daß du das
+		Studium der Xenobiologie aufgeben mußtest.^");
+	with(hidden);
+	moveto(sumpf);
+	int onAction(int action) {
+		switch(action) {
+			case(D_UP);
+				write("Du kletterst ein Stück am nächstgelegenen Baum herum. Der Stamm und die an ihm wachsenden Pflanzen
+					sind glitschig und geben einem ungeübten Kletterer nur wenig Halt. So kehrst du schnell wieder um.^");
+				return(1);
+				break;
+			default;
+				return(super.onAction(action));
+
+		}
+	}
+}
+
+class wasser:stditem {
+	setShort("Wasser,-Brühe");
+	setLong("Du mußt dich nicht weiter um das stinkende Wasser kümmern.^");
+	with(hidden,detail);
+	moveto(sumpf);
+	int onAction(int action) {
+		switch(action) {
+			case(A_DRINK);
+				write("Eine scheußliche Brühe.^");
+				return(1);break;
+			case(A_SWIM);
+				write("Bleib besser auf den Beinen. Wer weiß schon, was hier so im Wasser lebt.^");
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class nebel:stditem {
+	setShort("+Nebel,&Nebelschwaden");
+	setLong("Du kannst nicht weit durch den Nebel sehen.^");
+	with(hidden,detail,~underground);
+	moveto(sumpf);
+}
+
+class baum:stditem {
+	setShort("+Baum,+Baumstamm");
+	setLong("Zehn Menschen könnten diesen Stamm nicht umfassen. Seine Höhe schätzt du auf etwa achtzig Meter.^");
+	with(hidden,~underground);
+	moveto(vorWrack);
+	int onAction(int action) {
+		switch(action) {
+			case(D_UP);
+				spieler.onAction(D_UP);
+				return(1);
+				break;
+			case(D_DOWN);
+				spieler.onAction(D_DOWN);
+				return(1);
+				break;
+			case(A_JUMP2);
+				if (spieler.location()!=vorWrack) {
+					write("Das ist in dieser Höhe zu gefährlich.^");
+				}
+				else {
+					write("Klettere doch erstmal hoch.^");
+				}
+				return(1);
+				break;
+			case(A_KILL);
+				write("Willst du das wirklich? Aber du hast auch keine Axt.^");
+				return(1);break;
+			default;
+				return(super.onAction(action));
+
+		}
+	}
+}
+
+class aeste:stditem {
+	setShort("+Ast,&Äste,&Blätter");
+	setLong("Alle Äste sind ungewöhnlich lang und verzweigt. Sie tragen zahllose sternförmige Blätter, die dich
+		nicht weit blicken lassen.^");
+	with(hidden);
+	moveto(vorWrack);
+}
+
+class wrackTuer:stditem {
+	setShort("&Schleusentüren,&Türen,&Schleusen");
+	with(hidden,~underground);
+	moveto(vorWrack);
+	int onAction(int action) {
+		write("Die Schleusen der Erebus sind für dich unerreichbar.^");
+		return(1);
+	}
+}
+
+class wrackRumpf:stditem {
+	setShort("+Rumpf,+Riß");
+	setLong("Der lange Rumpf der Erebus wurde bei der Bruchlandung schwer beschädigt. Im Süden gelangst du durch
+		einen hohen Spalt in das Wrack.^");
+	with(hidden);
+	moveto(vorWrack);
+}
+
+class helm:maxTake {
+	setShort("+Helm,Nachtsichtgerät,Gerät");
+	with(hidden,takeable,wearable);
+	moveto(imWrack);
+	int onAction(int action) {
+		if (erreichbar(helm)) {
+			int z;
+			object where;
+			switch(action) {
+				case(A_LOOKON);
+				case(A_EXAMINE);
+					if (name()==0) {
+						write("Helme wie dieser wurden von Bodentruppen getragen. Im Visier dieses Helms ist ein Nachtsichtgerät integriert.^");
+					}
+					else {
+						write("Wenn du den Helm in dunklen Räumen aufsetzt, läßt dich dieses Gerät deine Umwelt in Grüntönen wahrnehmen.^");
+					}
+					return(1);
+					break;
+				case(A_DROP);
+					where=spieler.room();
+					if ((!where.has(light)) && (!anzug.in(spieler))) {
+						scheinwerfer.warnung(helm);
+					}
+					else {
+						if (has(worn)) {
+							write("(Du nimmst erst den Helm vom Kopf)^");
+							with(~worn);
+						}
+						moveto(spieler.location());
+						write("Du hast den Helm jetzt abgelegt.^");
+					}
+					return(1);
+					break;
+				case(A_LOOKUNDER);
+					if (has(worn)) {
+						write("Dafür mußt du den Helm erst abnehmen. Aber was soll da außer deinen Haaren schon drunter sein?^");
+					}
+					else {
+						super.onAction(action);
+					}
+					return(1);break;
+				case(A_WEAR);
+					if (anzug.has(worn)) {
+						write("Um den Helm aufzusetzen, mußt du erst den Raumanzug ausziehen.^");
+					}
+					else {
+						if (!has(worn)) {
+							if (!in(spieler) && istVoll()) {
+								nichtAufnehmen();
+							}
+							else {
+								if (!in(spieler)) {
+									write("(Du nimmst erst den Helm)^");
+									moveto(spieler);
+								}
+								write("Du hast den Helm jetzt aufgesetzt.^");
+								robe=" aufgesetzt";
+								where=spieler.room();
+								if (!where.has(light) && (!scheinwerfer.has(on) || scheinwerfer.room()!=room())) {
+									write("Das Nachtsichtgerät im Helm läßt dich deine Umwelt in Grüntönen wahrnehmen.^");
+								}
+								with(worn,light);
+							}
+						}
+						else {
+							write("Der Helm sitzt doch schon auf deinem Kopf.^");
+						}
+					}
+					return(1);
+					
+				case(A_DISROBE);
+					if (has(worn)) {
+						write("Du setzt den Helm ab.^");
+						with(~worn,~light);
+					}
+					else {
+						write("Du hast den Helm doch gar nicht aufgesetzt.^");
+					}
+					return(1);
+					
+				case(A_DROP);
+					with(~worn);
+				
+				default;
+					return(super.onAction(action));
+			}
+		}
+		else {
+			return(1);
+		}
+	}
+}
+
+class kiste:maxTake {
+	setShort("-Frachtkiste,-Kiste,-Öse,Siegel");
+	with(hidden,takeable,container,openable,closeable,open,enterable);
+	string erst_ablegen="Dafür legst du die Kiste besser erst ab.^",
+		nichtMitAnzug="Mit dem dicken Raumanzug paßt du nicht in die Frachtkiste.^",
+		festgeklemmt="Das geht nicht, solange die Kiste unter dem Tor festklemmt.^";
+	moveto(imWrack);
+	// wenn Kiste an Leine gezogen wird
+	void ziehen(int action) {
+		object where,x;
+		int ok;
+		where=spieler.room();
+		x=where.exits[action];
+		if (x!=NULL) {
+			// von ausgeschaltetem reaktor gesperrt?
+			ok=!x.has(blocked);
+		}
+		if (vorStation2ko1.blocker==kiste || ko22platt.blocker==kiste) {
+			write("(Du trennst erst die Sicherheitsleine von der festgeklemmten Frachtkiste)^");
+			leine.anOese=0;
+			ok=0;
+		}
+		if (ok) {
+			if (action<D_UP) {
+				write("Du ziehst die Frachtkiste an der Sicherheitsleine hinter dir her.^");
+			}
+			else {
+				if ((action==D_UP) && (where==vorWrack || where==halberStamm)) {
+					write("Unter dir hängt die Frachtkiste an der Sicherheitsleine. Du ziehst ein paar Mal an der Leine, wenn
+						die Kiste in den Ästen hängen bleibt, und die Kiste folgt dir den Baum hinauf.^");
+				}
+				else {
+					if (where==vogelnest || where==halberStamm) {
+						write("Unter dir hängt die Frachtkiste an der Sicherheitsleine und nähert sich mit dir dem Boden.^^");
+					}
+				}
+			}
+		}
+	}
+	int istKisteFrei() {
+		return(((vorStation2ko1.blocker!=kiste) && (ko22platt.blocker!=kiste)) || (reaktor.has(on)));
+	}
+	int onAction(int action) {
+		string s;
+		int ok1,ok2,tor1,tor2,r=1;
+		object where,dasTor;
+		// klemmt die Kiste unter Tor?
+		ok1=(action==A_EXAMINE) || (action==A_LOOKON);
+		ok2=istKisteFrei();
+		if (ok1 || ok2) {
+			if (reaktor.has(on)) {
+				// wenn unter tor und reaktor eingeschaltet
+				if ((vorStation2ko1.blocker==kiste) && (!vorStation2ko1.has(open))) {
+					write("Das Tor öffnet sich, als du dich bewegst.^");
+					vorStation2ko1.with(open);
+					where=spieler.room();
+					where.startTimer(1);
+					tor1=1;
+				}
+				if ((ko22platt.blocker==kiste) && (!ko22platt.has(open))) {
+					write("Das Tor öffnet sich, als du dich bewegst.^");
+					ko22platt.with(open);
+					where=spieler.room();
+					where.startTimer(1);
+					tor1=2;
+				}
+				dasTor=location();
+			}
+			switch(action) {
+				case(A_TAKE);
+					if (!spieler.in(kiste)) {
+						if (!kiste.in(spieler)) {
+							if (objectsInside(spieler)<=I_MAX) {
+								super.onAction(A_TAKE);
+							}
+							else{
+								write("Um die große Frachtkiste aufzunehmen, mußt du erst etwas anderes ablegen.^");
+							}
+						}
+						else {
+							write("Du hast die Kiste doch schon.^");
+						}
+					}
+					else {
+						write("Dafür mußt du die Kiste erst verlassen.^");
+					}
+					r=1;
+					break;
+				case(A_ENTER);
+				case(A_SIT2);
+					if (!spieler.sitzend) {
+						if (!in(spieler)) {
+							if (!anzug.in(spieler) && !anzug.in(kiste)) {
+								if (!has(open)) {
+									write("(Du öffnest erst die Frachtkiste)^");
+									with(open);
+								}
+								write("Du zwängst dich in die Frachtkiste.^");
+								spieler.sitzend=1;
+								spieler.moveto(kiste);
+							}
+							else {
+								write(nichtMitAnzug);
+							}
+						}
+						else {
+							write(erst_ablegen);
+							halt(1);
+						}
+					}
+					else {
+						write("Du befindest dich bereits in der Frachtkiste.^");
+					}
+					r=1;
+					break;
+				case(A_EXIT);
+				case(A_STAND2);
+					if (spieler.sitzend) {
+						if (!has(open)) {
+							write("(Du öffnest erst die Frachtkiste)^");
+							with(open);
+						}
+						write("Du kletterst aus der Frachtkiste.^");
+						spieler.sitzend=0;
+						spieler.moveto(kiste.location());
+					}
+					else {
+						write("Du befindest dich nicht in der Frachtkiste.^");
+					}
+					r=1;
+					break;
+				case(A_MOVETO);
+					if (leine.anOese && !anzug.in(spieler)) {
+						write("(Du trennst erst die Sicherheitsleine von der Öse)^");
+						leine.anOese=0;
+					}
+					r=super.onAction(A_MOVETO);
+					r=1;
+					break;
+				case(A_DROPINTO);
+					if (spieler.isfirst()) {
+						if (!in(spieler)) {
+							if (spieler.location()==kiste) {
+								write("Du befindest dich schon in der Frachtkiste.^");
+								r=1;
+								break;
+							}
+							else {
+								if (!anzug.in(spieler)) {
+									spieler.sitzend=1;
+								}
+								else {
+									write(nichtMitAnzug);
+									r=1;
+									break;
+								}
+							}
+						}
+						else {
+							write(erst_ablegen);
+							halt(1);
+							r=1;
+							break;
+						}
+					}
+				case(A_EXAMINE);
+				case(A_LOOKON);
+					where=room();
+					if (where.isLight()) {
+						if (name()<2) {
+							s="Die Frachtkiste ist aus Leichtmetall gefertigt und gerade groß genug, um dich aufzunehmen, wenn du Arme und Beine
+								anziehst. Sie trägt das zerbrochene Siegel einer Kristallmine auf Cindelban. An einer Seite ist eine Öse angebracht,
+								durch die einmal eine Leine führte, um mehrere gestapelte Kisten zu stabilisieren";
+							if (leine.anOese) {
+								s+=".^Die Sicherheitsleine deines Raumanzugs ist an der Öse befestigt.^";
+							}
+							else {
+								s+=".^";
+							}
+							if (!ok2) {
+								s+="Die Frachtkiste klemmt unter dem Tor fest.^";
+							}
+						}
+						else {
+							if (name()==2) {
+								s=(leine.anOese) ? "Die Sicherheitsleine deines Raumanzugs ist an der Öse befestigt.^" :
+									"Daran ist nichts Besonderes zu entdecken.^";
+							}
+							else {
+								if (where.isLight()) {
+									if (has(open) || (!spieler.in(kiste))) {
+										s="Es ist das Frachtsiegel einer Kristallmine auf Cindelban, dem Planeten mit den größten Vorkommen an
+											Memokristallen.^";
+									}
+									else {
+										s="Das Siegel befindet sich außen auf der Kiste. Du kannst es von hier nicht erkennen.^";
+									}
+								}
+								else {
+									write("Es ist hier zu dunkel, um das Siegel untersuchen zu können.^");
+								}
+
+							}
+							write(s);
+							r=1;
+							break;
+						}
+						setLong(s);
+					}
+					else {
+						write("Es ist zu dunkel in der geschlossenen Frachtkiste.^");
+						r=1;break;
+					}
+				default;
+					r=super.onAction(action);
+			}
+			// wenn Kiste unter Tor lag und jetzt nicht mehr
+			if (tor1 && location()!=dasTor) {
+				vorStation2ko1.blocker=NULL;
+			}
+			if (tor2 && location()!=dasTor) {
+				ko22platt.blocker=NULL;
+			}
+		}
+		else {
+			write(festgeklemmt);
+			halt(1);
+			r=1;
+		}
+		return(r);
+	}
+}
+
+class kristall:maxTake {
+	setShort("+Memokristall,+Kristall");
+	setLong("Der rot funkelnde Memokristall ist noch unbearbeitet. So groß wie er ist, lassen sich aus ihm ein Dutzend
+		Speichereinheiten für Kristallcomputer fertigen. Seinen Wert schätzt du auf einen mindestens sechsstelligen Betrag,
+		was eine mehr als ausreichende Entschädigung für die Nachtfee ist.^");
+	with(takeable);
+	moveto(vogelnest);
+	int first=1;
+	int onAction(int action) {
+		int r=1;
+		switch (action) {
+			case(A_EXAMINE);
+			case(A_LOOKON);
+			case(A_CONNECT);
+			case(A_TOUCH);
+			case(A_SMELL);
+			case(A_TAKE);
+				if (vogelnest.vogel) {
+					write(vogelnest.warnung);
+					if (action==A_CONNECT) {
+						halt(1);
+					}
+					break;
+				}
+				else {
+					if (action==A_TAKE) {
+						with(~hidden);
+					}
+				}
+			default;
+				r=super.onAction(action);
+		}
+		if (first && in(spieler)) {
+			first=0;
+			scoring.achieved(3);
+		}
+		return(r);
+	}
+}
+
+class eier:stditem {
+	setShort("&blau* Eier");
+	setLong("Jedes dieser blauen Eier ist groß genug, um zwei Menschenkinder aufzunehmen. Du überlegst, wie groß wohl die
+		Vögel sind, die solche Eier legen.^");
+	with(hidden);
+	moveto(vogelnest);
+	int onAction(int action) {
+		switch (action) {
+			case(A_TAKE);
+				if (vogelnest.vogel) {
+					write(vogelnest.warnung);
+				}
+				else {
+					write("Die Eier sind zu groß, um sie aufzunehmen.^");
+				}
+				return(1);
+				break;
+			case(A_EAT);
+				if (vogelnest.vogel) {
+					write(vogelnest.warnung);
+				}
+				else {
+					write("Dein Instinkt sagt dir, daß du das besser nicht tust. Außerdem verstieße es gegen die diplomatischen Regeln
+						der alten Föderation, den Nachwuchs fremder Lebensformen zu verspeisen.^");
+				}
+				return(1);
+				break;
+			case(A_TOUCH);
+			case(A_SMELL);
+				if (vogelnest.vogel) {
+					write(vogelnest.warnung);
+					return(1);break;
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class reaktor:stditem {
+	setShort("+Reaktor");
+	with(switchable,on,hidden,~underground);
+	moveto(reaktorraum);
+
+	void lichtschalter(int z) {
+		if (z) {
+			reaktorraum.with(light);
+			korridor1.with(light);
+			korridor2.with(light);
+			grabkammer.with(light);
+			schacht.with(light);
+			unterkunft.with(light);
+		}
+		else {
+			reaktorraum.with(~light);
+			korridor1.with(~light);
+			korridor2.with(~light);
+			grabkammer.with(~light);
+			schacht.with(~light);
+			unterkunft.with(~light);
+		}
+	}
+
+	int onAction(int action) {
+		string s;
+		int ison,r=1;
+		ison=has(on);
+		switch(action) {
+			case(A_EXAMINE);
+				s="Reaktoren von diesem Typ wurden während des ganzen Krieges eingesetzt und können bis zu zweihundert Jahre
+					ununterbrochen Energie liefern. Du kannst ihn mit einem Schalter ein- und ausschalten. Momentan ist er ";
+				s+=(ison) ? "eingeschaltet.^" : "ausgeschaltet.^";
+				write(s);
+				break;
+			case(A_SWITCHOFF);
+				if ((anzug.location()!=spieler) && (helm.location()!=spieler)) {
+					write("Tu das besser nicht. Es wird hier sonst sehr finster.^");
+					break;
+				}
+			default;
+				r=super.onAction(action);
+				if (has(on)) {
+					vorStation2ko1.with(~blocked);
+					ko22platt.with(~blocked);
+					if (action==A_SWITCHON) {
+						lichtschalter(1);
+						if (ison==0) {
+							write("Die elektrischen Deckenlampen gehen wieder an.^");
+						}
+					}
+				}
+				else {
+					vorStation2ko1.with(blocked);
+					vorStation2ko1.with(~open);
+					ko22platt.with(blocked);
+					if (action==A_SWITCHOFF) {
+						lichtschalter(0);
+						if (ison==1) {
+							write("Die elektrischen Deckenlampen gehen aus.^");
+							if (!scheinwerfer.has(on) && helm.has(worn)) {
+								write("Du siehst jetzt mit dem Nachtsichtgerät im Helm.^");
+							}
+						}
+					}
+				}
+		}
+		return(r);
+	}
+}
+
+class gleiter:stditem {
+	setShort("+Späher,+Raumgleiter,Raumschiff,Cockpit,Sprungtriebwerk");
+	with(hidden,container,enterable,openable,closeable,transparent);
+	moveto(plattform);
+
+	int onAction(int action) {
+		string s;
+		switch(action) {
+			case(A_ENTER);
+			case(A_SIT2);
+				if (!spieler.sitzend) {
+					if (!has(open)) {
+						write("(Du öffnest erst den Späher)^");
+						with(open);
+					}
+					if (kiste.in(spieler) || leine.anOese) {
+						write("Mit der Frachtkiste paßt du nicht in das Cockpit.^");
+					}
+					else {
+						write("Du setzt dich in den Späher.^");
+						spieler.sitzend=1;
+						spieler.moveto(gleiter);
+					}
+				}
+				else {
+					write("Du befindest dich bereits in dem Späher.^");
+				}
+				return(1);
+				break;
+			case(A_EXIT);
+			case(A_STAND2);
+				if (spieler.sitzend) {
+					if (!has(open)) {
+						write("(Du öffnest erst den Späher)^");
+						with(open);
+					}
+					write("Du kletterst aus dem Späher.^");
+					spieler.sitzend=0;
+					spieler.moveto(gleiter.location());
+				}
+				else {
+					write("Du befindest dich nicht in dem Späher.^");
+				}
+				return(1);
+				break;
+			case(A_LOOKTHROUGH);
+				if (spieler.in(gleiter)) {
+					onAction(A_EXAMINE);
+				}
+				else {
+					plattform.with(~visited);
+					plattform.description();
+					plattform.with(visited);
+				}
+				return(1);
+				break;
+			case(A_DROPINTO);
+				if (spieler.isfirst()) {
+					if (spieler.location()==gleiter) {
+						write("Du befindest dich schon in dem Späher.^");
+						return(1);
+						break;
+					}
+					else {
+						spieler.sitzend=1;
+					}
+				}
+			case(A_EXAMINE);
+			case(A_LOOKON);
+				s="Späher waren der kleinste Schiffstyp der Flotte. Dieses silberne Raumschiff besteht aus nicht viel mehr als einem
+					engen Cockpit und einem Sprungtriebwerk für kurze Hyperraumsprünge. Im Cockpit befinden sich ein Display, eine
+					numerische Tastatur für die Eingabe der Zielkoordinaten und eine einzelne Taste, mit der sich der Autopilot
+					aktivieren läßt. Das Cockpit ist ";
+				s+=(has(open)) ? "geöffnet.^" : "geschlossen.^";
+				setLong(s);
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class sarkophag:stditem {
+	setShort("+Steinsarg,+Sarkophag,Grab,+Sarg,+Spalt");
+	setLong("Eine schwere Steinplatte liegt etwas schräg auf dem Sarg und läßt dich durch einen schmalen Spalt hineinschauen. Er ist,
+		soweit du das sehen kannst, leer und für einen erwachsenen Menschen zu klein.^");
+	with(hidden,~underground);
+	moveto(grabkammer);
+	int onAction(int action) {
+		object x;
+		int ok;
+		if (grabkammer.oben) {
+			write("(Du gehst erst die Stufen runter)^");
+			grabkammer.oben=0;
+		}
+		switch(action) {
+			case(A_GROPE);
+				write("Du spürst den Biß kleiner, scharfer Zähne und ziehst die Hand schnell heraus. Ob du dich jetzt
+					vergiftet hast?^");
+				return(1);break;
+			case(A_DROPINTO);
+				fetch(x,x.isfirst(),0) {
+					if (x!=kabel && x!=platine && x!=leine) {
+						write("<Der x> paßt nicht durch den schmalen Spalt.^");
+					}
+					else {
+						write("Du läßt <den x> durch den Spalt fallen. "+x.pnoun(C_NOM,1)+" rutscht unter die Steinplatte
+							und wird nur einen Augenblick später wieder hinausgeworfen.^");
+						if (x!=leine) {
+							x.moveto(spieler.location());
+						}
+						else {
+							leine.moveto(anzug);
+						}
+					}
+				}
+				return(1);break;
+			case(A_LOOKINTO);
+				write("Soweit du durch den Spalt sehen kannst, ist der Sarg leer.^");
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class steinplatte:stditem {
+	setShort("-Steinplatte,-Platte");
+	setLong("Die schwere Steinplatte verschließt den Sarg fast vollständig. In sie eingemeißelt sind die gleichen Muster
+		oder Schriftzeichen wie auf den Klappen an der Wand.^");
+	with(hidden,detail);
+	moveto(grabkammer);
+	int onAction(int action) {
+		string s="Die Steinplatte ist dafür leider viel zu schwer.^";
+		if (grabkammer.oben) {
+			write("(Du gehst erst die Stufen runter)^");
+			grabkammer.oben=0;
+		}
+		switch(action) {
+			case(A_TAKE);
+			case(A_MOVE1);
+			case(A_REMOVE1);
+				write(s);
+				return(1);break;
+			case(A_REMOVE2);
+				if (sarkophag.issecond()) {
+					write(s);
+				}
+				else {
+					write("Die Steinplatte liegt doch auf dem Sarg.^");
+					halt(1);
+				}
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class klappen:stditem {
+	setShort("&Klappen,-Klappe,&Metallklappen,Scharnier,&Scharniere");
+	setLong("Die Klappen sind aus Metall und mit verschiedenen farbigen Mustern bemalt. Sie sind etwas breiter und höher als der
+		Steinsarg und an ihrer Oberkante mit einfachen Scharnieren an der Wand befestigt. In zwei übereinanderliegenden Reihen
+		führen sie um die Wand.^");
+	with(hidden);
+	moveto(grabkammer);
+	int onAction(int action) {
+		if (!grabkammer.oben) {
+			write("(Du gehst erst die Stufen hoch)^");
+			grabkammer.oben=1;
+		}
+		switch(action) {
+			case(A_LOOKUNDER);
+			case(A_FLAP);
+			case(A_OPEN);
+				write("Langsam ziehst du eine der Klappen hoch. Die dahinter liegende Nische ist so klein, daß Major Cayle nur
+					mit angewinkelten Beinen und dem Kinn auf der Brust darin Platz findet. Ihr Kopf ist halb zertrümmert. Und als
+					sei sie erst kurze Zeit tot, schimmert das Blut in ihrem Gesicht und auf ihrer Uniform immer noch feucht. Der
+					grausige Anblick von Toten ist dir nicht neu. Aber als Cayle, erst ganz langsam, ihren Kopf hebt, läßt auch du
+					die Klappe schnell wieder zufallen. Du ahnst, wie es hinter den anderen aussieht.^");
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class muster:stditem {
+	setShort("&Muster,&Schriftzeichen");
+	setLong("Die Muster auf den Klappen und dem Steinsarg werden dir, was immer sie bedeuten mögen, ein Rätsel bleiben.^");
+	with(hidden,detail);
+	moveto(grabkammer);
+}
+
+class stufen:stditem {
+	setShort("&Stufen,-Treppe,&Sitzreihen");
+	setLong("Auf den Stufen haben gut hundert Menschen Platz. Wenn die Kuppel von der Flotte als Station genutzt wurde,
+		war dies der Versammlungsraum. Aber der Steinsarg in der Mitte sagt dir, daß sich die Erbauer der Kuppel hier
+		nicht zu Lagebesprechungen trafen.^");
+	with(hidden);
+	moveto(grabkammer);
+	int onAction(int action) {
+		switch(action) {
+			case(A_STEPUP);
+				grabkammer.goto(D_UP,NULL);
+				return(1);break;
+			case(A_STEPDOWN);
+				grabkammer.goto(D_DOWN,NULL);
+				return(1);break;
+			case(A_SIT3);
+				return(spieler.onAction(A_SIT1));
+				break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+
+class autoTaste:stditem {
+	setShort("-Taste,+Knopf");
+	setLong("Mit der Taste kannst du den Autopiloten einschalten, wenn du die Zielkoordinaten eingegeben hast.^");
+	with(hidden);
+	moveto(gleiter);
+	int onAction(int action) {
+		int i,j;
+		switch(action) {
+			case(A_PRESS);
+				i=0;
+				for (j=0;j<P_MAX;j++) {
+					if (display1.k1==display1.pxyz[j]) {
+						i=j+1;
+					}
+				}
+				if (i==0) {
+					write("Der Autopilot kann kein Sternsystem mit den angegebenen Koordinaten finden.^");
+				}
+				if (i==1) {
+					write("Das Hyperraumtriebwerk dieser Fähre hat eine zu geringe Reichweite, um so entfernte Planeten
+						wie Charon II erreichen zu können. Versuche es besser mit einem näher gelegenen System.^");
+				}
+				if (i==2) {
+					write("Das Display zeigt die Koordinaten des Mithras-Systems, hier bist du schon.^");
+				}
+				if (i>2) {
+					if (!gleiter.has(open)) {
+						write("Das Triebwerk startet, der Späher hebt ab, und der Autopilot steuert "+display1.pName[i-1]+" an. ");
+						if (!reaktor.has(on)) {
+							write("Du bist dem Nebelmond entkommen, und als der Späher in den Hyperraum
+								eindringt, läßt die Wirkung des Wahrmachers langsam nach ...^^\Nun, gefällt Ihnen das Leben als
+								Prospektor?\, fragt dich der T'Licka.^^Als du wieder in dem Hinterzimmer der schummrigen Raumhafenkneipe
+								auf Ekeli angekommen bist, nickst du nur. Wer in einem Dutzend Systemen als Schmuggler und Falschspieler
+								gesucht wird, ist für jede neue Identität dankbar. Du reichst den Fühlern des T'Licka
+								eine Menge Verrechnungseinheiten, und er schiebt dir deine neue ID-Karte und einige Papiere über den
+								Schreibtisch. Zum Abschied sagt er noch: \Gehen Sie zu Dock neun, dort wartet die Nachtfee.\^^
+								*** Du hast gewonnen ***^");
+							if (scores()<30) {
+								write("(Mit "+scores()+" Punkten von 30 möglichen Punkten hast du aber noch nicht alles gesehen)^");
+							}
+							quit;
+						}
+						else {
+							write("Für einen Augenblick glaubst du, du bist dem Nebelmond entkommen. Aber noch bevor der Späher
+								die Wolkendecke durchdrungen hat, läßt der Laser ihn mit dir wie die Nachtfee enden.^");
+							death();
+						}
+					}
+					else {
+						write("Vor dem Start schließe bitte das Cockpit.^");
+					}
+				}
+				return(1);
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class encyclopedia:maxTake {
+	setShort("-Encyclopedia Cosmologica,-Encyclopedia,-Cosmologica,-EC,-Datenbank,+Taschencomputer");
+	setLong("Die Encyclopedia Cosmologica (kurz EC) ist eine umfangreiche Datenbank mit Informationen aus allen menschlichen
+		Wissenschaften. Sie wird alle zwei Standardjahre von der Akademie auf Minerva in Form eines kleinen Taschencomputers
+		herausgegeben. Raumfahrer und Prospektoren finden in ihr wichtige Angaben zu allen bekannten Sternsystemen. Um an
+		Informationen zu einem Stichwort zu gelangen, tippe einfach INFO STICHWORT.^");
+	with(hidden,takeable);
+	moveto(unterkunft);
+	string info[P_MAX];
+	int first=1;
+	void init() {
+		info[0]="Charon: Sternsystem in der Randzone. Koordinaten: "+display1.k3+". Seine Lage am äußersten Rand des von Menschen
+			besiedelten Raums ließ Charon II zu einem wichtigen Umschlagsplatz im Handel mit den weit entfernten Reichen
+			der T'Licka und der Juggernaub werden. Auch nach dem Beitritt zur Föderation endete hier der illegale Handel mit Drogen und
+			Sklaven nicht.^^Dieses Exemplar der Encyclopedia muß vor der vollständigen Verwüstung von
+			Charon II im Randzonenkrieg erschienen sein.^";
+		info[1]="Mithras: rote Sonne am Rand der Schwarznebelzone. Koordinaten: "+display1.k2+". Von den sieben Begleitern der Sonne
+			wurden die Waldwelten Mithras II und III sowie der Mond des Gasriesen Mithras IV von der heute ausgestorbenen Rasse
+			der Mar Charradun bewohnt. Bei den raumfahrenden Völkern der Schwarznebelzone gilt das Mithras-System aus nicht
+			genau bekannten Gründen als Tabuzone.^";
+		info[2]="Minerva: wichtigste Industrie- und Handelswelt der Föderation. In den ersten hundert Standardjahren nach Gründung
+			der Föderation auch Regierungssitz. Koordinaten: "+display1.pxyz[2]+".^";
+		info[3]="Wintergarten: einziger Begleiter der gelben Sonne Loki, die er in einer so weiten Bahn umkreist, daß der Wechsel
+			der Jahreszeiten Jahrhunderte dauert. Schon als die ersten Menschen Wintergarten erreichten, lag der Planet unter Eis
+			und Schnee. Im Winterschlaf warten zahllose Tier- und Pflanzenarten auf den Beginn des Sommers. Zu den wenigen
+			Lebensformen, die keinen Winterschlaf halten, gehören die gefürchteten Eisriesen. Koordinaten: "+display1.pxyz[3]+".^";
+		info[4]="Troubadour: dritter Planet des Klingsor-Systems. Koordinaten: "+display1.pxyz[4]+". Der einzige Kontinent des
+			Planeten ist unter zahlreichen Feudalherren aufgeteilt, die den Kontakt zu anderen Welten und die Raumfahrt mehrheitlich
+			ablehnen. Bevor die besonderen physikalischen Eigenschaften von Memokristallen entdeckt wurden, waren die roten Kristalle
+			auf Troubadour das bevorzugte Baumaterial, aus dem ganze Städte und Paläste entstanden.^";
+		info[5]="Neu-Hibernia: von Menschen bereits während der ersten Expansion besiedelter Planet im Grünfeuer-System. Auf
+			Neu-Hibernia und seiner Schwesterwelt Beltane blieben viele Elemente einer prähistorischen Kultur der alten Erde erhalten.
+			Koordinaten: "+display1.pxyz[5]+".^";
+		info[6]="Cindelban: zweiter Planet des Eisenrosen-Systems. In Cindelbans unwirtlichen Polregionen lagern die größten bekannten
+			Vorkommen von Memokristallen. Koordinaten: "+display1.pxyz[6]+".^";
+		info[7]="Pagan: vierter Planet des Pandora-Systems und Zentrum zahlreicher Kulte menschlicher und fremder Religionen.
+			Bekannt für seine gewaltigen Tempelstädte, von denen einige älter als die menschliche Geschichte sind.
+			Koordinaten: "+display1.pxyz[7]+".^";
+		info[8]="Babel: der fünfte Planet des Sappo-Systems ist der bedeutendste Handelsplatz für Bücher, Datenbanken und
+			Textprozessoren. Die auf Babel verfügbare Datenmenge übersteigt selbst den Umfang der auf Minerva editierten
+			Encyclopedia Cosmologica. Bekannt ist Babel auch für seine bis in den Raum ragenden Turmstädte, die als die
+			höchsten Gebäude der Galaxis gelten. Koordinaten: "+display1.pxyz[8]+".^";
+		info[9]="Ares: Wüstenwelt in der Randzone. Während der Konflikte mit den Zani entstand auf Ares der größte
+			Militärstützpunkt der Föderation. Als die Siedlungswelten der Randzone Bündnisse mit den Zani eingingen
+			und ihre Unabhängigkeit forderten, wurde Ares zu einem Hauptstreitpunkt zwischen ihnen und Minerva.
+			Koordinaten: "+display1.pxyz[9]+".^";
+	}
+	void consult() {
+		if (in(spieler)) {
+			object where;
+			where=room();
+			if (where.isLight()) {
+				int i,found;
+				if (strlen(topic)>3) {
+					for(i=0;i<P_MAX;i++) {
+						if ((strstr(topic,display1.pname[i])>=0) && !found) {
+							write(info[i]);
+							found=1;
+						}
+					}
+					if (!found) {
+						write("Dieses Exemplar der Encyclopedia ist schon alt und in keinem guten Zustand. Daher sind leider einige der
+							über zehn Millionen Einträge verloren gegangen. Versuche es bitte mit einem anderen Stichwort.^");
+					}
+					else {
+						if (first) {
+							scoring.achieved(6);
+							first=0;
+						}
+					}
+				}
+				else {
+					write("Stichwörter sollten mindestens vier Buchstaben haben.^");
+				}
+			}
+			else {
+				write("Hier ist es zu dunkel, um einen Eintrag lesen zu können.^");
+			}
+		}
+		else {
+			write("Dafür mußt du ein Exemplar der Encyclopedia Cosmologica halten.^");
+		}
+	}
+	int onAction(int action) {
+		switch(action) {
+			case(A_READ);
+				write("Um einen Eintrag zu lesen, benutze bitte INFO STICHWORT.^");
+				return(1);break;
+			case(A_TAKE);
+			case(A_DROPINTO);
+				with(~hidden);
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class buch:maxTake {
+	setShort("Buch,Tagebuch,&Seiten,weiter,Foto");
+	setLong("In Handschrift steht auf dem Buchdeckel \Tagebuch von Sa...\ geschrieben. Den Rest des Namens macht ein
+		schwarzer, eingetrockneter Blutfleck unlesbar. Auch die meisten Seiten sind von Blut geschwärzt. Aber du kannst
+		Seite für Seite ein paar Satzfetzen lesen.^");
+	with(hidden,takeable);
+	moveto(unterkunft);
+	string seite[4]=("... überlebten die Bruchlandung und fanden den Weg zum Flottenstützpunkt ... von unbekannten Fremden erbaut ...
+		Männer seit zwei Jahren auf dem Mond ... Zani-Offensive ... sie entgingen unter der Wolkendecke den feindlichen
+		Ortungssatelliten ...^",
+		"... uns das Foto. Sie haben es bei der Entdeckung gemacht ... studierte Xenoarchäologie vor dem Krieg. Er sagt ...
+		Mar Charradun beherrschten das Mithras-System. Jahrhunderte vor Ankunft der Menschen fielen sie in die Barbarei zurück ...
+		Nachbarvölkern auch Geisterbeschwörer genannt ... was ... hier entdeckt?^^Auf der Seite ist ein Foto eingeklebt. Es
+		zeigt den Steinsarg in der großen Kammer. Er ist geöffnet, und in ihm siehst du den kleinen, bleichen Körper eines
+		Fremden.^",
+		"... Versammlung ... einer ... freiwillig dem Fremden, dann wird er hinter eine der Klappen gelegt ... wahnsinnig ...
+		uns mit Irritation und Angst ...^",
+		"... heute ... Major Cayle einen Notruf abgesetzt ... haben sie geholt ... nur noch Hal, Tami und ich ...^^Das war die letzte
+		Seite.^");
+	int first=1,n;
+	int onAction(int action) {
+		string tooDark="Du kannst das Buch in der Dunkelheit nicht lesen.^";
+		object where;
+		where=room();
+		if (name()==4) {
+			n=1;
+			action=A_READ;
+		}
+		switch(action) {
+			case(A_EXAMINE);
+			case(A_LOOKON);
+				if (where.isLight()) {
+					write(getLong());
+					first=0;
+				}
+				else {
+					write(tooDark);
+				}
+				return(1);break;
+			case(A_READ);
+				if (where.isLight()) {
+					if (first) {
+						write(getLong()+"^");
+						first=0;
+					}
+					write(seite[n]);
+					if (n<3) {
+						n++;
+					}
+					else {
+						n=0;
+						first=1;
+					}
+				}
+				else {
+					write(tooDark);
+				}
+				return(1);break;
+			case(A_TAKE);
+			case(A_DROPINTO);
+				with(~hidden);
+			default;
+				return(super.onAction(action));
+
+		}
+	}
+}
+
+class bettenSpinde:stditem {
+	setShort("&Betten,Bett,&Spinde,+Spind");
+	with(hidden,detail);
+	moveto(unterkunft);
+	int onAction(int action) {
+		write("Die Betten und Spinde sind leer, schmutzig und beschädigt. Interessanter erscheinen dir die Dinge, die einmal in den
+			Spinden lagerten und jetzt über den Boden verteilt sind.^");
+		halt(1);
+		return(1);
+	}
+}
+
+class bodenUnterkunft:stditem {
+	setShort("+Boden,+Fußboden,&Ausrüstungsteile,+Unrat");
+	with(hidden);
+	moveto(unterkunft);
+	int onAction(int action) {
+		string s;
+		switch(action) {
+			case(A_EXAMINE);
+			case(A_LOOKON);
+				if (buch.in(unterkunft) || encyclopedia.in(unterkunft)) {
+					if (buch.in(unterkunft) && encyclopedia.in(unterkunft)) {
+						write("Zwischen Unrat und zerstörten Ausrüstungsteilen findest du ein Buch und ein Exemplar der
+							Encyclopedia Cosmologica.^");
+						buch.with(~hidden);
+						encyclopedia.with(~hidden);
+					}
+					else {
+						s=(buch.in(unterkunft)) ? "ein Buch" : "ein Exemplar der Encyclopedia Cosmologica";
+						write("Zwischen Unrat und zerstörten Ausrüstungsteilen siehst du "+s+" auf dem Boden liegen.^");
+					}
+				}
+				else {
+					write("Du siehst nur Unrat und zerstörte Ausrüstungsteile.^");
+				}
+				return(1);break;
+			case(A_TAKE);
+				if (buch.in(unterkunft) || encyclopedia.in(unterkunft)) {
+					write("Gib bitte genau an, was du vom Boden aufnehmen möchtest.^");
+				}
+				else {
+					write("Auf dem Boden befindet sich nur noch nutzloser Unrat.^");
+				}
+				halt(1);
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+// Knochen und Pfeiler werden zwischen Bruecke und Kuppel hin und her bewegt
+class knochen:stditem {
+	setShort("&schwarz* Knochen,+Schädel,&schwarz* Augenhöhlen");
+	setLong("Du bist kein Experte, aber die Knochen sind offenbar zu klein, um von Menschen zu stammen. Hier und dort blickst du
+		in die schwarzen Augenhöhlen eines kleinen Schädels.^");
+	with(hidden);
+	moveto(bruecke);
+}
+
+class pfeiler:stditem {
+	setShort("&Pfeiler,&Steine");
+	with(hidden,~underground);
+	moveto(bruecke);
+	int onAction(int action) {
+		switch(action) {
+			case(A_EXAMINE);
+				if (location()==bruecke) {
+					bruecke.with(~visited);
+					bruecke.description();
+					return(1);
+					break;
+				}
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+class nachtfee:stditem {
+	setShort("-Nachtfee");
+	with(hidden,detail,~underground);
+	moveto(spieler);
+	int onAction(int action) {
+		switch(action) {
+			case(A_EXAMINE);
+				if (position==0) {
+					write("Die Nachtfee ist dein Raumschiff. Du kennst ihre wenigen Räume sehr genau.^");
+				}
+				else {
+					write("Die Nachtfee gibt es nicht mehr. Ob du wohl jemals wieder mit einem Prospektorschiff reisen wirst?^");
+				}
+				return(1);break;
+			default;
+				return(super.onAction(action));
+		}
+	}
+}
+
+void main() {
+	title="Der Nebelmond";
+	write(title+"^Version "+serial()+" Geschrieben 2003 von Oliver Berse^
+		Tippe HILFE für weitere Informationen zum Spiel^^
+		Prospektoren: Am Ende des Randzonenkriegs aufkommende Bezeichnung für Schrottsammler und Händler, die verlassene Schlachtfelder
+		und die im Orbit vieler Welten entstandenen Schiffsfriedhöfe nach wiederverwertbaren Maschinen durchsuchten. Auf den Randwelten
+		der alten Föderation war die Industrieproduktion zum Erliegen gekommen. Hier erzielten die Prospektoren hohe Preise für ihre
+		Waren und verhinderten den Rückfall auf eine präkosmische Zivilisationsstufe. (Encyclopedia Cosmologica)^^");
+	setPlayer(spieler);
+	StatusLineFormat(1);
+	spieler.moveto(sitz);
+	cockpit.description();
+}
