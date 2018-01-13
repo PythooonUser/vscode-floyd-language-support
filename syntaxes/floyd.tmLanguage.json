@@ -14,6 +14,9 @@
 		},
 		{
 			"include": "#comment"
+		},
+		{
+			"include": "#constant"
 		}
 	],
 	"repository": {
@@ -45,6 +48,14 @@
 					"name": "comment.block.floyd",
 					"begin": "/\\*",
 					"end": "\\*/"
+				}
+			]
+		},
+		"constant": {
+			"patterns": [
+				{
+					"name": "constant.numeric.floyd",
+					"match": "\\b[0-9]*\\b"
 				}
 			]
 		}
