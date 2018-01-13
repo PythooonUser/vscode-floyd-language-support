@@ -1,6 +1,7 @@
 {
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "Floyd",
+	"scopeName": "source.floyd",
 	"patterns": [
 		{
 			"include": "#keywords"
@@ -10,6 +11,9 @@
 		},
 		{
 			"include": "#storage"
+		},
+		{
+			"include": "#comment"
 		}
 	],
 	"repository": {
@@ -30,7 +34,12 @@
 				"name": "storage.type.floyd",
 				"match": "\\b(int|string|object|class)\\b"
 			}]
+		},
+		"comment": {
+			"patterns": [{
+				"name": "comment.line.floyd",
+				"match": "//.*$"
+			}]
 		}
-	},
-	"scopeName": "source.floyd"
+	}
 }
