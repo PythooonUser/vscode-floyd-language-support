@@ -36,10 +36,17 @@
 			}]
 		},
 		"comment": {
-			"patterns": [{
-				"name": "comment.line.floyd",
-				"match": "//.*$"
-			}]
+			"patterns": [
+				{
+					"name": "comment.line.floyd",
+					"match": "//.*$"
+				},
+				{
+					"name": "comment.block.floyd",
+					"begin": "/\\*",
+					"end": "\\*/"
+				}
+			]
 		}
 	}
 }
