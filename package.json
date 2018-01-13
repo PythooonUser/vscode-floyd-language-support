@@ -1,0 +1,26 @@
+{
+    "name": "vscode-floyd-language-support",
+    "displayName": "vscode-floyd-language-support",
+    "description": "Floyd language support for VSCode.",
+    "version": "0.0.1",
+    "publisher": "pythooonuser",
+    "engines": {
+        "vscode": "^1.19.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "floyd",
+            "aliases": ["Floyd", "floyd"],
+            "extensions": [".floyd",".floydc",".floyds"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "floyd",
+            "scopeName": "source.floyd",
+            "path": "./syntaxes/floyd.tmLanguage.json"
+        }]
+    }
+}
