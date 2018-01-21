@@ -1,67 +1,29 @@
-# vscode-floyd-language-support README
+# vscode-floyd-language-support
 
-Floyd language support for VSCode.
-
-This is the README for your extension "vscode-floyd-language-support". After writing up a brief description, we recommend including the following sections.
+> This is an extension for the code editor [VS Code](https://code.visualstudio.com/) that adds language support for the programming language [Floyd](http://oliver-berse.de/). Floyd is used to write classical Text Adventures (in German).
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The Floyd language extension currently only adds basic syntax highlighting. For the future many more features are planned, like more complex syntax highlighting, code intellisense, code completion, help for built-in functions etc.
 
-For example if there is an image subfolder under your extension project workspace:
+### Syntax Highlighting
+Very basic syntax highlighting is applied to `.floyd` Floyd source code files. It introduces colors for strings, numbers, line and block comments and all available keywords.
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+> Example from Nebelmond (Oliver Berse, 2002-2003) using the Dark+ color theme:
+![Syntax Highlighting Example](images/SyntaxHighlightingExample.png)
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+No known issues.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1 (180121)
 
-### 1.0.0
+Initial release of the VS Code Floyd Language Support. It adds basic syntax highlighting to `.floyd` Floyd source code files.
 
-Initial release of ...
+## License
 
-### 1.0.1
+MIT  
 
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+See the [license document](LICENSE) for the full text.
