@@ -10,7 +10,7 @@ The Floyd language extension currently only adds basic syntax highlighting. For 
 Very basic syntax highlighting is applied to `.floyd` Floyd source code files. It introduces colors for strings, numbers, line and block comments and all available keywords.
 
 > Example from Nebelmond (Oliver Berse, 2002-2003) using the Dark+ color theme:
-![Syntax Highlighting Example](images/SyntaxHighlightingExample.png)
+![Syntax Highlighting Example](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/images/SyntaxHighlightingExample.png)
 
 ## Known Issues
 
