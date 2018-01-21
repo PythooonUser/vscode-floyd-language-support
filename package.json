@@ -14,7 +14,7 @@
         "languages": [{
             "id": "floyd",
             "aliases": ["Floyd", "floyd"],
-            "extensions": [".floyd",".floydc",".floyds"],
+            "extensions": [".floyd"],
             "configuration": "./language-configuration.json"
         }],
         "grammars": [{
