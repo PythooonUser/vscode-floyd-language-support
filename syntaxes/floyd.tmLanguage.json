@@ -4,66 +4,31 @@
 	"scopeName": "source.floyd",
 	"patterns": [
 		{
-			"include": "#keywords"
+			"name": "keyword.other.floyd",
+			"match": "\\b(abstract|break|day|firstWord|getKey|halt|isfirst|moveto|objectsInside|random|serial|setPlayer|split|stopDaemon|string|super|verb|write|addScores|case|default|fetch|getLong|has|issecond|name|pluralInside|return|setColor|setShort|startDaemon|stopTimer|strstr|switch|void|array|class|do|for|getShort|if|location|noun|pnoun|room|getLong|setTime|startTimer|string|strrstr|time|while|box|count|else|gender|getWord|int|menu|object|quit|scores|setNoun|sizeof|StatusLineFormat|strlen|substr|toggle|with)\\b"
 		},
 		{
-			"include": "#strings"
+			"name": "comment.line.double-slash.floyd",
+			"begin": "//",
+			"end": "\\n"
 		},
 		{
-			"include": "#storage"
+			"name": "comment.block.floyd",
+			"begin": "/\\*",
+			"end": "\\*/"
 		},
 		{
-			"include": "#comment"
-		},
-		{
-			"include": "#constant"
-		}
-	],
-	"repository": {
-		"keywords": {
-			"patterns": [
-				{
-					"name": "keyword.control.floyd",
-					"match": "\\b(if|while|for|return|break|halt|case|default|switch|do|else|fetch)\\b"
-				},
-				{
-					"name": "keyword.other",
-					"match": "\\b(abstract|day|firstWord|getKey|isfirst|moveto|objectsInside|random|serial|setPlayer|split|stopDaemon|verb|write|addScores|getLong|has|issecond|name|pluralInside|setColor|setShort|startDaemon|stopTimer|strstr|getShort|location|noun|pnoun|room|setLong|setTime|startTimer|strrstr|time|box|count|gender|getWord|menu|quit|scores|setNoun|sizeof|StatusLineFormat|strlen|substr|toggle|with)\\b"
-				}
-			]
-		},
-		"strings": {
 			"name": "string.quoted.double.floyd",
 			"begin": "\"",
-			"end": "\"",
-			"patterns": []
+			"end": "\""
 		},
-		"storage": {
-			"patterns": [{
-				"name": "storage.type.floyd",
-				"match": "\\b(int|string|object|class|void|super|array)\\b"
-			}]
+		{
+			"name": "constant.numeric.floyd",
+			"match": "\\b[1-9][0-9]*|0\\b"
 		},
-		"comment": {
-			"patterns": [
-				{
-					"name": "comment.line.floyd",
-					"match": "//.*$"
-				},
-				{
-					"name": "comment.block.floyd",
-					"begin": "/\\*",
-					"end": "\\*/"
-				}
-			]
-		},
-		"constant": {
-			"patterns": [
-				{
-					"name": "constant.numeric.floyd",
-					"match": "\\b[0-9]*\\b"
-				}
-			]
+		{
+			"name": "constant.language.floyd",
+			"match": "\\bNULL\\b"
 		}
-	}
+	]
 }
