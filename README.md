@@ -26,4 +26,4 @@ Initial release of the VS Code Floyd Language Support. It adds basic syntax high
 
 MIT  
 
-See the [license document](LICENSE) for the full text.
+See the [license document](https://github.com/PythooonUser/vscode-floyd-language-support/blob/master/LICENSE) for the full text.
