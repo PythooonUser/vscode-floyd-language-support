@@ -1,0 +1,8 @@
+// Line Comment
+
+/* Block Comment
+   Block Comment */
+
+
+// Class Declaration
+class ClassName:SuperClassName {}

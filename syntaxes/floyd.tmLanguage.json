@@ -4,31 +4,93 @@
 	"scopeName": "source.floyd",
 	"patterns": [
 		{
-			"name": "keyword.other.floyd",
-			"match": "\\b(abstract|break|day|firstWord|getKey|halt|isfirst|moveto|objectsInside|random|serial|setPlayer|split|stopDaemon|string|super|verb|write|addScores|case|default|fetch|getLong|has|issecond|name|pluralInside|return|setColor|setShort|startDaemon|stopTimer|strstr|switch|void|array|class|do|for|getShort|if|location|noun|pnoun|room|getLong|setTime|startTimer|string|strrstr|time|while|box|count|else|gender|getWord|int|menu|object|quit|scores|setNoun|sizeof|StatusLineFormat|strlen|substr|toggle|with)\\b"
+			"include": "#statement"
 		},
 		{
-			"name": "comment.line.double-slash.floyd",
-			"begin": "//",
-			"end": "\\n"
-		},
-		{
-			"name": "comment.block.floyd",
-			"begin": "/\\*",
-			"end": "\\*/"
-		},
-		{
-			"name": "string.quoted.double.floyd",
-			"begin": "\"",
-			"end": "\""
-		},
-		{
-			"name": "constant.numeric.floyd",
-			"match": "\\b[1-9][0-9]*|0\\b"
-		},
-		{
-			"name": "constant.language.floyd",
-			"match": "\\bNULL\\b"
+			"include": "#expression"
 		}
-	]
+	],
+	"repository": {
+		"statement": {
+			"patterns": [
+				{
+					"include": "#preprocessor-directive"
+				},
+				{
+					"include": "#class-declaration"
+				},
+				{
+					"include": "#function-declaration"
+				},
+				{
+					"include": "#statement-keyword"
+				},
+				{
+					"include": "#assignment-operator"
+				}
+			]
+		},
+		"expression": {
+			"patterns": [
+				{
+					"include": "#expression-base"
+				},
+				{
+					"include": "#member-access"
+				}
+			]
+		},
+		"class-declaration": {
+			"patterns": [
+				{
+					"name": "meta.class.floyd",
+					"begin": "\\s*(class)\\s+(?=[a-zA-Z_][a-zA-Z0-9_]*\\s*:\\s*[a-zA-Z_][a-zA-Z0-9_]*\\s*({))",
+					"end": "({)",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.type.class.floyd"
+						}
+					},
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.section.class.begin.floyd"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#class-name"
+						},
+						{
+							"include": "#class-inheritance"
+						}
+					]
+				}
+			]
+		},
+		"class-name": {
+			"patterns": [
+				{
+					"name": "entity.name.type.class.floyd",
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b"
+				}
+			]
+		},
+		"class-inheritance": {
+			"patterns": [
+				{
+					"name": "meta.class.inheritance.floyd",
+					"begin": "(:)\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b",
+					"end": "(\\s|{)",
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.inheritance.floyd"
+						},
+						"2": {
+							"name": "entity.other.inherited-class.floyd"
+						}
+					}
+				}
+			]
+		}
+	}
 }
