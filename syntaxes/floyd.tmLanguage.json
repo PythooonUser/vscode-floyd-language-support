@@ -257,6 +257,66 @@
 					"comment": "a ? b : c"
 				}
 			]
+		},
+		"item-access": {
+			"patterns": [
+				{
+					"name": "meta.item-access.floyd",
+					"begin": "\\b(?=[a-zA-Z_][a-zA-Z0-9_]+\\s*\\[)",
+					"end": "(\\])",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.definition.arguments.end.floyd"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#item-name"
+						},
+						{
+							"include": "#item-index"
+						}
+					]
+				}
+			]
+		},
+		"item-name": {
+			"patterns": [
+				{
+					"include": "#builtin-functions"
+				},
+				{
+					"comment": "Do we want to highlight this?",
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]+)\\b"
+				}
+			]
+		},
+		"builtin-functions": {
+			"patterns": [
+				{
+					"name": "support.function.builtin.floyd",
+					"match": "\\b(addScores|box|firstWord|getKey|getLong|getShort|getWord|isfirst|issecond|location|menu|moveto|name|objectsInside|pluralInside|quit|random|room|scores|serial|setColor|setLong|setNoun|setPlayer|setShort|setTime|sizeof|split|startDaemon|stopTimer|strlen|strstr|strrstr|substr|time|toggle|verb|with)\\b"
+				}
+			]
+		},
+		"item-index": {
+			"patterns": [
+				{
+					"begin": "(\\[)",
+					"end": "(?=\\])",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.definition.arguments.begin.floyd"
+						}
+					},
+					"contentName": "meta.item-access.arguments.floyd",
+					"patterns": [
+						{
+							"include": "#expression"
+						}
+					]
+				}
+			]
 		}
 	}
 }
