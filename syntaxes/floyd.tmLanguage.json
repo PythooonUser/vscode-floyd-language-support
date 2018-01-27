@@ -37,16 +37,10 @@
 					"include": "#function-call"
 				},
 				{
-					"include": "#builtin-functions"
+					"include": "#builtin-function"
 				},
 				{
-					"include": "#builtin-types"
-				},
-				{
-					"include": "#special-variables"
-				},
-				{
-					"include": "#punctuation"
+					"include": "#builtin-type"
 				}
 			]
 		},
@@ -285,7 +279,7 @@
 			"patterns": [
 				{
 					"name": "support.function.builtin.floyd",
-					"match": "\\b(addScores|box|firstWord|getKey|getLong|getShort|getWord|isfirst|issecond|location|menu|moveto|name|objectsInside|pluralInside|quit|random|room|scores|serial|setColor|setLong|setNoun|setPlayer|setShort|setTime|sizeof|split|startDaemon|stopTimer|strlen|strstr|strrstr|substr|time|toggle|verb|with)\\b"
+					"match": "\\b(addScores|box|firstWord|getKey|getLong|getShort|getWord|isfirst|issecond|location|menu|moveto|name|objectsInside|pluralInside|quit|random|return|room|scores|serial|setColor|setLong|setNoun|setPlayer|setShort|setTime|sizeof|split|startDaemon|stopTimer|strlen|strstr|strrstr|substr|time|toggle|verb|with)\\b"
 				}
 			]
 		},
@@ -365,6 +359,14 @@
 							"include": "#expression"
 						}
 					]
+				}
+			]
+		},
+		"builtin-type": {
+			"patterns": [
+				{
+					"name": "support.type.floyd",
+					"match": "\\b(string|int|object|super)\\b"
 				}
 			]
 		}
