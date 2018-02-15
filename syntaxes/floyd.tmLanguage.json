@@ -41,6 +41,9 @@
 				},
 				{
 					"include": "#builtin-type"
+				},
+				{
+					"include": "#semicolon"
 				}
 			]
 		},
@@ -330,7 +333,6 @@
 					"include": "#builtin-function"
 				},
 				{
-					"comment": "Do we want to highlight this?",
 					"match": "\\b[a-zA-Z_][a-zA-Z0-9_]+\\b"
 				}
 			]
@@ -367,6 +369,15 @@
 				{
 					"name": "support.type.floyd",
 					"match": "\\b(string|int|object|super)\\b"
+				}
+			]
+		},
+		"semicolon": {
+			"patterns": [
+				{
+					"comment": "What is the correct scope to use here?",
+					"name": "punctuation.floyd",
+					"match": ";"
 				}
 			]
 		}
