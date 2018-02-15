@@ -1,0 +1,19 @@
+// Constant
+NULL
+
+// Integer
+0
+10
+01
+123.456
+.123
+
+// String
+"Hello World"
+"Hello
+    World"
+"Hello World^"
+"\Hello World\"
+"<b>Hello World</b>"
+"Hello \
+    World"

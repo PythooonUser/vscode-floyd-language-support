@@ -1,0 +1,17 @@
+// This is a single line comment
+
+// TODO: This is a single line comment
+// FIXME: This is a single line comment
+
+// FIXME : This is a single line comment
+// NOT: This is a single line comment
+
+/*  This
+    is
+    a
+    block
+    comment */
+
+/*
+This is a block comment.
+*/
