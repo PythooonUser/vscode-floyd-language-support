@@ -13,7 +13,9 @@
 	"repository": {
 		"statement": {
 			"patterns": [
-				
+				{
+					"include": "#preprocessor-directive"
+				}
 			]
 		},
 		"expression": {
@@ -42,6 +44,64 @@
 				{
 					"include": "#semicolon"
 				}
+			]
+		},
+		"preprocessor-directive": {
+			"patterns": [
+				{
+					"name": "meta.preprocessor.floyd",
+					"begin": "(#)",
+					"end": "$",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.definition.preprocessor.floyd"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#comment"
+						},
+						{
+							"include": "#preprocessor-directive-include"
+						},
+						{
+							"include": "#preprocessor-directive-define"
+						},
+						{
+							"include": "#preprocessor-directive-conditional"
+						}
+					]
+				}
+			]
+		},
+		"preprocessor-directive-include": {
+			"patterns": [
+
+			]
+		},
+		"preprocessor-directive-define": {
+			"patterns": [
+
+			]
+		},
+		"preprocessor-directive-conditional": {
+			"patterns": [
+				{
+					"include": "#preprocessor-directive-ifndef"
+				},
+				{
+					"include": "#preprocessor-directive-endif"
+				}
+			]
+		},
+		"preprocessor-directive-ifndef": {
+			"patterns": [
+				
+			]
+		},
+		"preprocessor-directive-endif": {
+			"patterns": [
+				
 			]
 		},
 		"comment": {
