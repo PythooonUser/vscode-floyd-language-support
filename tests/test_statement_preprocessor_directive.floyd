@@ -1,0 +1,11 @@
+#include <stdlib.floyd>
+
+#define A_EXAMINE
+
+#define A_LOOK 101
+
+#ifndef DEBUG
+
+#endif
+
+#define A_SHOUT // Comment
