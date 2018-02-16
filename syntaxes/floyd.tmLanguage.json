@@ -375,8 +375,7 @@
 		"semicolon": {
 			"patterns": [
 				{
-					"comment": "What is the correct scope to use here?",
-					"name": "punctuation.floyd",
+					"name": "punctuation.terminator.statement.floyd",
 					"match": ";"
 				}
 			]
