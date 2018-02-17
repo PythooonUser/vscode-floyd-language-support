@@ -15,6 +15,9 @@
 			"patterns": [
 				{
 					"include": "#preprocessor-directive"
+				},
+				{
+					"include": "#class-declaration"
 				}
 			]
 		},
@@ -102,6 +105,72 @@
 		"preprocessor-directive-endif": {
 			"patterns": [
 				
+			]
+		},
+		"class-declaration": {
+			"patterns": [
+				{
+					"name": "meta.class.floyd",
+					"begin": "\\s*(class)(?=\\s+(?:abstract\\s+)?(?:[_a-zA-Z][_a-zA-Z0-9]*)(?:\\s*(?::)\\s*(?:[_a-zA-Z][_a-zA-Z0-9]*))?)",
+					"end": "({)",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.type.class.floyd"
+						}
+					},
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.section.class.begin.python"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#class-modifier"
+						},
+						{
+							"include": "#class-name"
+						},
+						{
+							"include": "#class-inheritance"
+						}
+					]
+				}
+			]
+		},
+		"class-modifier": {
+			"patterns": [
+				{
+					"name": "keyword.other.floyd",
+					"match": "\\b(abstract)\\b"
+				}
+			]
+		},
+		"class-name": {
+			"patterns": [
+				{
+					"name": "entity.name.type.class.floyd",
+					"match": "\\b([_a-zA-Z][_a-zA-Z0-9]*)\\b"
+				}
+			]
+		},
+		"class-inheritance": {
+			"patterns": [
+				{
+					"name": "meta.class.inheritance.floyd",
+					"begin": "(?=(:))",
+					"end": "(?={)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.definition.inheritance.floyd"
+						}
+					},
+					"patterns": [
+						{
+							"name": "entity.other.inherited-class.floyd",
+							"match": "\\b([_a-zA-Z][_a-zA-Z0-9]*)\\b"
+						}
+					]
+				}
 			]
 		},
 		"comment": {
