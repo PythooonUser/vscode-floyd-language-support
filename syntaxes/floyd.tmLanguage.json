@@ -111,7 +111,7 @@
 			"patterns": [
 				{
 					"name": "meta.class.floyd",
-					"begin": "\\s*(class)(?=\\s+(?:abstract\\s+)?(?:[_a-zA-Z][_a-zA-Z0-9]*)(?:\\s*(?::)\\s*(?:[_a-zA-Z][_a-zA-Z0-9]*))?)",
+					"begin": "\\b(class)\\b",
 					"end": "({)",
 					"beginCaptures": {
 						"1": {
