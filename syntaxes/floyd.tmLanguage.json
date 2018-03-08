@@ -120,7 +120,7 @@
 					},
 					"endCaptures": {
 						"1": {
-							"name": "punctuation.section.class.begin.python"
+							"name": "punctuation.section.class.begin.floyd"
 						}
 					},
 					"patterns": [
