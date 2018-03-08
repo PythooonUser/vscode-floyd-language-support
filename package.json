@@ -2,10 +2,10 @@
     "name": "vscode-floyd-language-support",
     "displayName": "vscode-floyd-language-support",
     "description": "Floyd language support for VSCode.",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "pythooonuser",
     "engines": {
-        "vscode": "^1.19.0"
+        "vscode": "^1.21.0"
     },
     "categories": [
         "Languages"
