@@ -1,8 +1,8 @@
 # vscode-floyd-language-support
 
-[![Language](https://img.shields.io/badge/language-floyd-green?style=flat-square.svg)](http://oliver-berse.de/)
-[![Twitter](https://img.shields.io/badge/twitter-pythooonuser-green?style=flat-square.svg)](https://twitter.com/pythooonuser/)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square.svg)](./LICENSE)
+[![Language](https://img.shields.io/badge/language-floyd-green.svg?style=flat-square)](http://oliver-berse.de/)
+[![Twitter](https://img.shields.io/badge/twitter-pythooonuser-green.svg?style=flat-square)](https://twitter.com/pythooonuser/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](./LICENSE)
 
 This is an extension for the code editor [**VS Code**](https://code.visualstudio.com/) that adds language support for the programming language [**Floyd**](http://oliver-berse.de/). **Floyd** is used to write classical Text Adventures (in German).
 
