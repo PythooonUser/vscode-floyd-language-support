@@ -22,7 +22,7 @@ Basic syntax highlighting is applied to `.floyd` **Floyd** source code files. It
 
 The following is an example taken from the game **Nebelmond** (Oliver Berse, 2002-2003) using the Dark+ color theme:
 
-![Syntax Highlighting Example](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/SyntaxHighlightingExample02.png)
+![Syntax Highlighting Example](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/SyntaxHighlightingExample.png)
 
 ### Snippets
 Currently there are three available snippets to enhance the coding experience to provide predefined sections of code for common used operations.
