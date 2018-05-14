@@ -1,26 +1,45 @@
 {
     "name": "vscode-floyd-language-support",
-    "displayName": "vscode-floyd-language-support",
-    "description": "Floyd language support for VSCode.",
-    "version": "0.0.2",
+    "displayName": "Floyd",
+    "description": "Floyd Language Support for VS Code.",
+    "license": "MIT",
+    "version": "0.1.0",
     "publisher": "pythooonuser",
-    "engines": {
-        "vscode": "^1.21.0"
+    "author": {
+        "name": "Felix Siebeneicker"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/pythooonuser/vscode-floyd-language-support"
     },
     "categories": [
-        "Languages"
+        "Programming Languages",
+        "Snippets"
     ],
+    "engines": {
+        "vscode": "^1.23.1"
+    },
     "contributes": {
-        "languages": [{
-            "id": "floyd",
-            "aliases": ["Floyd", "floyd"],
-            "extensions": [".floyd"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "floyd",
-            "scopeName": "source.floyd",
-            "path": "./syntaxes/floyd.tmLanguage.json"
-        }]
+        "languages": [
+            {
+                "id": "floyd",
+                "aliases": ["Floyd", "floyd"],
+                "extensions": [".floyd"],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "floyd",
+                "scopeName": "source.floyd",
+                "path": "./syntaxes/floyd.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "floyd",
+                "path": "./snippets/floyd.json"
+            }
+        ]
     }
 }

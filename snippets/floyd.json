@@ -1,0 +1,63 @@
+{
+    ".source.floyd": {
+        "Insert onAction Statement": {
+            "prefix": "onAction",
+            "body": [
+                "int onAction(int action) {",
+                "   switch(action) {",
+                "       case(A_EXAMINE);",
+                "           // Your code here.",
+                "           $0",
+                "           return 1;",
+                "       default;",
+                "           return super.onAction(action);",
+                "   }",
+                "}"
+            ],
+            "description": "Insert onAction Statement"
+        },
+        "Insert main Function": {
+            "prefix": "main",
+            "body": [
+                "// Main Function",
+                "void main() {",
+                "    // Display Project Information",
+                "    string projectName = \"${1:projectName}\";",
+                "    string projectURL = \"${2:projectURL}\";",
+                "    string projectVersion = \"0.1.0\";",
+                "    string authorName = \"${3:authorName}\";",
+                "    string authorEMail = \"${4:authorEMail}\";",
+                "",
+                "    string projectInformation = \"<b>\" + projectName + \"</b>^\";",
+                "    projectInformation += \"Version: \" + serial() + \" (\" + projectVersion + \")^\";",
+                "    projectInformation += \"Autor: \" + authorName + \" (\" + authorEMail + \")^\";",
+                "    projectInformation += \"URL: \" + projectURL + \"^\";",
+                "    projectInformation += \"Floyd: Oliver Berse, Raimund Seisenberger^^\";",
+                "",
+                "    write(projectInformation);",
+                "",
+                "    // Display Introduction",
+                "    write(\"<b>Einleitung</b>^Einleitung.^^\");",
+                "",
+                "    // Game Setup",
+                "    $0StatusLineFormat(1);",
+                "    setPlayer(Spieler);",
+                "    Spieler.moveto(ErsterRaum);",
+                "    ErsterRaum.description();",
+                "}"
+            ],
+            "description": "Insert main Function"
+        },
+        "Insert class Declaration": {
+            "prefix": "class",
+            "body": [
+                "class $1:$2 {",
+                "   setShort(\"$1\");",
+                "   setLong(\"\");",
+                "   $0",
+                "}"
+            ],
+            "description": "Insert class Declaration"
+        }
+    }
+}

@@ -1,31 +1,25 @@
 # Changelog
 
-## Version: 0.0.2
-**Date of publishing:** 08.03.2018
-> This release improves on the basic syntax highlighting for `.floyd` **Floyd** source code files.
+### Version 0.1.0 (180514)
+- **Feature:** Adding `onAction` snippet
+- **Feature:** Adding `main` snippet
+- **Feature:** Adding `class` snippet
+- **Change:** Rewriting readme text
+- **Change:** Rewriting changelog text
 
-### Features
-- Adds syntax highlighting for operators, item accesses, function calls, preprocessor directives and class declarations
-- Adds a changelog
-- Improves the readme
-- Adds basic unit tests
+### Version: 0.0.2 (180308)
+- **Feature:** Adding syntax highlighting for operators
+- **Feature:** Adding syntax highlighting for item accesses
+- **Feature:** Adding syntax highlighting for function calls
+- **Feature:** Adding syntax highlighting for preprocessor directives
+- **Feature:** Adding syntax highlighting for class declarations
+- **Feature:** Adding basic unit tests for syntax highlighting
+- **Feature:** Adding changelog
+- **Change:** Rewriting readme text
+- **Change:** Splitting-up keywords into function names
 
-### Changes
-- Keywords are split up into built-in function names and flow keywords etc.
-
-### BugFixes
-None
-
-
-## Version: 0.0.1
-**Date of publishing:** 21.01.2018
-> Initial release of the VS Code Floyd Language Support. It adds basic syntax highlighting to `.floyd` **Floyd** source code files.
-
-### Features
-- Adds basic syntax highlighting for `.floyd` **Floyd** source code files (includes comments, strings, integers and keywords)
-
-### Changes
-None
-
-### BugFixes
-None
+### Version: 0.0.1 (180121)
+- **Feature:** Adding syntax highlighting for comments
+- **Feature:** Adding syntax highlighting for string literals
+- **Feature:** Adding syntax highlighting for integer literals
+- **Feature:** Adding syntax highlighting for keywords
