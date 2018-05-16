@@ -22,19 +22,19 @@ Basic syntax highlighting is applied to `.floyd` **Floyd** source code files. It
 
 The following is an example taken from the game **Nebelmond** (Oliver Berse, 2002-2003) using the Dark+ color theme:
 
-![Syntax Highlighting Example](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/SyntaxHighlightingExample.png)
+![Syntax Highlighting Example](.media/SyntaxHighlightingExample.png)
 
 ### Snippets
 Currently there are three available snippets to enhance the coding experience to provide predefined sections of code for common used operations.
 
 #### Insert `onAction` Statement
-![Snippet onAction](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/snippet_onAction.gif)
+![Snippet onAction](.media/snippet_onAction.gif)
 
 #### Insert `main` Function
-![Snippet main](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/snippet_main.gif)
+![Snippet main](.media/snippet_main.gif)
 
 #### Insert `class` Declaration
-![Snippet class](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/snippet_class.gif)
+![Snippet class](.media/snippet_class.gif)
 
 ## Known Issues
 No known issues.
