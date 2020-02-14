@@ -1,0 +1,22 @@
+{
+  "name": "floyd-parser",
+  "version": "1.0.0",
+  "description": "A parser for Floyd",
+  "author": "Felix Siebeneicker",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pythooonuser/vscode-floyd-language-support"
+  },
+  "private": true,
+  "main": "floyd-parser.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "lex": "^1.7.9"
+  },
+  "devDependencies": {
+    "mocha": "^7.0.1"
+  }
+}
