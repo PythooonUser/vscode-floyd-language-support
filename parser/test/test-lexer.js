@@ -103,6 +103,64 @@ describe("Lexer", function() {
     });
   });
 
+  describe("Directives", function() {
+    it("Should handle directives", function() {
+      const program = `#include #define #ifdef #ifndef #endif`;
+
+      const expected = [
+        {
+          type: "directive",
+          value: "#include",
+          position: { line: 0, character: 0 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
+          position: { line: 0, character: 8 }
+        },
+        {
+          type: "directive",
+          value: "#define",
+          position: { line: 0, character: 9 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
+          position: { line: 0, character: 16 }
+        },
+        {
+          type: "directive",
+          value: "#ifdef",
+          position: { line: 0, character: 17 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
+          position: { line: 0, character: 23 }
+        },
+        {
+          type: "directive",
+          value: "#ifndef",
+          position: { line: 0, character: 24 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
+          position: { line: 0, character: 31 }
+        },
+        {
+          type: "directive",
+          value: "#endif",
+          position: { line: 0, character: 32 }
+        }
+      ];
+
+      const actual = getTokens(program);
+
+      assert.tokenArraysEqual(expected, actual);
+    });
+  });
+
   describe("Names", function() {
     it("Should handle names", function() {
       const program = `testname test_name _testName testName0`;
@@ -223,63 +281,63 @@ describe("Lexer", function() {
 
   describe("Operators", function() {
     it("Should handle operators", function() {
-      const program = `# << >> ++ -- && & || | ^ <= >= < > != == ! ~ %= /= *= += -= + - % / * = ( ) { } [ ] , : ? ; .`;
+      const program = `<< >> ++ -- && & || | ^ <= >= < > != == ! ~ %= /= *= += -= + - % / * = ( ) { } [ ] , : ? ; .`;
 
       const expected = [
         {
           type: "operator",
-          value: "#",
+          value: "<<",
           position: { line: 0, character: 0 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 1 }
-        },
-        {
-          type: "operator",
-          value: "<<",
           position: { line: 0, character: 2 }
-        },
-        {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 4 }
         },
         {
           type: "operator",
           value: ">>",
-          position: { line: 0, character: 5 }
+          position: { line: 0, character: 3 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 7 }
+          position: { line: 0, character: 5 }
         },
         {
           type: "operator",
           value: "++",
-          position: { line: 0, character: 8 }
+          position: { line: 0, character: 6 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 10 }
+          position: { line: 0, character: 8 }
         },
         {
           type: "operator",
           value: "--",
-          position: { line: 0, character: 11 }
+          position: { line: 0, character: 9 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 13 }
+          position: { line: 0, character: 11 }
         },
         {
           type: "operator",
           value: "&&",
+          position: { line: 0, character: 12 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
           position: { line: 0, character: 14 }
+        },
+        {
+          type: "operator",
+          value: "&",
+          position: { line: 0, character: 15 }
         },
         {
           type: "whitespace",
@@ -288,18 +346,18 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "&",
+          value: "||",
           position: { line: 0, character: 17 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 18 }
+          position: { line: 0, character: 19 }
         },
         {
           type: "operator",
-          value: "||",
-          position: { line: 0, character: 19 }
+          value: "|",
+          position: { line: 0, character: 20 }
         },
         {
           type: "whitespace",
@@ -308,7 +366,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "|",
+          value: "^",
           position: { line: 0, character: 22 }
         },
         {
@@ -318,28 +376,28 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "^",
+          value: "<=",
           position: { line: 0, character: 24 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 25 }
-        },
-        {
-          type: "operator",
-          value: "<=",
           position: { line: 0, character: 26 }
-        },
-        {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 28 }
         },
         {
           type: "operator",
           value: ">=",
+          position: { line: 0, character: 27 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
           position: { line: 0, character: 29 }
+        },
+        {
+          type: "operator",
+          value: "<",
+          position: { line: 0, character: 30 }
         },
         {
           type: "whitespace",
@@ -348,7 +406,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "<",
+          value: ">",
           position: { line: 0, character: 32 }
         },
         {
@@ -358,28 +416,28 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: ">",
+          value: "!=",
           position: { line: 0, character: 34 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 35 }
-        },
-        {
-          type: "operator",
-          value: "!=",
           position: { line: 0, character: 36 }
-        },
-        {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 38 }
         },
         {
           type: "operator",
           value: "==",
+          position: { line: 0, character: 37 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
           position: { line: 0, character: 39 }
+        },
+        {
+          type: "operator",
+          value: "!",
+          position: { line: 0, character: 40 }
         },
         {
           type: "whitespace",
@@ -388,7 +446,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "!",
+          value: "~",
           position: { line: 0, character: 42 }
         },
         {
@@ -398,58 +456,58 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "~",
+          value: "%=",
           position: { line: 0, character: 44 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 45 }
-        },
-        {
-          type: "operator",
-          value: "%=",
           position: { line: 0, character: 46 }
-        },
-        {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 48 }
         },
         {
           type: "operator",
           value: "/=",
-          position: { line: 0, character: 49 }
+          position: { line: 0, character: 47 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 51 }
+          position: { line: 0, character: 49 }
         },
         {
           type: "operator",
           value: "*=",
-          position: { line: 0, character: 52 }
+          position: { line: 0, character: 50 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 54 }
+          position: { line: 0, character: 52 }
         },
         {
           type: "operator",
           value: "+=",
-          position: { line: 0, character: 55 }
+          position: { line: 0, character: 53 }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 57 }
+          position: { line: 0, character: 55 }
         },
         {
           type: "operator",
           value: "-=",
+          position: { line: 0, character: 56 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
           position: { line: 0, character: 58 }
+        },
+        {
+          type: "operator",
+          value: "+",
+          position: { line: 0, character: 59 }
         },
         {
           type: "whitespace",
@@ -458,7 +516,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "+",
+          value: "-",
           position: { line: 0, character: 61 }
         },
         {
@@ -468,7 +526,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "-",
+          value: "%",
           position: { line: 0, character: 63 }
         },
         {
@@ -478,7 +536,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "%",
+          value: "/",
           position: { line: 0, character: 65 }
         },
         {
@@ -488,7 +546,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "/",
+          value: "*",
           position: { line: 0, character: 67 }
         },
         {
@@ -498,7 +556,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "*",
+          value: "=",
           position: { line: 0, character: 69 }
         },
         {
@@ -508,7 +566,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "=",
+          value: "(",
           position: { line: 0, character: 71 }
         },
         {
@@ -518,7 +576,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "(",
+          value: ")",
           position: { line: 0, character: 73 }
         },
         {
@@ -528,7 +586,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: ")",
+          value: "{",
           position: { line: 0, character: 75 }
         },
         {
@@ -538,7 +596,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "{",
+          value: "}",
           position: { line: 0, character: 77 }
         },
         {
@@ -548,7 +606,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "}",
+          value: "[",
           position: { line: 0, character: 79 }
         },
         {
@@ -558,7 +616,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "[",
+          value: "]",
           position: { line: 0, character: 81 }
         },
         {
@@ -568,7 +626,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "]",
+          value: ",",
           position: { line: 0, character: 83 }
         },
         {
@@ -578,7 +636,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: ",",
+          value: ":",
           position: { line: 0, character: 85 }
         },
         {
@@ -588,7 +646,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: ":",
+          value: "?",
           position: { line: 0, character: 87 }
         },
         {
@@ -598,7 +656,7 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: "?",
+          value: ";",
           position: { line: 0, character: 89 }
         },
         {
@@ -608,18 +666,8 @@ describe("Lexer", function() {
         },
         {
           type: "operator",
-          value: ";",
-          position: { line: 0, character: 91 }
-        },
-        {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 92 }
-        },
-        {
-          type: "operator",
           value: ".",
-          position: { line: 0, character: 93 }
+          position: { line: 0, character: 91 }
         }
       ];
 

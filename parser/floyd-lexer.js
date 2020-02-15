@@ -44,7 +44,11 @@ exports.Lexer = function() {
   lexer.addRule(/[0-9]+/, processLexeme("integer"));
   lexer.addRule(/"[^"]*"/, processLexeme("string"));
   lexer.addRule(
-    /#|<<|>>|\+\+|--|&&|&|\|\||\||\^|<=|>=|<|>|!=|==|!|~|%=|\/=|\*=|\+=|-=|\+|-|%|\/|\*|=|\(|\)|{|}|\[|\]|,|:|\?|;|\./,
+    /#(include|define|ifdef|ifndef|endif)/,
+    processLexeme("directive")
+  );
+  lexer.addRule(
+    /<<|>>|\+\+|--|&&|&|\|\||\||\^|<=|>=|<|>|!=|==|!|~|%=|\/=|\*=|\+=|-=|\+|-|%|\/|\*|=|\(|\)|{|}|\[|\]|,|:|\?|;|\./,
     processLexeme("operator")
   );
   lexer.addRule(/[\s]+/, processLexeme("whitespace"));
