@@ -11,6 +11,9 @@ let Context = {
 };
 
 class Scope {
+  define() {}
+  reserve() {}
+  find() {}
   pop() {}
 }
 
@@ -44,8 +47,18 @@ let Parse = {
     let prototypeSymbol = null;
 
     if (arity === "name") {
+      prototypeSymbol = Context.Scope.find(value);
     } else if (arity === "operator") {
+      prototypeSymbol = Context.SymbolTable[value];
+      if (!prototypeSymbol) {
+        Context.Errors.push({
+          message: "Unkown operator",
+          position: token.position
+        });
+      }
     } else if (arity === "integer" || arity === "string") {
+      arity = "literal";
+      prototypeSymbol = Context.SymbolTable["(literal)"];
     } else {
       Context.Errors.push({
         message: "Unexpected token",
