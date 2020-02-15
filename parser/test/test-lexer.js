@@ -161,6 +161,54 @@ describe("Lexer", function() {
     });
   });
 
+  describe("Types", function() {
+    it("Should handle types", function() {
+      const program = `void int string object`;
+
+      const expected = [
+        {
+          type: "type",
+          value: "void",
+          position: { line: 0, character: 0 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
+          position: { line: 0, character: 4 }
+        },
+        {
+          type: "type",
+          value: "int",
+          position: { line: 0, character: 5 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
+          position: { line: 0, character: 8 }
+        },
+        {
+          type: "type",
+          value: "string",
+          position: { line: 0, character: 9 }
+        },
+        {
+          type: "whitespace",
+          value: " ",
+          position: { line: 0, character: 15 }
+        },
+        {
+          type: "type",
+          value: "object",
+          position: { line: 0, character: 16 }
+        }
+      ];
+
+      const actual = getTokens(program);
+
+      assert.tokenArraysEqual(expected, actual);
+    });
+  });
+
   describe("Names", function() {
     it("Should handle names", function() {
       const program = `testname test_name _testName testName0`;
