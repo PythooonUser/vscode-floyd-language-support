@@ -46,6 +46,17 @@ let Define = {
   }
 };
 
+Define.Symbol(":");
+Define.Symbol(";");
+Define.Symbol(",");
+Define.Symbol(")");
+Define.Symbol("]");
+Define.Symbol("}");
+Define.Symbol("else");
+
+Define.Symbol("(name)");
+Define.Symbol("(end)");
+
 let parse = function({ program }) {
   lexer = Lexer();
   lexer.setInput(program);
