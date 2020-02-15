@@ -6,8 +6,8 @@ let parse = function(program) {
 };
 
 describe("Parser", function() {
-  assert.noErrors = function(program) {
-    assert.equal(program.errors.length, 0, "Parse errors occurred.");
+  assert.noErrors = function({ errors }) {
+    assert.equal(errors.length, 0, "Parse errors occurred.");
   };
 
   describe("Definitions", function() {
