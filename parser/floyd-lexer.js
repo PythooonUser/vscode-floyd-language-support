@@ -40,7 +40,6 @@ exports.Lexer = function() {
     processLexeme("comment")
   );
   lexer.addRule(/\/\/[^\r\n]*/, processLexeme("comment"));
-  lexer.addRule(/void|int|string|object/, processLexeme("type"));
   lexer.addRule(/[a-zA-Z_][a-zA-Z0-9_]*/, processLexeme("name"));
   lexer.addRule(/[0-9]+/, processLexeme("integer"));
   lexer.addRule(/"[^"]*"/, processLexeme("string"));
