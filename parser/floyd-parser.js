@@ -134,6 +134,20 @@ let Define = {
       };
 
     return symbol;
+  },
+  Prefix: function(id, nud) {
+    let symbol = Define.Symbol(id);
+
+    symbol.nud =
+      nud ||
+      function() {
+        Context.Scope.reserve(this);
+        this.first = Parse.expression(70);
+        this.arity = "unary";
+        return this;
+      };
+
+    return symbol;
   }
 };
 
@@ -196,6 +210,15 @@ Define.Infix("[", 80, function(left) {
 
 Define.Infixr("&&", 30);
 Define.Infixr("||", 30);
+
+Define.Prefix("-");
+Define.Prefix("!");
+
+Define.Prefix("(", function() {
+  let expression = Parse.expression(0);
+  Parse.advance(")");
+  return expression;
+});
 
 let parse = function({ program }) {
   lexer = Lexer();
