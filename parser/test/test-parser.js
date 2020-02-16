@@ -10,6 +10,28 @@ describe("Parser", function() {
     assert.equal(errors.length, 0, "Parse errors occurred.");
   };
 
+  assert.positionsEqual = function(actual, expected) {
+    assert.equal(actual.line, expected.line, "Line numbers should be equal.");
+    assert.equal(
+      actual.character,
+      expected.character,
+      "Character numbers should be equal."
+    );
+  };
+
+  assert.errorsEqual = function(actual, expected) {
+    assert.equal(
+      actual.message,
+      expected.message,
+      "Error messages should be equal."
+    );
+    assert.positionsEqual(
+      actual.position,
+      expected.position,
+      "Error positions should be equal."
+    );
+  };
+
   describe("Definitions", function() {
     describe("Types", function() {
       describe("Integers", function() {
@@ -29,6 +51,19 @@ describe("Parser", function() {
           const program = `int x, y, z;`;
           const actual = parse(program);
           assert.noErrors(actual);
+        });
+
+        it("Should not define integer variables with same name", function() {
+          const program = `int x, x, y;`;
+
+          const expectedError = {
+            message: "Already defined",
+            position: { line: 0, character: 4 }
+          };
+
+          const actual = parse(program);
+
+          assert.errorsEqual(actual.errors[0], expectedError);
         });
 
         it("Should be able to init multiple integers", function() {
@@ -56,6 +91,19 @@ describe("Parser", function() {
         const program = `void test() {}`;
         const actual = parse(program);
         assert.noErrors(actual);
+      });
+
+      it("Should not define variable with same name as function", function() {
+        const program = `void test() {} int test;`;
+
+        const expectedError = {
+          message: "Already defined",
+          position: { line: 0, character: 5 }
+        };
+
+        const actual = parse(program);
+
+        assert.errorsEqual(actual.errors[0], expectedError);
       });
 
       it("Should be able to declare a function with a parameter", function() {
