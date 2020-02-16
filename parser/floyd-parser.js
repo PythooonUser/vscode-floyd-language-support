@@ -73,7 +73,20 @@ let Parse = {
 
     return Context.Token;
   },
-  definitions: function() {}
+  definitions: function() {},
+  expression: function(rbp) {
+    let token = Context.Token;
+    Parse.advance();
+    let left = token.nud();
+
+    while (rbp < Context.Token.lbp) {
+      token = Context.Token;
+      Parse.advance();
+      left = token.led(left);
+    }
+
+    return left;
+  }
 };
 
 let Define = {
@@ -93,6 +106,34 @@ let Define = {
     }
 
     return symbol;
+  },
+  Infix: function(id, bp, led) {
+    let symbol = Define.Symbol(id, bp);
+
+    symbol.led =
+      led ||
+      function(left) {
+        this.first = left;
+        this.second = Parse.expression(bp);
+        this.arity = "binary";
+        return this;
+      };
+
+    return symbol;
+  },
+  Infixr: function(id, bp, led) {
+    let symbol = Define.Symbol(id, bp);
+
+    symbol.led =
+      led ||
+      function(left) {
+        this.first = left;
+        this.second = Parse.expression(bp - 1);
+        this.arity = "binary";
+        return this;
+      };
+
+    return symbol;
   }
 };
 
@@ -106,6 +147,55 @@ Define.Symbol("else");
 
 Define.Symbol("(name)");
 Define.Symbol("(end)");
+
+Define.Infix("+", 50);
+Define.Infix("-", 50);
+Define.Infix("*", 60);
+Define.Infix("/", 60);
+
+Define.Infix("==", 40);
+Define.Infix("!=", 40);
+Define.Infix("<", 40);
+Define.Infix("<=", 40);
+Define.Infix(">", 40);
+Define.Infix(">=", 40);
+
+Define.Infix("?", 20, function(left) {
+  this.first = left;
+  this.seconf = Parse.expression(0);
+  Parse.advance(":");
+  this.third = Parse.expression(0);
+  this.arity = "ternary";
+  return this;
+});
+
+Define.Infix(".", 80, function(left) {
+  this.first = left;
+
+  if (Context.Token.arity !== "name") {
+    Context.Errors.push({
+      message: "Expected a property name",
+      position: Context.Token.position
+    });
+  }
+
+  Context.Token.arity = "literal";
+  this.second = Context.Token;
+  this.arity = "binary";
+  Parse.advance();
+  return this;
+});
+
+Define.Infix("[", 80, function(left) {
+  this.first = left;
+  this.second = Parse.expression(0);
+  this.arity = "binary";
+  Parse.advance("]");
+  return this;
+});
+
+Define.Infixr("&&", 30);
+Define.Infixr("||", 30);
 
 let parse = function({ program }) {
   lexer = Lexer();
