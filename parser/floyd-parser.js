@@ -34,7 +34,8 @@ let Symbol = {
       message: "Missing operator",
       position: this.position
     });
-  }
+  },
+  std: null
 };
 
 let Parse = {
@@ -97,6 +98,51 @@ let Parse = {
     }
 
     return left;
+  },
+  statement: function() {
+    let token = Context.Token;
+
+    if (token.std) {
+      Parse.advance();
+      Context.Scope.reserve(token);
+      return token.std();
+    }
+
+    let expression = Parse.expression(0);
+    if (!expression.assignment && expression.id !== "(") {
+      Context.Errors.push({
+        message: "Bad expression statement",
+        position: expression.position
+      });
+    }
+
+    Parse.advance(";");
+    return expression;
+  },
+  statements: function() {
+    let statements = [];
+
+    while (true) {
+      if (Context.Token.id === "}" || Context.Token.id === "(end)") {
+        break;
+      }
+
+      let statement = Parse.statement();
+      if (statement) {
+        statements.push(statement);
+      }
+    }
+
+    return statements.length === 0
+      ? null
+      : statements.length === 1
+      ? statements[0]
+      : statements;
+  },
+  block: function() {
+    let token = Context.Token;
+    Parse.advance("{");
+    return token.std();
   }
 };
 
@@ -189,6 +235,11 @@ let Define = {
 
     symbol.value = value;
     return symbol;
+  },
+  Statement: function(id, std) {
+    let symbol = Define.Symbol(id);
+    symbol.std = std;
+    return symbol;
   }
 };
 
@@ -271,6 +322,14 @@ Define.Constant("NULL", null);
 Define.Symbol("(literal)").nud = function() {
   return this;
 };
+
+Define.Statement("{", function() {
+  new Scope();
+  let statements = Parse.statements();
+  Parse.advance("}");
+  Context.Scope.pop();
+  return statements;
+});
 
 let parse = function({ program }) {
   lexer = Lexer();
