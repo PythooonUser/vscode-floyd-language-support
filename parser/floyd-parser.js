@@ -11,10 +11,84 @@ let Context = {
 };
 
 class Scope {
-  define() {}
-  reserve() {}
-  find() {}
-  pop() {}
+  constructor(parent) {
+    this.definitions = {};
+    this.parent = parent || Context.Scope;
+
+    Context.Scope = this;
+  }
+
+  define(symbol) {
+    let definition = this.definitions[symbol.value];
+    if (definition) {
+      if (definition.reserved) {
+        Context.Errors.push({
+          message: "Already reserved",
+          position: definition.position
+        });
+      } else {
+        Context.Errors.push({
+          message: "Already defined",
+          position: definition.position
+        });
+      }
+    }
+
+    this.definitions[symbol.value] = symbol;
+    symbol.reserved = false;
+    symbol.nud = function() {
+      return this;
+    };
+    symbol.led = null;
+    symbol.std = null;
+    symbol.lbp = 0;
+    symbol.scope = Context.Scope;
+
+    return symbol;
+  }
+
+  reserve(symbol) {
+    if (symbol.arity !== "name" || symbol.reserved) {
+      return;
+    }
+
+    let definition = this.definitions[symbol.value];
+    if (definition) {
+      if (definition.reserved) {
+        return;
+      }
+      if (definition.arity === "name") {
+        Context.Errors.push({
+          message: "Already defined",
+          position: symbol.position
+        });
+      }
+    }
+
+    this.definitions[symbol.value] = symbol;
+    symbol.reserved = true;
+  }
+
+  find(id) {
+    let scope = this;
+
+    while (true) {
+      let symbol = scope.definitions[id];
+      if (symbol) {
+        return symbol;
+      }
+
+      scope = scope.parent;
+      if (!scope) {
+        symbol = Context.SymbolTable[id];
+        return symbol !== undefined ? symbol : Context.SymbolTable["(name)"];
+      }
+    }
+  }
+
+  pop() {
+    Context.Scope = this.parent;
+  }
 }
 
 let Symbol = {
@@ -23,6 +97,8 @@ let Symbol = {
   lbp: null,
   position: null,
   assignment: false,
+  reserved: false,
+  scope: null,
   nud: function() {
     Context.Errors.push({
       message: "Undefined",
@@ -48,6 +124,18 @@ let Parse = {
     }
 
     let token = lexer.lex();
+
+    while (true) {
+      if (
+        token !== undefined &&
+        (token.type === "comment" || token.type === "whitespace")
+      ) {
+        token = lexer.lex();
+      } else {
+        break;
+      }
+    }
+
     if (!token) {
       Context.Token = Context.SymbolTable["(end)"];
       return Context.Token;
@@ -345,7 +433,7 @@ Define.Statement("int", function() {
     Context.Scope.define(token);
 
     Parse.advance();
-    if (Context.token.id === "=") {
+    if (Context.Token.id === "=") {
       let definition = Context.Token;
       Parse.advance("=");
       definition.first = token;
