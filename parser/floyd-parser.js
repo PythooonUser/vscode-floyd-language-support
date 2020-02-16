@@ -457,6 +457,35 @@ Define.Statement("int", function() {
     : definitions;
 });
 
+Define.Statement("void", function() {
+  let token = Context.Token;
+
+  let parameters = [];
+
+  if (token.arity !== "name") {
+    Context.Errors.push({
+      message: "Expected function name",
+      position: token.position
+    });
+  }
+
+  Context.Scope.define(token);
+  token.arity = "function";
+  token.name = token.value;
+  token.type = this.value;
+  Parse.advance();
+
+  Parse.advance("(");
+  if (Context.Token.id !== ")") {
+  }
+  token.first = parameters;
+
+  Parse.advance(")");
+  token.second = Parse.block();
+
+  return token;
+});
+
 let parse = function({ program }) {
   lexer = Lexer();
   lexer.setInput(program);

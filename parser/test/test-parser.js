@@ -52,11 +52,23 @@ describe("Parser", function() {
     });
 
     describe("Functions", function() {
-      it("Should be able to declare a function");
+      it("Should be able to declare a function", function() {
+        const program = `void test() {}`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
 
-      it("Should be able to declare a function with a parameter");
+      it("Should be able to declare a function with a parameter", function() {
+        const program = `void test(int x) {}`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
 
-      it("Should be able to declare a function with multiple parameters");
+      it("Should be able to declare a function with multiple parameters", function() {
+        const program = `void test(int x, string s, object o) {}`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
     });
 
     describe("Classes", function() {
