@@ -22,6 +22,7 @@ let Symbol = {
   value: null,
   lbp: null,
   position: null,
+  assignment: false,
   nud: function() {
     Context.Errors.push({
       message: "Undefined",
@@ -158,6 +159,23 @@ let Define = {
       };
 
     return symbol;
+  },
+  Assignment: function(id) {
+    return Define.Infixr(id, 10, function(left) {
+      if (left.id !== "." && left.id !== "[" && left.arity !== "name") {
+        Context.Errors.push({
+          message: "Bad left value",
+          position: left.position
+        });
+      }
+
+      this.first = left;
+      this.second = Parse.expression(9);
+      this.assignment = true;
+      this.arity = "binary";
+
+      return this;
+    });
   }
 };
 
@@ -229,6 +247,12 @@ Define.Prefix("(", function() {
   Parse.advance(")");
   return expression;
 });
+
+Define.Assignment("=");
+Define.Assignment("+=");
+Define.Assignment("-=");
+Define.Assignment("*=");
+Define.Assignment("/=");
 
 let parse = function({ program }) {
   lexer = Lexer();
