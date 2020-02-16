@@ -22,8 +22,18 @@ let Symbol = {
   value: null,
   lbp: null,
   position: null,
-  nud: function() {},
-  led: function(left) {}
+  nud: function() {
+    Context.Errors.push({
+      message: "Undefined",
+      position: this.position
+    });
+  },
+  led: function(left) {
+    Context.Errors.push({
+      message: "Missing operator",
+      position: this.position
+    });
+  }
 };
 
 let Parse = {
