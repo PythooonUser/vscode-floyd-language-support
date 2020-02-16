@@ -176,6 +176,19 @@ let Define = {
 
       return this;
     });
+  },
+  Constant: function(id, value) {
+    let symbol = Define.Symbol(id);
+
+    symbol.nud = function() {
+      Context.Scope.reserve(this);
+      this.value = Context.SymbolTable[this.id].value;
+      this.arity = "literal";
+      return this;
+    };
+
+    symbol.value = value;
+    return symbol;
   }
 };
 
@@ -253,6 +266,11 @@ Define.Assignment("+=");
 Define.Assignment("-=");
 Define.Assignment("*=");
 Define.Assignment("/=");
+
+Define.Constant("NULL", null);
+Define.Symbol("(literal)").nud = function() {
+  return this;
+};
 
 let parse = function({ program }) {
   lexer = Lexer();
