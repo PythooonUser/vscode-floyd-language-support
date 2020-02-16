@@ -85,7 +85,6 @@ let Parse = {
 
     return Context.Token;
   },
-  definitions: function() {},
   expression: function(rbp) {
     let token = Context.Token;
     Parse.advance();
@@ -383,7 +382,7 @@ let parse = function({ program }) {
   };
 
   Parse.advance();
-  const ast = Parse.definitions();
+  const ast = Parse.statements();
   const scope = Context.Scope;
   Context.Scope.pop();
 
