@@ -19,7 +19,23 @@ describe("Parser", function() {
           assert.noErrors(actual);
         });
 
-        it("Should be able to init an integer");
+        it("Should be able to init an integer", function() {
+          const program = `int x = 0;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
+
+        it("Should be able to define multiple integers", function() {
+          const program = `int x, y, z;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
+
+        it("Should be able to init multiple integers", function() {
+          const program = `int x = 0, y, z = 1;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
       });
 
       describe("Strings", function() {
