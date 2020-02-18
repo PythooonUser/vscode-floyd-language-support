@@ -39,8 +39,6 @@ describe("Parser", function() {
           const program = `int x;`;
           const actual = parse(program);
           assert.noErrors(actual);
-          // TODO: Check that int has been marked as reserved word
-          // TODO: Check that x has been defined in scope
         });
 
         it("Should be able to init an integer", function() {
@@ -76,13 +74,50 @@ describe("Parser", function() {
       });
 
       describe("Strings", function() {
-        it("Should be able to define a string");
+        it("Should be able to define a string", function() {
+          const program = `string s;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
 
-        it("Should be able to init a string");
+        it("Should be able to init a string", function() {
+          const program = `string s = "Hello World";`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
+
+        it("Should be able to define multiple strings", function() {
+          const program = `string a, b, c;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
+
+        it("Should not define string variables with same name", function() {
+          const program = `string a, a, b;`;
+
+          const expectedError = {
+            message: "Already defined",
+            position: { line: 0, character: 7 }
+          };
+
+          const actual = parse(program);
+
+          assert.errorsEqual(actual.errors[0], expectedError);
+        });
+
+        it("Should be able to init multiple strings", function() {
+          const program = `string a = "Foo", b, c = "Bar";`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
       });
 
       describe("Objects", function() {
-        it("Should be able to define an object");
+        it("Should be able to define an object", function() {
+          const program = `object x;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
 
         it("Should be able to init an object");
       });
