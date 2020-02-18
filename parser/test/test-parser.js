@@ -169,7 +169,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it.skip("Should be able to declare an abstract class", function() {
+      it("Should be able to declare an abstract class", function() {
         const program = `class abstract Test {}`;
         const actual = parse(program);
         assert.noErrors(actual);

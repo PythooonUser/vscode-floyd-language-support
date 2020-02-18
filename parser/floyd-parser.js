@@ -563,6 +563,14 @@ Define.Statement("(name)", function() {
 });
 
 Define.Statement("class", function() {
+  let abstract = false;
+
+  if (Context.Token.value === "abstract") {
+    Context.Scope.reserve(Context.Token);
+    abstract = true;
+    Parse.advance();
+  }
+
   let token = Context.Token;
   if (token.arity !== "name") {
     Context.Errors.push({
@@ -572,7 +580,7 @@ Define.Statement("class", function() {
   }
 
   Context.Scope.define(token);
-  token.abstract = false;
+  token.abstract = abstract;
   token.first = null;
 
   Parse.advance();
