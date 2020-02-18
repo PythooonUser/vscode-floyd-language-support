@@ -562,6 +562,25 @@ Define.Statement("(name)", function() {
   }
 });
 
+Define.Statement("class", function() {
+  let token = Context.Token;
+  if (token.arity !== "name") {
+    Context.Errors.push({
+      message: "[floyd] Expected class name",
+      position: token.position
+    });
+  }
+
+  Context.Scope.define(token);
+  token.abstract = false;
+  token.first = null;
+
+  Parse.advance();
+  token.second = Parse.block();
+
+  return token;
+});
+
 let parse = function({ program }) {
   lexer = Lexer();
   lexer.setInput(program);

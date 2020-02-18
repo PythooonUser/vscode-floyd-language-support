@@ -163,11 +163,23 @@ describe("Parser", function() {
     });
 
     describe("Classes", function() {
-      it("Should be able to declare a class");
+      it("Should be able to declare a class", function() {
+        const program = `class Test {}`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
 
-      it("Should be able to declare an abstract class");
+      it.skip("Should be able to declare an abstract class", function() {
+        const program = `class abstract Test {}`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
 
-      it("Should be able to declare a class with inheritance");
+      it.skip("Should be able to declare a class with inheritance", function() {
+        const program = `class Test:Parent {}`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
     });
 
     describe("Verbs", function() {
