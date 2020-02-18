@@ -603,6 +603,15 @@ Define.Statement("class", function() {
   return token;
 });
 
+Define.Statement("while", function() {
+  Parse.advance("(");
+  this.first = Parse.expression(0);
+  Parse.advance(")");
+  this.second = Parse.block();
+  this.arity = "statement";
+  return this;
+});
+
 let parse = function({ program }) {
   lexer = Lexer();
   lexer.setInput(program);
