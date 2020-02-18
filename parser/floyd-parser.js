@@ -245,7 +245,41 @@ let Parse = {
     let parameters = [];
 
     if (Context.Token.id !== ")") {
-      // TODO: Parse function arguments.
+      while (true) {
+        let parameterType = Context.Token;
+
+        if (
+          parameterType.value !== "int" &&
+          parameterType.value !== "string" &&
+          parameterType.value !== "object"
+        ) {
+          Context.Errors.push({
+            message: `[floyd] Invalid parameter type '${parameterType.value}'. Use either int, string or object.`,
+            position: parameterType.position
+          });
+        }
+
+        Parse.advance();
+        let parameterName = Context.Token;
+
+        if (parameterName.arity !== "name") {
+          Context.Errors.push({
+            message: "[floyd] Expected parameter name.",
+            position: parameterName.position
+          });
+        }
+
+        parameterName.type = parameterType.value;
+        Context.Scope.define(parameterName);
+        parameters.push(parameterName);
+
+        Parse.advance();
+        if (Context.Token.id !== ",") {
+          break;
+        }
+
+        Parse.advance(",");
+      }
     }
 
     name.first = parameters;

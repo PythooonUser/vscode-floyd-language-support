@@ -119,6 +119,12 @@ describe("Parser", function() {
         const actual = parse(program);
         assert.noErrors(actual);
       });
+
+      it("Should create new scope for parameters and body", function() {
+        const program = `void test(int x) {} int x = 0;`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
     });
 
     describe("Classes", function() {
