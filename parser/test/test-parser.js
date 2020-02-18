@@ -39,6 +39,8 @@ describe("Parser", function() {
           const program = `int x;`;
           const actual = parse(program);
           assert.noErrors(actual);
+          // TODO: Check that int has been marked as reserved word
+          // TODO: Check that x has been defined in scope
         });
 
         it("Should be able to init an integer", function() {

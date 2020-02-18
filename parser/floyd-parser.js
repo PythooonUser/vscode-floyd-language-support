@@ -4,6 +4,7 @@ let lexer;
 
 let Context = {
   Token: null,
+  PreviousToken: null,
   SymbolTable: {},
   Symbols: [],
   Scope: null,
@@ -166,6 +167,8 @@ let Parse = {
       });
     }
 
+    Context.PreviousToken = Context.Token;
+
     Context.Token = { ...prototypeSymbol };
     Context.Token.arity = arity;
     Context.Token.value = value;
@@ -230,6 +233,81 @@ let Parse = {
     let token = Context.Token;
     Parse.advance("{");
     return token.std();
+  },
+  function: function(type, name) {
+    Context.Scope.define(name);
+    name.arity = "function";
+    name.name = name.value;
+    name.type = type.value;
+
+    Parse.advance("(");
+    new Scope();
+    let parameters = [];
+
+    if (Context.Token.id !== ")") {
+      // TODO: Parse function arguments.
+    }
+
+    name.first = parameters;
+
+    Parse.advance(")");
+    name.second = Parse.block();
+    Context.Scope.pop();
+
+    return name;
+  },
+  variable: function(type, name) {
+    let definitions = [];
+    let first = true;
+
+    while (true) {
+      let token = null;
+
+      if (first) {
+        token = name;
+      } else {
+        token = Context.Token;
+
+        if (token.arity !== "name") {
+          Context.Errors.push({
+            message: "Expected variable name",
+            position: token.position
+          });
+        }
+      }
+
+      token.type = type.value;
+      Context.Scope.define(token);
+
+      if (!first) {
+        Parse.advance();
+      } else {
+        first = false;
+      }
+
+      if (Context.Token.id === "=") {
+        let definition = Context.Token;
+        Parse.advance("=");
+        definition.first = token;
+        definition.second = Parse.expression(0);
+        definition.arity = "binary";
+        definitions.push(definition);
+      }
+
+      if (Context.Token.id !== ",") {
+        break;
+      }
+
+      Parse.advance(",");
+    }
+
+    Parse.advance(";");
+
+    return definitions.length === 0
+      ? null
+      : definitions.length === 1
+      ? definitions[0]
+      : definitions;
   }
 };
 
@@ -418,72 +496,36 @@ Define.Statement("{", function() {
   return statements;
 });
 
-Define.Statement("int", function() {
-  let definitions = [];
-
-  while (true) {
-    let token = Context.Token;
-    if (token.arity !== "name") {
-      Context.Errors.push({
-        message: "Expected variable name",
-        position: token.position
-      });
-    }
-
-    Context.Scope.define(token);
-
-    Parse.advance();
-    if (Context.Token.id === "=") {
-      let definition = Context.Token;
-      Parse.advance("=");
-      definition.first = token;
-      definition.second = Parse.expression(0);
-      definition.arity = "binary";
-      definitions.push(definition);
-    }
-
-    if (Context.Token.id !== ",") {
-      break;
-    }
-    Parse.advance(",");
-  }
-
-  Parse.advance(";");
-
-  return definitions.length === 0
-    ? null
-    : definitions.length === 1
-    ? definitions[0]
-    : definitions;
-});
-
-Define.Statement("void", function() {
-  let token = Context.Token;
-
-  let parameters = [];
-
-  if (token.arity !== "name") {
+Define.Statement("(name)", function() {
+  let type = Context.PreviousToken;
+  if (
+    type.value !== "void" &&
+    type.value !== "int" &&
+    type.value !== "string" &&
+    type.value !== "object"
+  ) {
     Context.Errors.push({
-      message: "Expected function name",
-      position: token.position
+      message: `[floyd] Invalid type '${type.value}'. Use either void, int, string or object.`,
+      position: type.position
     });
   }
 
-  Context.Scope.define(token);
-  token.arity = "function";
-  token.name = token.value;
-  token.type = this.value;
-  Parse.advance();
-
-  Parse.advance("(");
-  if (Context.Token.id !== ")") {
+  let name = Context.Token;
+  if (name.arity !== "name") {
+    Context.Errors.push({
+      message: `[floyd] Expected ${
+        type.value === "void" ? "function" : "variable or function"
+      } name. Got '${name.value}'.`,
+      position: type.position
+    });
   }
-  token.first = parameters;
 
-  Parse.advance(")");
-  token.second = Parse.block();
-
-  return token;
+  Parse.advance();
+  if (Context.Token.value === "(") {
+    return Parse.function(type, name);
+  } else {
+    return Parse.variable(type, name);
+  }
 });
 
 let parse = function({ program }) {
@@ -492,6 +534,7 @@ let parse = function({ program }) {
 
   Context = {
     Token: null,
+    PreviousToken: null,
     SymbolTable: { ...Context.SymbolTable },
     Symbols: [],
     Scope: new Scope(),
