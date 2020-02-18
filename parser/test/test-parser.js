@@ -186,4 +186,89 @@ describe("Parser", function() {
       it("Should be able to define a verb");
     });
   });
+
+  describe("Statements", function() {
+    describe("Control Flow", function() {
+      it("Should handle while loop", function() {
+        const program = `void test() {
+          int i = 0;
+          while(i < 5) {}
+        }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle do-while loop", function() {
+        const program = `void test() {
+          int i = 0;
+          do { i++; } while(i < 5);
+        }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle for loop", function() {
+        const program = `void test() {
+          int i;
+          for(i = 0; i < 10; i++) {}
+        }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle if statement", function() {
+        const program = `void test() {
+          int i = 0;
+          if (i < 10) {}
+        }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle if-else statement", function() {
+        const program = `void test() {
+          int i = 0;
+          if (i < 10) {}
+          else {}
+        }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle nested if-else statements", function() {
+        const program = `void test() {
+          int i = 0;
+          if (i < 10) {
+            if (i < 5) {}
+            else {}
+          }
+          else {
+            if (i > 20) {}
+            else {}
+          }
+        }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle switch statement", function() {
+        const program = `void test() {
+          int i = 0;
+          switch(i) {
+            case(-1);
+            case(0);
+              i += 1;
+              break;
+            case(1);
+              i += 2;
+              break;
+            default;
+              i = 0;
+          }
+        }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+    });
+  });
 });
