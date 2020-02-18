@@ -580,10 +580,24 @@ Define.Statement("class", function() {
   }
 
   Context.Scope.define(token);
+  token.arity = "class";
   token.abstract = abstract;
-  token.first = null;
 
   Parse.advance();
+  let superClass = null;
+  if (Context.Token.value === ":") {
+    Parse.advance(":");
+    if (Context.Token.arity !== "name") {
+      Context.Errors.push({
+        message: "[floyd] Expected super class name",
+        position: Context.Token.position
+      });
+    }
+    superClass = Context.Token;
+    Parse.advance();
+  }
+
+  token.first = superClass;
   token.second = Parse.block();
 
   return token;
