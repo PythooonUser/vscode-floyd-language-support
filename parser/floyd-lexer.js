@@ -35,10 +35,7 @@ exports.Lexer = function() {
 
   const lexer = new Lexer();
 
-  lexer.addRule(
-    /\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\//,
-    processLexeme("comment")
-  );
+  lexer.addRule(/\/\*(\*(?!\/)|[^*])*\*\//, processLexeme("comment"));
   lexer.addRule(/\/\/[^\r\n]*/, processLexeme("comment"));
   lexer.addRule(/[a-zA-Z_][a-zA-Z0-9_]*/, processLexeme("name"));
   lexer.addRule(/[0-9]+/, processLexeme("integer"));

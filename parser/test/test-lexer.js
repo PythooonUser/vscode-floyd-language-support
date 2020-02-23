@@ -716,7 +716,7 @@ describe("Lexer", function() {
     });
 
     it("Should handle block comments", function() {
-      const program = `/**\n * This is a block comment.\n */\n/* This is a block comment. */`;
+      const program = `/**\n * This is a block comment.\n */\n/* This is a block comment. */\n/*************/`;
 
       const expected = [
         {
@@ -733,6 +733,16 @@ describe("Lexer", function() {
           type: "comment",
           value: `/* This is a block comment. */`,
           position: { line: 3, character: 0 }
+        },
+        {
+          type: "whitespace",
+          value: "\n",
+          position: { line: 3, character: 30 }
+        },
+        {
+          type: "comment",
+          value: `/*************/`,
+          position: { line: 4, character: 0 }
         }
       ];
 
