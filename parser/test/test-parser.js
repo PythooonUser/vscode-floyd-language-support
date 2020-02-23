@@ -193,6 +193,24 @@ describe("Parser", function() {
 
   describe("Statements", function() {
     describe("Control Flow", function() {
+      it("Should handle return", function() {
+        const program = `void test() { return; }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle return with simple expression", function() {
+        const program = `void test() { return 0; }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle return with complex expression", function() {
+        const program = `void test() { return (0 || test.property); }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
       it("Should handle while loop", function() {
         const program = `void test() {
           int i = 0;

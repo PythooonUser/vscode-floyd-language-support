@@ -648,6 +648,24 @@ Define.Statement("class", function() {
   return token;
 });
 
+Define.Statement("return", function() {
+  if (Context.Token.id !== ";") {
+    this.first = Parse.expression(0);
+  }
+
+  Parse.advance(";");
+
+  if (Context.Token.id !== "}") {
+    Context.Errors.push({
+      message: "[floyd] Unreachable code.",
+      position: Context.Token.position
+    });
+  }
+
+  this.arity = "statement";
+  return this;
+});
+
 Define.Statement("while", function() {
   Parse.advance("(");
   this.first = Parse.expression(0);
