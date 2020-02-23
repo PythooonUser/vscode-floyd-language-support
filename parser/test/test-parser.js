@@ -293,4 +293,26 @@ describe("Parser", function() {
       });
     });
   });
+
+  describe("Expressions", function() {
+    describe("Invokations", function() {
+      it("Should handle function invocation", function() {
+        const program = `void test() {} test();`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle function invocation with one parameter", function() {
+        const program = `void test(int x) {} test(10);`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle function invocation with multiple parameters", function() {
+        const program = `void test(int x, string s, int y) {} test(10, "Hello", 0);`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+    });
+  });
 });

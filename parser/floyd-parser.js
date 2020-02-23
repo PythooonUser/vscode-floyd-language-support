@@ -532,6 +532,48 @@ Define.Statement("{", function() {
   return statements;
 });
 
+Define.Infix("(", 80, function(left) {
+  let expressions = [];
+
+  if (left.id === "." || left.id === "[") {
+    this.arity = "ternary";
+    this.first = left.first;
+    this.second = left.second;
+    this.third = expressions;
+  } else {
+    this.arity = "binary";
+    this.first = left;
+    this.second = expressions;
+
+    if (
+      (left.arity !== "unary" || left.id !== "function") &&
+      left.arity !== "name" &&
+      left.id !== "(" &&
+      left.id !== "&&" &&
+      left.id !== "||" &&
+      left.id !== "?"
+    ) {
+      Context.Errors.push({
+        message: `[floyd] Expected a variable name.`,
+        position: left.position
+      });
+    }
+  }
+
+  if (Context.Token.id !== ")") {
+    while (true) {
+      expressions.push(Parse.expression(0));
+      if (Context.Token.id !== ",") {
+        break;
+      }
+      Parse.advance(",");
+    }
+  }
+
+  Parse.advance(")");
+  return this;
+});
+
 Define.Statement("verb", function() {
   Parse.advance("(");
 
