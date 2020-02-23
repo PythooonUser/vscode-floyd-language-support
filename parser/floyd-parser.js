@@ -129,7 +129,9 @@ let Parse = {
     while (true) {
       if (
         token !== undefined &&
-        (token.type === "comment" || token.type === "whitespace")
+        (token.type === "comment" ||
+          token.type === "whitespace" ||
+          token.type === "directive")
       ) {
         token = lexer.lex();
       } else {

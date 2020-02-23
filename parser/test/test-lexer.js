@@ -104,54 +104,78 @@ describe("Lexer", function() {
   });
 
   describe("Directives", function() {
-    it("Should handle directives", function() {
-      const program = `#include #define #ifdef #ifndef #endif`;
+    it("Should handle #include directive", function() {
+      const program = `#include <stditem.floyd>`;
 
       const expected = [
         {
           type: "directive",
-          value: "#include",
+          value: "#include <stditem.floyd>",
           position: { line: 0, character: 0 }
-        },
-        {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 8 }
-        },
-        {
-          type: "directive",
-          value: "#define",
-          position: { line: 0, character: 9 }
-        },
-        {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 16 }
-        },
+        }
+      ];
+
+      const actual = getTokens(program);
+
+      assert.tokenArraysEqual(expected, actual);
+    });
+
+    it("Should handle #define directive", function() {
+      const program = `#define A_EXAMINE 101`;
+
+      const expected = [
         {
           type: "directive",
-          value: "#ifdef",
-          position: { line: 0, character: 17 }
-        },
-        {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 23 }
-        },
+          value: "#define A_EXAMINE 101",
+          position: { line: 0, character: 0 }
+        }
+      ];
+
+      const actual = getTokens(program);
+
+      assert.tokenArraysEqual(expected, actual);
+    });
+
+    it("Should handle #ifdef directive", function() {
+      const program = `#ifdef A_EXAMINE`;
+
+      const expected = [
         {
           type: "directive",
-          value: "#ifndef",
-          position: { line: 0, character: 24 }
-        },
+          value: "#ifdef A_EXAMINE",
+          position: { line: 0, character: 0 }
+        }
+      ];
+
+      const actual = getTokens(program);
+
+      assert.tokenArraysEqual(expected, actual);
+    });
+
+    it("Should handle #ifndef directive", function() {
+      const program = `#ifndef A_EXAMINE`;
+
+      const expected = [
         {
-          type: "whitespace",
-          value: " ",
-          position: { line: 0, character: 31 }
-        },
+          type: "directive",
+          value: "#ifndef A_EXAMINE",
+          position: { line: 0, character: 0 }
+        }
+      ];
+
+      const actual = getTokens(program);
+
+      assert.tokenArraysEqual(expected, actual);
+    });
+
+    it("Should handle #endif directive", function() {
+      const program = `#endif`;
+
+      const expected = [
         {
           type: "directive",
           value: "#endif",
-          position: { line: 0, character: 32 }
+          position: { line: 0, character: 0 }
         }
       ];
 

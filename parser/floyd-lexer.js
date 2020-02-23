@@ -44,7 +44,7 @@ exports.Lexer = function() {
   lexer.addRule(/[0-9]+/, processLexeme("integer"));
   lexer.addRule(/"[^"]*"/, processLexeme("string"));
   lexer.addRule(
-    /#(include|define|ifdef|ifndef|endif)/,
+    /#(include|define|ifdef|ifndef|endif)[^\r\n]*/,
     processLexeme("directive")
   );
   lexer.addRule(
