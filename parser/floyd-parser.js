@@ -532,6 +532,49 @@ Define.Statement("{", function() {
   return statements;
 });
 
+Define.Statement("verb", function() {
+  Parse.advance("(");
+
+  if (Context.Token.arity !== "literal") {
+    Context.Errors.push({
+      message: `[floyd] Expected string literal.`,
+      position: Context.Token.position
+    });
+  }
+
+  this.first = Context.Token;
+
+  Parse.advance();
+  Parse.advance(",");
+
+  if (Context.Token.arity !== "name") {
+    Context.Errors.push({
+      message: `[floyd] Expected action identifier.`,
+      position: Context.Token.position
+    });
+  }
+
+  this.second = Context.Token;
+
+  Parse.advance();
+  Parse.advance(",");
+
+  if (Context.Token.arity !== "literal") {
+    Context.Errors.push({
+      message: `[floyd] Expected integer literal.`,
+      position: Context.Token.position
+    });
+  }
+
+  this.third = Context.Token;
+
+  Parse.advance();
+  Parse.advance(")");
+  Parse.advance(";");
+
+  return this;
+});
+
 Define.Statement("(name)", function() {
   let type = Context.PreviousToken;
   if (
