@@ -12,18 +12,39 @@ describe("Lexer", function() {
     lexer = null;
   });
 
-  assert.tokensEqual = function(expected, actual) {
-    assert.equal(expected.type, actual.type, "Token types should be equal.");
-    assert.equal(expected.value, actual.value, "Token values should be equal.");
+  assert.tokenPositionsEqual = function(expected, actual) {
     assert.equal(
-      expected.position.line,
-      actual.position.line,
+      expected.line,
+      actual.line,
       "Token line positions should be equal."
     );
     assert.equal(
-      expected.position.character,
-      actual.position.character,
+      expected.character,
+      actual.character,
       "Token character positions should be equal."
+    );
+  };
+
+  assert.tokenRangesEqual = function(expected, actual) {
+    assert.tokenPositionsEqual(
+      expected.start,
+      actual.start,
+      "Token start ranges should be equal."
+    );
+    assert.tokenPositionsEqual(
+      expected.end,
+      actual.end,
+      "Token end ranges should be equal."
+    );
+  };
+
+  assert.tokensEqual = function(expected, actual) {
+    assert.equal(expected.type, actual.type, "Token types should be equal.");
+    assert.equal(expected.value, actual.value, "Token values should be equal.");
+    assert.tokenRangesEqual(
+      expected.range,
+      actual.range,
+      "Token ranges should be equal."
     );
   };
 
@@ -66,7 +87,10 @@ describe("Lexer", function() {
       const expected = {
         type: "whitespace",
         value: `  `,
-        position: { line: 0, character: 0 }
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 0, character: 2 }
+        }
       };
 
       const actual = getToken(program);
@@ -80,7 +104,10 @@ describe("Lexer", function() {
       const expected = {
         type: "whitespace",
         value: ` \t `,
-        position: { line: 0, character: 0 }
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 0, character: 3 }
+        }
       };
 
       const actual = getToken(program);
@@ -94,7 +121,10 @@ describe("Lexer", function() {
       const expected = {
         type: "whitespace",
         value: ` \n `,
-        position: { line: 0, character: 0 }
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 1, character: 1 }
+        }
       };
 
       const actual = getToken(program);
@@ -111,7 +141,10 @@ describe("Lexer", function() {
         {
           type: "directive",
           value: "#include <stditem.floyd>",
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 24 }
+          }
         }
       ];
 
@@ -127,7 +160,10 @@ describe("Lexer", function() {
         {
           type: "directive",
           value: "#define A_EXAMINE 101",
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 21 }
+          }
         }
       ];
 
@@ -143,7 +179,10 @@ describe("Lexer", function() {
         {
           type: "directive",
           value: "#ifdef A_EXAMINE",
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 16 }
+          }
         }
       ];
 
@@ -159,7 +198,10 @@ describe("Lexer", function() {
         {
           type: "directive",
           value: "#ifndef A_EXAMINE",
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 17 }
+          }
         }
       ];
 
@@ -175,7 +217,10 @@ describe("Lexer", function() {
         {
           type: "directive",
           value: "#endif",
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 6 }
+          }
         }
       ];
 
@@ -193,37 +238,58 @@ describe("Lexer", function() {
         {
           type: "name",
           value: "testname",
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 8 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 8 }
+          range: {
+            start: { line: 0, character: 8 },
+            end: { line: 0, character: 9 }
+          }
         },
         {
           type: "name",
           value: "test_name",
-          position: { line: 0, character: 9 }
+          range: {
+            start: { line: 0, character: 9 },
+            end: { line: 0, character: 18 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 18 }
+          range: {
+            start: { line: 0, character: 18 },
+            end: { line: 0, character: 19 }
+          }
         },
         {
           type: "name",
           value: "_testName",
-          position: { line: 0, character: 19 }
+          range: {
+            start: { line: 0, character: 19 },
+            end: { line: 0, character: 28 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 28 }
+          range: {
+            start: { line: 0, character: 28 },
+            end: { line: 0, character: 29 }
+          }
         },
         {
           type: "name",
           value: "testName0",
-          position: { line: 0, character: 29 }
+          range: {
+            start: { line: 0, character: 29 },
+            end: { line: 0, character: 38 }
+          }
         }
       ];
 
@@ -242,27 +308,42 @@ describe("Lexer", function() {
           {
             type: "integer",
             value: "0",
-            position: { line: 0, character: 0 }
+            range: {
+              start: { line: 0, character: 0 },
+              end: { line: 0, character: 1 }
+            }
           },
           {
             type: "whitespace",
             value: " ",
-            position: { line: 0, character: 1 }
+            range: {
+              start: { line: 0, character: 1 },
+              end: { line: 0, character: 2 }
+            }
           },
           {
             type: "integer",
             value: "1",
-            position: { line: 0, character: 2 }
+            range: {
+              start: { line: 0, character: 2 },
+              end: { line: 0, character: 3 }
+            }
           },
           {
             type: "whitespace",
             value: " ",
-            position: { line: 0, character: 3 }
+            range: {
+              start: { line: 0, character: 3 },
+              end: { line: 0, character: 4 }
+            }
           },
           {
             type: "integer",
             value: "1234",
-            position: { line: 0, character: 4 }
+            range: {
+              start: { line: 0, character: 4 },
+              end: { line: 0, character: 8 }
+            }
           }
         ];
 
@@ -279,7 +360,10 @@ describe("Lexer", function() {
         const expected = {
           type: "string",
           value: `"Hello World!"`,
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 14 }
+          }
         };
 
         const actual = getToken(program);
@@ -293,7 +377,10 @@ describe("Lexer", function() {
         const expected = {
           type: "string",
           value: `"Hello\nWorld!"`,
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 1, character: 7 }
+          }
         };
 
         const actual = getToken(program);
@@ -311,387 +398,618 @@ describe("Lexer", function() {
         {
           type: "operator",
           value: "<<",
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 0, character: 2 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 2 }
+          range: {
+            start: { line: 0, character: 2 },
+            end: { line: 0, character: 3 }
+          }
         },
         {
           type: "operator",
           value: ">>",
-          position: { line: 0, character: 3 }
+          range: {
+            start: { line: 0, character: 3 },
+            end: { line: 0, character: 5 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 5 }
+          range: {
+            start: { line: 0, character: 5 },
+            end: { line: 0, character: 6 }
+          }
         },
         {
           type: "operator",
           value: "++",
-          position: { line: 0, character: 6 }
+          range: {
+            start: { line: 0, character: 6 },
+            end: { line: 0, character: 8 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 8 }
+          range: {
+            start: { line: 0, character: 8 },
+            end: { line: 0, character: 9 }
+          }
         },
         {
           type: "operator",
           value: "--",
-          position: { line: 0, character: 9 }
+          range: {
+            start: { line: 0, character: 9 },
+            end: { line: 0, character: 11 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 11 }
+          range: {
+            start: { line: 0, character: 11 },
+            end: { line: 0, character: 12 }
+          }
         },
         {
           type: "operator",
           value: "&&",
-          position: { line: 0, character: 12 }
+          range: {
+            start: { line: 0, character: 12 },
+            end: { line: 0, character: 14 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 14 }
+          range: {
+            start: { line: 0, character: 14 },
+            end: { line: 0, character: 15 }
+          }
         },
         {
           type: "operator",
           value: "&",
-          position: { line: 0, character: 15 }
+          range: {
+            start: { line: 0, character: 15 },
+            end: { line: 0, character: 16 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 16 }
+          range: {
+            start: { line: 0, character: 16 },
+            end: { line: 0, character: 17 }
+          }
         },
         {
           type: "operator",
           value: "||",
-          position: { line: 0, character: 17 }
+          range: {
+            start: { line: 0, character: 17 },
+            end: { line: 0, character: 19 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 19 }
+          range: {
+            start: { line: 0, character: 19 },
+            end: { line: 0, character: 20 }
+          }
         },
         {
           type: "operator",
           value: "|",
-          position: { line: 0, character: 20 }
+          range: {
+            start: { line: 0, character: 20 },
+            end: { line: 0, character: 21 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 21 }
+          range: {
+            start: { line: 0, character: 21 },
+            end: { line: 0, character: 22 }
+          }
         },
         {
           type: "operator",
           value: "^",
-          position: { line: 0, character: 22 }
+          range: {
+            start: { line: 0, character: 22 },
+            end: { line: 0, character: 23 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 23 }
+          range: {
+            start: { line: 0, character: 23 },
+            end: { line: 0, character: 24 }
+          }
         },
         {
           type: "operator",
           value: "<=",
-          position: { line: 0, character: 24 }
+          range: {
+            start: { line: 0, character: 24 },
+            end: { line: 0, character: 26 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 26 }
+          range: {
+            start: { line: 0, character: 26 },
+            end: { line: 0, character: 27 }
+          }
         },
         {
           type: "operator",
           value: ">=",
-          position: { line: 0, character: 27 }
+          range: {
+            start: { line: 0, character: 27 },
+            end: { line: 0, character: 29 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 29 }
+          range: {
+            start: { line: 0, character: 29 },
+            end: { line: 0, character: 30 }
+          }
         },
         {
           type: "operator",
           value: "<",
-          position: { line: 0, character: 30 }
+          range: {
+            start: { line: 0, character: 30 },
+            end: { line: 0, character: 31 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 31 }
+          range: {
+            start: { line: 0, character: 31 },
+            end: { line: 0, character: 32 }
+          }
         },
         {
           type: "operator",
           value: ">",
-          position: { line: 0, character: 32 }
+          range: {
+            start: { line: 0, character: 32 },
+            end: { line: 0, character: 33 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 33 }
+          range: {
+            start: { line: 0, character: 33 },
+            end: { line: 0, character: 34 }
+          }
         },
         {
           type: "operator",
           value: "!=",
-          position: { line: 0, character: 34 }
+          range: {
+            start: { line: 0, character: 34 },
+            end: { line: 0, character: 36 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 36 }
+          range: {
+            start: { line: 0, character: 36 },
+            end: { line: 0, character: 37 }
+          }
         },
         {
           type: "operator",
           value: "==",
-          position: { line: 0, character: 37 }
+          range: {
+            start: { line: 0, character: 37 },
+            end: { line: 0, character: 39 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 39 }
+          range: {
+            start: { line: 0, character: 39 },
+            end: { line: 0, character: 40 }
+          }
         },
         {
           type: "operator",
           value: "!",
-          position: { line: 0, character: 40 }
+          range: {
+            start: { line: 0, character: 40 },
+            end: { line: 0, character: 41 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 41 }
+          range: {
+            start: { line: 0, character: 41 },
+            end: { line: 0, character: 42 }
+          }
         },
         {
           type: "operator",
           value: "~",
-          position: { line: 0, character: 42 }
+          range: {
+            start: { line: 0, character: 42 },
+            end: { line: 0, character: 43 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 43 }
+          range: {
+            start: { line: 0, character: 43 },
+            end: { line: 0, character: 44 }
+          }
         },
         {
           type: "operator",
           value: "%=",
-          position: { line: 0, character: 44 }
+          range: {
+            start: { line: 0, character: 44 },
+            end: { line: 0, character: 46 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 46 }
+          range: {
+            start: { line: 0, character: 46 },
+            end: { line: 0, character: 47 }
+          }
         },
         {
           type: "operator",
           value: "/=",
-          position: { line: 0, character: 47 }
+          range: {
+            start: { line: 0, character: 47 },
+            end: { line: 0, character: 49 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 49 }
+          range: {
+            start: { line: 0, character: 49 },
+            end: { line: 0, character: 50 }
+          }
         },
         {
           type: "operator",
           value: "*=",
-          position: { line: 0, character: 50 }
+          range: {
+            start: { line: 0, character: 50 },
+            end: { line: 0, character: 52 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 52 }
+          range: {
+            start: { line: 0, character: 52 },
+            end: { line: 0, character: 53 }
+          }
         },
         {
           type: "operator",
           value: "+=",
-          position: { line: 0, character: 53 }
+          range: {
+            start: { line: 0, character: 53 },
+            end: { line: 0, character: 55 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 55 }
+          range: {
+            start: { line: 0, character: 55 },
+            end: { line: 0, character: 56 }
+          }
         },
         {
           type: "operator",
           value: "-=",
-          position: { line: 0, character: 56 }
+          range: {
+            start: { line: 0, character: 56 },
+            end: { line: 0, character: 58 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 58 }
+          range: {
+            start: { line: 0, character: 58 },
+            end: { line: 0, character: 59 }
+          }
         },
         {
           type: "operator",
           value: "+",
-          position: { line: 0, character: 59 }
+          range: {
+            start: { line: 0, character: 59 },
+            end: { line: 0, character: 60 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 60 }
+          range: {
+            start: { line: 0, character: 60 },
+            end: { line: 0, character: 61 }
+          }
         },
         {
           type: "operator",
           value: "-",
-          position: { line: 0, character: 61 }
+          range: {
+            start: { line: 0, character: 61 },
+            end: { line: 0, character: 62 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 62 }
+          range: {
+            start: { line: 0, character: 62 },
+            end: { line: 0, character: 63 }
+          }
         },
         {
           type: "operator",
           value: "%",
-          position: { line: 0, character: 63 }
+          range: {
+            start: { line: 0, character: 63 },
+            end: { line: 0, character: 64 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 64 }
+          range: {
+            start: { line: 0, character: 64 },
+            end: { line: 0, character: 65 }
+          }
         },
         {
           type: "operator",
           value: "/",
-          position: { line: 0, character: 65 }
+          range: {
+            start: { line: 0, character: 65 },
+            end: { line: 0, character: 66 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 66 }
+          range: {
+            start: { line: 0, character: 66 },
+            end: { line: 0, character: 67 }
+          }
         },
         {
           type: "operator",
           value: "*",
-          position: { line: 0, character: 67 }
+          range: {
+            start: { line: 0, character: 67 },
+            end: { line: 0, character: 68 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 68 }
+          range: {
+            start: { line: 0, character: 68 },
+            end: { line: 0, character: 69 }
+          }
         },
         {
           type: "operator",
           value: "=",
-          position: { line: 0, character: 69 }
+          range: {
+            start: { line: 0, character: 69 },
+            end: { line: 0, character: 70 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 70 }
+          range: {
+            start: { line: 0, character: 70 },
+            end: { line: 0, character: 71 }
+          }
         },
         {
           type: "operator",
           value: "(",
-          position: { line: 0, character: 71 }
+          range: {
+            start: { line: 0, character: 71 },
+            end: { line: 0, character: 72 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 72 }
+          range: {
+            start: { line: 0, character: 72 },
+            end: { line: 0, character: 73 }
+          }
         },
         {
           type: "operator",
           value: ")",
-          position: { line: 0, character: 73 }
+          range: {
+            start: { line: 0, character: 73 },
+            end: { line: 0, character: 74 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 74 }
+          range: {
+            start: { line: 0, character: 74 },
+            end: { line: 0, character: 75 }
+          }
         },
         {
           type: "operator",
           value: "{",
-          position: { line: 0, character: 75 }
+          range: {
+            start: { line: 0, character: 75 },
+            end: { line: 0, character: 76 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 76 }
+          range: {
+            start: { line: 0, character: 76 },
+            end: { line: 0, character: 77 }
+          }
         },
         {
           type: "operator",
           value: "}",
-          position: { line: 0, character: 77 }
+          range: {
+            start: { line: 0, character: 77 },
+            end: { line: 0, character: 78 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 78 }
+          range: {
+            start: { line: 0, character: 78 },
+            end: { line: 0, character: 79 }
+          }
         },
         {
           type: "operator",
           value: "[",
-          position: { line: 0, character: 79 }
+          range: {
+            start: { line: 0, character: 79 },
+            end: { line: 0, character: 80 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 80 }
+          range: {
+            start: { line: 0, character: 80 },
+            end: { line: 0, character: 81 }
+          }
         },
         {
           type: "operator",
           value: "]",
-          position: { line: 0, character: 81 }
+          range: {
+            start: { line: 0, character: 81 },
+            end: { line: 0, character: 82 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 82 }
+          range: {
+            start: { line: 0, character: 82 },
+            end: { line: 0, character: 83 }
+          }
         },
         {
           type: "operator",
           value: ",",
-          position: { line: 0, character: 83 }
+          range: {
+            start: { line: 0, character: 83 },
+            end: { line: 0, character: 84 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 84 }
+          range: {
+            start: { line: 0, character: 84 },
+            end: { line: 0, character: 85 }
+          }
         },
         {
           type: "operator",
           value: ":",
-          position: { line: 0, character: 85 }
+          range: {
+            start: { line: 0, character: 85 },
+            end: { line: 0, character: 86 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 86 }
+          range: {
+            start: { line: 0, character: 86 },
+            end: { line: 0, character: 87 }
+          }
         },
         {
           type: "operator",
           value: "?",
-          position: { line: 0, character: 87 }
+          range: {
+            start: { line: 0, character: 87 },
+            end: { line: 0, character: 88 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 88 }
+          range: {
+            start: { line: 0, character: 88 },
+            end: { line: 0, character: 89 }
+          }
         },
         {
           type: "operator",
           value: ";",
-          position: { line: 0, character: 89 }
+          range: {
+            start: { line: 0, character: 89 },
+            end: { line: 0, character: 90 }
+          }
         },
         {
           type: "whitespace",
           value: " ",
-          position: { line: 0, character: 90 }
+          range: {
+            start: { line: 0, character: 90 },
+            end: { line: 0, character: 91 }
+          }
         },
         {
           type: "operator",
           value: ".",
-          position: { line: 0, character: 91 }
+          range: {
+            start: { line: 0, character: 91 },
+            end: { line: 0, character: 92 }
+          }
         }
       ];
 
@@ -708,7 +1026,10 @@ describe("Lexer", function() {
       const expected = {
         type: "comment",
         value: "// This is a line comment",
-        position: { line: 0, character: 0 }
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 0, character: 25 }
+        }
       };
       const actual = getToken(program);
 
@@ -722,27 +1043,42 @@ describe("Lexer", function() {
         {
           type: "comment",
           value: `/**\n * This is a block comment.\n */`,
-          position: { line: 0, character: 0 }
+          range: {
+            start: { line: 0, character: 0 },
+            end: { line: 2, character: 3 }
+          }
         },
         {
           type: "whitespace",
           value: "\n",
-          position: { line: 2, character: 3 }
+          range: {
+            start: { line: 2, character: 3 },
+            end: { line: 3, character: 0 }
+          }
         },
         {
           type: "comment",
           value: `/* This is a block comment. */`,
-          position: { line: 3, character: 0 }
+          range: {
+            start: { line: 3, character: 0 },
+            end: { line: 3, character: 30 }
+          }
         },
         {
           type: "whitespace",
           value: "\n",
-          position: { line: 3, character: 30 }
+          range: {
+            start: { line: 3, character: 30 },
+            end: { line: 4, character: 0 }
+          }
         },
         {
           type: "comment",
           value: `/*************/`,
-          position: { line: 4, character: 0 }
+          range: {
+            start: { line: 4, character: 0 },
+            end: { line: 4, character: 15 }
+          }
         }
       ];
 

@@ -4,9 +4,10 @@ exports.Lexer = function() {
   let line = 0;
   let character = 0;
   let lastPosition = { line, character };
+  let currentPosition = { line, character };
 
   let updatePosition = function(lexeme) {
-    lastPosition = { line, character };
+    lastPosition = currentPosition;
 
     for (let i = 0; i < lexeme.length; i++) {
       if (lexeme[i] === "\n") {
@@ -16,13 +17,15 @@ exports.Lexer = function() {
         character += 1;
       }
     }
+
+    currentPosition = { line, character };
   };
 
   let createToken = function(type, value) {
     return {
       type: type,
       value: value,
-      position: lastPosition
+      range: { start: lastPosition, end: currentPosition }
     };
   };
 
