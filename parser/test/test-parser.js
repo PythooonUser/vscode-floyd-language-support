@@ -19,16 +19,29 @@ describe("Parser", function() {
     );
   };
 
+  assert.rangesEqual = function(actual, expected) {
+    assert.positionsEqual(
+      actual.start,
+      expected.start,
+      "Start ranges should be equal."
+    );
+    assert.positionsEqual(
+      actual.end,
+      expected.end,
+      "End ranges should be equal."
+    );
+  };
+
   assert.errorsEqual = function(actual, expected) {
     assert.equal(
       actual.message,
       expected.message,
       "Error messages should be equal."
     );
-    assert.positionsEqual(
-      actual.position,
-      expected.position,
-      "Error positions should be equal."
+    assert.rangesEqual(
+      actual.range,
+      expected.range,
+      "Error ranges should be equal."
     );
   };
 
@@ -58,7 +71,10 @@ describe("Parser", function() {
 
           const expectedError = {
             message: "Already defined",
-            position: { line: 0, character: 4 }
+            range: {
+              start: { line: 0, character: 4 },
+              end: { line: 0, character: 5 }
+            }
           };
 
           const actual = parse(program);
@@ -97,7 +113,10 @@ describe("Parser", function() {
 
           const expectedError = {
             message: "Already defined",
-            position: { line: 0, character: 7 }
+            range: {
+              start: { line: 0, character: 7 },
+              end: { line: 0, character: 8 }
+            }
           };
 
           const actual = parse(program);
@@ -135,7 +154,10 @@ describe("Parser", function() {
 
         const expectedError = {
           message: "Already defined",
-          position: { line: 0, character: 5 }
+          range: {
+            start: { line: 0, character: 5 },
+            end: { line: 0, character: 9 }
+          }
         };
 
         const actual = parse(program);

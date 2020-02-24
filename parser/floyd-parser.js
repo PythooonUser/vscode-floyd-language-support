@@ -25,12 +25,12 @@ class Scope {
       if (definition.reserved) {
         Context.Errors.push({
           message: "Already reserved",
-          position: definition.position
+          range: definition.range
         });
       } else {
         Context.Errors.push({
           message: "Already defined",
-          position: definition.position
+          range: definition.range
         });
       }
     }
@@ -61,7 +61,7 @@ class Scope {
       if (definition.arity === "name") {
         Context.Errors.push({
           message: "Already defined",
-          position: symbol.position
+          range: symbol.range
         });
       }
     }
@@ -96,20 +96,20 @@ let Symbol = {
   id: null,
   value: null,
   lbp: null,
-  position: null,
+  range: null,
   assignment: false,
   reserved: false,
   scope: null,
   nud: function() {
     Context.Errors.push({
       message: "Undefined",
-      position: this.position
+      range: this.range
     });
   },
   led: function(left) {
     Context.Errors.push({
       message: "Missing operator",
-      position: this.position
+      range: this.range
     });
   },
   std: null
@@ -120,7 +120,7 @@ let Parse = {
     if (id && Context.Token.id !== id) {
       Context.Errors.push({
         message: `Expected: ${id}`,
-        position: Context.Token.position
+        range: Context.Token.range
       });
     }
 
@@ -156,7 +156,7 @@ let Parse = {
       if (!prototypeSymbol) {
         Context.Errors.push({
           message: "Unkown operator",
-          position: token.position
+          range: token.range
         });
       }
     } else if (arity === "integer" || arity === "string") {
@@ -165,7 +165,7 @@ let Parse = {
     } else {
       Context.Errors.push({
         message: "Unexpected token",
-        position: token.position
+        range: token.range
       });
     }
 
@@ -174,7 +174,7 @@ let Parse = {
     Context.Token = { ...prototypeSymbol };
     Context.Token.arity = arity;
     Context.Token.value = value;
-    Context.Token.position = token.position;
+    Context.Token.range = token.range;
 
     return Context.Token;
   },
@@ -204,7 +204,7 @@ let Parse = {
     if (!expression.assignment && expression.id !== "(") {
       Context.Errors.push({
         message: "Bad expression statement",
-        position: expression.position
+        range: expression.range
       });
     }
 
@@ -257,7 +257,7 @@ let Parse = {
         ) {
           Context.Errors.push({
             message: `[floyd] Invalid parameter type '${parameterType.value}'. Use either int, string or object.`,
-            position: parameterType.position
+            range: parameterType.range
           });
         }
 
@@ -267,7 +267,7 @@ let Parse = {
         if (parameterName.arity !== "name") {
           Context.Errors.push({
             message: "[floyd] Expected parameter name.",
-            position: parameterName.position
+            range: parameterName.range
           });
         }
 
@@ -307,7 +307,7 @@ let Parse = {
         if (token.arity !== "name") {
           Context.Errors.push({
             message: "Expected variable name",
-            position: token.position
+            range: token.range
           });
         }
       }
@@ -412,7 +412,7 @@ let Define = {
       if (left.id !== "." && left.id !== "[" && left.arity !== "name") {
         Context.Errors.push({
           message: "Bad left value",
-          position: left.position
+          range: left.range
         });
       }
 
@@ -482,7 +482,7 @@ Define.Infix(".", 80, function(left) {
   if (Context.Token.arity !== "name") {
     Context.Errors.push({
       message: "Expected a property name",
-      position: Context.Token.position
+      range: Context.Token.range
     });
   }
 
@@ -555,7 +555,7 @@ Define.Infix("(", 80, function(left) {
     ) {
       Context.Errors.push({
         message: `[floyd] Expected a variable name.`,
-        position: left.position
+        range: left.range
       });
     }
   }
@@ -580,7 +580,7 @@ Define.Statement("verb", function() {
   if (Context.Token.arity !== "literal") {
     Context.Errors.push({
       message: `[floyd] Expected string literal.`,
-      position: Context.Token.position
+      range: Context.Token.range
     });
   }
 
@@ -592,7 +592,7 @@ Define.Statement("verb", function() {
   if (Context.Token.arity !== "name") {
     Context.Errors.push({
       message: `[floyd] Expected action identifier.`,
-      position: Context.Token.position
+      range: Context.Token.range
     });
   }
 
@@ -604,7 +604,7 @@ Define.Statement("verb", function() {
   if (Context.Token.arity !== "literal") {
     Context.Errors.push({
       message: `[floyd] Expected integer literal.`,
-      position: Context.Token.position
+      range: Context.Token.range
     });
   }
 
@@ -627,7 +627,7 @@ Define.Statement("(name)", function() {
   ) {
     Context.Errors.push({
       message: `[floyd] Invalid type '${type.value}'. Use either void, int, string or object.`,
-      position: type.position
+      range: type.range
     });
   }
 
@@ -637,7 +637,7 @@ Define.Statement("(name)", function() {
       message: `[floyd] Expected ${
         type.value === "void" ? "function" : "variable or function"
       } name. Got '${name.value}'.`,
-      position: type.position
+      range: type.range
     });
   }
 
@@ -662,7 +662,7 @@ Define.Statement("class", function() {
   if (token.arity !== "name") {
     Context.Errors.push({
       message: "[floyd] Expected class name",
-      position: token.position
+      range: token.range
     });
   }
 
@@ -677,7 +677,7 @@ Define.Statement("class", function() {
     if (Context.Token.arity !== "name") {
       Context.Errors.push({
         message: "[floyd] Expected super class name",
-        position: Context.Token.position
+        range: Context.Token.range
       });
     }
     superClass = Context.Token;
@@ -700,7 +700,7 @@ Define.Statement("return", function() {
   if (Context.Token.id !== "}") {
     Context.Errors.push({
       message: "[floyd] Unreachable code.",
-      position: Context.Token.position
+      range: Context.Token.range
     });
   }
 
