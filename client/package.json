@@ -1,0 +1,25 @@
+{
+  "name": "vscode-floyd-language-support-client",
+  "description": "Floyd Language Support for VS Code - Client.",
+  "license": "MIT",
+  "version": "0.1.0",
+  "author": "Felix Siebeneicker",
+  "publisher": "pythooonuser",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pythooonuser/vscode-floyd-language-support"
+  },
+  "engines": {
+    "vscode": "^1.33.0"
+  },
+  "scripts": {
+    "update-vscode": "vscode-install",
+    "postinstall": "vscode-install"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^5.2.1"
+  },
+  "devDependencies": {
+    "vscode": "^1.1.35"
+  }
+}

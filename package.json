@@ -1,45 +1,76 @@
 {
-    "name": "vscode-floyd-language-support",
-    "displayName": "Floyd",
-    "description": "Floyd Language Support for VS Code.",
-    "license": "MIT",
-    "version": "0.1.0",
-    "publisher": "pythooonuser",
-    "author": {
-        "name": "Felix Siebeneicker"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/pythooonuser/vscode-floyd-language-support"
-    },
-    "categories": [
-        "Programming Languages",
-        "Snippets"
+  "name": "vscode-floyd-language-support",
+  "displayName": "Floyd",
+  "description": "Floyd Language Support for VS Code.",
+  "license": "MIT",
+  "version": "0.1.0",
+  "publisher": "pythooonuser",
+  "author": "Felix Siebeneicker",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pythooonuser/vscode-floyd-language-support"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "engines": {
+    "vscode": "^1.23.1"
+  },
+  "main": "./client/out/extension",
+  "activationEvents": [
+    "onLanguage:floyd"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "floyd",
+        "aliases": [
+          "Floyd",
+          "floyd"
+        ],
+        "extensions": [
+          ".floyd"
+        ],
+        "configuration": "./language-configuration.json"
+      }
     ],
-    "engines": {
-        "vscode": "^1.23.1"
+    "configuration": {
+      "type": "object",
+      "title": "Floyd Extension Configuration",
+      "properties": {
+        "floyd.maxNumberOfProblems": {
+          "scope": "resource",
+          "type": "number",
+          "default": 100,
+          "description": "Controls the maximum number of problems produced by the server."
+        }
+      }
     },
-    "contributes": {
-        "languages": [
-            {
-                "id": "floyd",
-                "aliases": ["Floyd", "floyd"],
-                "extensions": [".floyd"],
-                "configuration": "./language-configuration.json"
-            }
-        ],
-        "grammars": [
-            {
-                "language": "floyd",
-                "scopeName": "source.floyd",
-                "path": "./syntaxes/floyd.tmLanguage.json"
-            }
-        ],
-        "snippets": [
-            {
-                "language": "floyd",
-                "path": "./snippets/floyd.json"
-            }
-        ]
-    }
+    "grammars": [
+      {
+        "language": "floyd",
+        "scopeName": "source.floyd",
+        "path": "./syntaxes/floyd.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "floyd",
+        "path": "./snippets/floyd.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "postinstall": "cd client && npm install && cd ../server && npm install && cd .."
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.11.7",
+    "tslint": "^5.16.0",
+    "typescript": "^3.6.4"
+  }
 }

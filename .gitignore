@@ -1,6 +1,10 @@
 ## IDE
 .vscode/
 
+## NPM
+node_modules/
+out/
+
 ## Testing
 download.floyd
 floyd_dokumentation_v3.4.pdf
