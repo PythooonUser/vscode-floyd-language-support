@@ -11,6 +11,28 @@ let Context = {
   Errors: []
 };
 
+let Error = {
+  error: function(message, range) {
+    this.diagnostic(message, range, 1);
+  },
+  warning: function(message, range) {
+    this.diagnostic(message, range, 2);
+  },
+  information: function(message, range) {
+    this.diagnostic(message, range, 3);
+  },
+  hint: function(message, range) {
+    this.diagnostic(message, range, 4);
+  },
+  diagnostic: function(message, range, severity = 3) {
+    Context.Errors.push({
+      message: `[floyd] ${message}`,
+      range: range,
+      severity: severity
+    });
+  }
+};
+
 class Scope {
   constructor(parent) {
     this.definitions = {};
@@ -23,15 +45,9 @@ class Scope {
     let definition = this.definitions[symbol.value];
     if (definition) {
       if (definition.reserved) {
-        Context.Errors.push({
-          message: "Already reserved",
-          range: definition.range
-        });
+        Error.error("Already reserved", definition.range);
       } else {
-        Context.Errors.push({
-          message: "Already defined",
-          range: definition.range
-        });
+        Error.warning("Already defined", definition.range);
       }
     }
 
@@ -59,10 +75,7 @@ class Scope {
         return;
       }
       if (definition.arity === "name") {
-        Context.Errors.push({
-          message: "Already defined",
-          range: symbol.range
-        });
+        Error.warning("Already defined", symbol.range);
       }
     }
 
@@ -101,16 +114,10 @@ let Symbol = {
   reserved: false,
   scope: null,
   nud: function() {
-    Context.Errors.push({
-      message: "Undefined",
-      range: this.range
-    });
+    Error.error("Undefined", this.range);
   },
   led: function(left) {
-    Context.Errors.push({
-      message: "Missing operator",
-      range: this.range
-    });
+    Error.error("Missing operator", this.range);
   },
   std: null
 };
@@ -118,10 +125,7 @@ let Symbol = {
 let Parse = {
   advance: function(id) {
     if (id && Context.Token.id !== id) {
-      Context.Errors.push({
-        message: `Expected: ${id}`,
-        range: Context.Token.range
-      });
+      Error.error(`Expected: ${id}`, Context.Token.range);
     }
 
     let token = lexer.lex();
@@ -154,19 +158,13 @@ let Parse = {
     } else if (arity === "operator") {
       prototypeSymbol = Context.SymbolTable[value];
       if (!prototypeSymbol) {
-        Context.Errors.push({
-          message: "Unkown operator",
-          range: token.range
-        });
+        Error.error("Unkown operator", token.range);
       }
     } else if (arity === "integer" || arity === "string") {
       arity = "literal";
       prototypeSymbol = Context.SymbolTable["(literal)"];
     } else {
-      Context.Errors.push({
-        message: "Unexpected token",
-        range: token.range
-      });
+      Error.error("Unexpected token", token.range);
     }
 
     Context.PreviousToken = Context.Token;
@@ -202,10 +200,7 @@ let Parse = {
 
     let expression = Parse.expression(0);
     if (!expression.assignment && expression.id !== "(") {
-      Context.Errors.push({
-        message: "Bad expression statement",
-        range: expression.range
-      });
+      Error.warning("Bad expression statement", expression.range);
     }
 
     Parse.advance(";");
@@ -255,20 +250,17 @@ let Parse = {
           parameterType.value !== "string" &&
           parameterType.value !== "object"
         ) {
-          Context.Errors.push({
-            message: `[floyd] Invalid parameter type '${parameterType.value}'. Use either int, string or object.`,
-            range: parameterType.range
-          });
+          Error.error(
+            `Invalid parameter type '${parameterType.value}'. Use either int, string or object.`,
+            parameterType.range
+          );
         }
 
         Parse.advance();
         let parameterName = Context.Token;
 
         if (parameterName.arity !== "name") {
-          Context.Errors.push({
-            message: "[floyd] Expected parameter name.",
-            range: parameterName.range
-          });
+          Error.error("Expected parameter name.", parameterName.range);
         }
 
         parameterName.type = parameterType.value;
@@ -305,10 +297,7 @@ let Parse = {
         token = Context.Token;
 
         if (token.arity !== "name") {
-          Context.Errors.push({
-            message: "Expected variable name",
-            range: token.range
-          });
+          Error.error("Expected variable name", token.range);
         }
       }
 
@@ -410,10 +399,7 @@ let Define = {
   Assignment: function(id) {
     return Define.Infixr(id, 10, function(left) {
       if (left.id !== "." && left.id !== "[" && left.arity !== "name") {
-        Context.Errors.push({
-          message: "Bad left value",
-          range: left.range
-        });
+        Error.error("Bad left value", left.range);
       }
 
       this.first = left;
@@ -480,10 +466,7 @@ Define.Infix(".", 80, function(left) {
   this.first = left;
 
   if (Context.Token.arity !== "name") {
-    Context.Errors.push({
-      message: "Expected a property name",
-      range: Context.Token.range
-    });
+    Error.error("Expected a property name", Context.Token.range);
   }
 
   Context.Token.arity = "literal";
@@ -553,10 +536,7 @@ Define.Infix("(", 80, function(left) {
       left.id !== "||" &&
       left.id !== "?"
     ) {
-      Context.Errors.push({
-        message: `[floyd] Expected a variable name.`,
-        range: left.range
-      });
+      Error.error("Expected a variable name.", left.range);
     }
   }
 
@@ -578,10 +558,7 @@ Define.Statement("verb", function() {
   Parse.advance("(");
 
   if (Context.Token.arity !== "literal") {
-    Context.Errors.push({
-      message: `[floyd] Expected string literal.`,
-      range: Context.Token.range
-    });
+    Error.error("Expected string literal.", Context.Token.range);
   }
 
   this.first = Context.Token;
@@ -590,10 +567,7 @@ Define.Statement("verb", function() {
   Parse.advance(",");
 
   if (Context.Token.arity !== "name") {
-    Context.Errors.push({
-      message: `[floyd] Expected action identifier.`,
-      range: Context.Token.range
-    });
+    Error.warning("Expected action identifier.", Context.Token.range);
   }
 
   this.second = Context.Token;
@@ -602,10 +576,7 @@ Define.Statement("verb", function() {
   Parse.advance(",");
 
   if (Context.Token.arity !== "literal") {
-    Context.Errors.push({
-      message: `[floyd] Expected integer literal.`,
-      range: Context.Token.range
-    });
+    Error.warning("Expected integer literal.", Context.Token.range);
   }
 
   this.third = Context.Token;
@@ -625,20 +596,20 @@ Define.Statement("(name)", function() {
     type.value !== "string" &&
     type.value !== "object"
   ) {
-    Context.Errors.push({
-      message: `[floyd] Invalid type '${type.value}'. Use either void, int, string or object.`,
-      range: type.range
-    });
+    Error.error(
+      `Invalid type '${type.value}'. Use either void, int, string or object.`,
+      type.range
+    );
   }
 
   let name = Context.Token;
   if (name.arity !== "name") {
-    Context.Errors.push({
-      message: `[floyd] Expected ${
+    Error.error(
+      `Expected ${
         type.value === "void" ? "function" : "variable or function"
       } name. Got '${name.value}'.`,
-      range: type.range
-    });
+      type.range
+    );
   }
 
   Parse.advance();
@@ -660,10 +631,7 @@ Define.Statement("class", function() {
 
   let token = Context.Token;
   if (token.arity !== "name") {
-    Context.Errors.push({
-      message: "[floyd] Expected class name",
-      range: token.range
-    });
+    Error.error("Expected class name", token.range);
   }
 
   Context.Scope.define(token);
@@ -675,10 +643,7 @@ Define.Statement("class", function() {
   if (Context.Token.value === ":") {
     Parse.advance(":");
     if (Context.Token.arity !== "name") {
-      Context.Errors.push({
-        message: "[floyd] Expected super class name",
-        range: Context.Token.range
-      });
+      Error.error("Expected super class name", Context.Token.range);
     }
     superClass = Context.Token;
     Parse.advance();
@@ -698,10 +663,7 @@ Define.Statement("return", function() {
   Parse.advance(";");
 
   if (Context.Token.id !== "}") {
-    Context.Errors.push({
-      message: "[floyd] Unreachable code.",
-      range: Context.Token.range
-    });
+    Error.warning("Unreachable code.", this.range);
   }
 
   this.arity = "statement";
