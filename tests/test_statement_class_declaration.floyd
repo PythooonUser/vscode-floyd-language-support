@@ -1,7 +1,0 @@
-class className {}
-
-class className:superClass {}
-
-class abstract className {}
-
-class abstract className:superClass {}
