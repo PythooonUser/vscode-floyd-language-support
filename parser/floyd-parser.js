@@ -13,18 +13,18 @@ let Context = {
 
 let Error = {
   error: function(message, range) {
-    this.diagnostic(message, range, 1);
+    this._diagnostic(message, range, 1);
   },
   warning: function(message, range) {
-    this.diagnostic(message, range, 2);
+    this._diagnostic(message, range, 2);
   },
   information: function(message, range) {
-    this.diagnostic(message, range, 3);
+    this._diagnostic(message, range, 3);
   },
   hint: function(message, range) {
-    this.diagnostic(message, range, 4);
+    this._diagnostic(message, range, 4);
   },
-  diagnostic: function(message, range, severity = 3) {
+  _diagnostic: function(message, range, severity) {
     Context.Errors.push({
       message: `[floyd] ${message}`,
       range: range,
