@@ -679,7 +679,7 @@ Define.Statement("while", function() {
   return this;
 });
 
-let parse = function({ program }) {
+let parse = function(program) {
   lexer = Lexer();
   lexer.setInput(program);
 

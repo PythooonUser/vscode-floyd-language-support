@@ -2,7 +2,7 @@ const assert = require("assert");
 const _parse = require("../floyd-parser").parse;
 
 let parse = function(program) {
-  return _parse({ program });
+  return _parse(program);
 };
 
 describe("Parser", function() {
