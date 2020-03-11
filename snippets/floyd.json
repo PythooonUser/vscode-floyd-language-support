@@ -1,63 +1,89 @@
 {
-    ".source.floyd": {
-        "Insert onAction Statement": {
-            "prefix": "onAction",
-            "body": [
-                "int onAction(int action) {",
-                "   switch(action) {",
-                "       case(A_EXAMINE);",
-                "           // Your code here.",
-                "           $0",
-                "           return 1;",
-                "       default;",
-                "           return super.onAction(action);",
-                "   }",
-                "}"
-            ],
-            "description": "Insert onAction Statement"
-        },
-        "Insert main Function": {
-            "prefix": "main",
-            "body": [
-                "// Main Function",
-                "void main() {",
-                "    // Display Project Information",
-                "    string projectName = \"${1:projectName}\";",
-                "    string projectURL = \"${2:projectURL}\";",
-                "    string projectVersion = \"0.1.0\";",
-                "    string authorName = \"${3:authorName}\";",
-                "    string authorEMail = \"${4:authorEMail}\";",
-                "",
-                "    string projectInformation = \"<b>\" + projectName + \"</b>^\";",
-                "    projectInformation += \"Version: \" + serial() + \" (\" + projectVersion + \")^\";",
-                "    projectInformation += \"Autor: \" + authorName + \" (\" + authorEMail + \")^\";",
-                "    projectInformation += \"URL: \" + projectURL + \"^\";",
-                "    projectInformation += \"Floyd: Oliver Berse, Raimund Seisenberger^^\";",
-                "",
-                "    write(projectInformation);",
-                "",
-                "    // Display Introduction",
-                "    write(\"<b>Einleitung</b>^Einleitung.^^\");",
-                "",
-                "    // Game Setup",
-                "    $0StatusLineFormat(1);",
-                "    setPlayer(Spieler);",
-                "    Spieler.moveto(ErsterRaum);",
-                "    ErsterRaum.description();",
-                "}"
-            ],
-            "description": "Insert main Function"
-        },
-        "Insert class Declaration": {
-            "prefix": "class",
-            "body": [
-                "class $1:$2 {",
-                "   setShort(\"$1\");",
-                "   setLong(\"\");",
-                "   $0",
-                "}"
-            ],
-            "description": "Insert class Declaration"
-        }
+  ".source.floyd": {
+    "Insert include directive": {
+      "prefix": "include",
+      "description": "Insert include directive",
+      "body": ["#include <$1.floyd>"]
+    },
+    "Include standard library": {
+      "prefix": "include stdlib",
+      "description": "Include standard library",
+      "body": [
+        "#include <stdconst.floyd>",
+        "#include <stdlist.floyd>",
+        "#include <stdobject.floyd>",
+        "#include <stdcreature.floyd>",
+        "#include <stdroom.floyd>",
+        "#include <stditem.floyd>",
+        "#include <stdexit.floyd>",
+        "#include <stderror.floyd>"
+      ]
+    },
+    "Insert define directive": {
+      "prefix": ["define", "action"],
+      "description": "Insert define directive",
+      "body": ["#define A_$1 $2"]
+    },
+    "Insert verb statement": {
+      "prefix": "verb",
+      "description": "Insert verb statement",
+      "body": ["verb(\"$1\", A_$2, ${3|0,1|});"]
+    },
+    "Insert main function": {
+      "prefix": "main",
+      "body": [
+        "void main() {",
+        "    setPlayer($1);",
+        "    StatusLineFormat(${2|1,2,3|});",
+        "",
+        "    write(\"*** ${3:Titel} ***^Version \" + serial() + \", Geschrieben von ${4:Autor}^\");",
+        "    write(\"Floyd: Oliver Berse, Raimund Seisenberger^^\");",
+        "",
+        "    $1.moveto($5);",
+        "    $5.description();$0",
+        "}"
+      ],
+      "description": "Insert main Function"
+    },
+    "Insert room declaration": {
+      "prefix": "room",
+      "description": "Insert room declaration",
+      "body": ["class $1:stdroom {", "    setShort(\"$2\");$0", "}"]
+    },
+    "Insert exit declaration": {
+      "prefix": "exit",
+      "description": "Insert exit declaration",
+      "body": ["class $1:stdexit {$0}"]
+    },
+    "Insert item declaration": {
+      "prefix": "item",
+      "description": "Insert item declaration",
+      "body": [
+        "class $1:stditem {",
+        "    setShort(\"$2\");",
+        "    with($3);",
+        "    moveto($4);$0",
+        "}"
+      ]
+    },
+    "Insert creature declaration": {
+      "prefix": "creature",
+      "description": "Insert creature declaration",
+      "body": ["class $1:stdcreature {", "    setShort(\"$2\");$0", "}"]
+    },
+    "Insert onAction method": {
+      "prefix": "onAction",
+      "description": "Insert onAction method",
+      "body": [
+        "int onAction(int ${1:action}) {",
+        "   switch(${1:action}) {",
+        "       case($2);",
+        "           $0",
+        "       default;",
+        "           return super.onAction(${1:action});",
+        "   }",
+        "}"
+      ]
     }
+  }
 }
