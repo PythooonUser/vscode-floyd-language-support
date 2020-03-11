@@ -1,5 +1,5 @@
 let assert = require("assert");
-let Lexer = require("../floyd-lexer").Lexer;
+let Lexer = require("../src/floyd-lexer").Lexer;
 
 describe("Lexer", function() {
   let lexer;
