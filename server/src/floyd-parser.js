@@ -679,7 +679,7 @@ Define.Statement("while", function() {
   return this;
 });
 
-let parse = function(program) {
+export default function parse(program) {
   lexer = Lexer();
   lexer.setInput(program);
 
@@ -698,6 +698,4 @@ let parse = function(program) {
   Context.Scope.pop();
 
   return { ast, scope, symbols: Context.Symbols, errors: Context.Errors };
-};
-
-exports.parse = parse;
+}

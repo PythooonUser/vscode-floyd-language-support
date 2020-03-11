@@ -8,6 +8,8 @@ import {
   DiagnosticSeverity
 } from "vscode-languageserver";
 
+import parse from "./floyd-parser";
+
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
 
@@ -24,19 +26,21 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
+  const { errors } = parse(textDocument.getText());
+
   let diagnostics: Diagnostic[] = [];
 
-  let diagnostic: Diagnostic = {
-    severity: DiagnosticSeverity.Warning,
-    range: {
-      start: textDocument.positionAt(0),
-      end: textDocument.positionAt(0)
-    },
-    message: `Example diagnostic`,
-    source: "floyd"
-  };
+  errors.forEach((error: { severity: any; range: any; message: any }) => {
+    let diagnostic: Diagnostic = {
+      severity: error.severity,
+      range: error.range,
+      message: error.message,
+      source: "floyd",
+      code: 100
+    };
 
-  diagnostics.push(diagnostic);
+    diagnostics.push(diagnostic);
+  });
 
   connection.sendDiagnostics({
     uri: textDocument.uri,
