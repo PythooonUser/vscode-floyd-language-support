@@ -4,11 +4,10 @@ import {
   ProposedFeatures,
   InitializeParams,
   TextDocument,
-  Diagnostic,
-  DiagnosticSeverity
+  Diagnostic
 } from "vscode-languageserver";
 
-import parse from "./floyd-parser";
+import { parse } from "./floyd-parser";
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
