@@ -115,6 +115,7 @@ let Symbol = {
   scope: null,
   nud: function() {
     Error.error("Undefined", this.range);
+    return this;
   },
   led: function(left) {
     Error.error("Missing operator", this.range);
