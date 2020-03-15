@@ -38,8 +38,8 @@ exports.Lexer = function() {
 
   const lexer = new Lexer();
 
-  lexer.addRule(/\/\*(\*(?!\/)|[^*])*\*\//, processLexeme("comment"));
-  lexer.addRule(/\/\/[^\r\n]*/, processLexeme("comment"));
+  lexer.addRule(/\/\*(\*(?!\/)|[^*])*\*\//, processLexeme());
+  lexer.addRule(/\/\/[^\r\n]*/, processLexeme());
   lexer.addRule(/[a-zA-Z_][a-zA-Z0-9_]*/, processLexeme("name"));
   lexer.addRule(/[0-9]+/, processLexeme("integer"));
   lexer.addRule(/"[^"]*"/, processLexeme("string"));
@@ -51,7 +51,7 @@ exports.Lexer = function() {
     /<<|>>|\+\+|--|&&|&|\|\||\||\^|<=|>=|<|>|!=|==|!|~|%=|\/=|\*=|\+=|-=|\+|-|%|\/|\*|=|\(|\)|{|}|\[|\]|,|:|\?|;|\./,
     processLexeme("operator")
   );
-  lexer.addRule(/[\s]+/, processLexeme("whitespace"));
+  lexer.addRule(/[\s]+/, processLexeme());
 
   return lexer;
 };
