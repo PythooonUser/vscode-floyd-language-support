@@ -74,6 +74,18 @@
       "description": "Abstract Exit Declaration",
       "body": ["abstract class ${1:ExitName}:stdexit {", "\t$0", "}"]
     },
+    "Item Declaration": {
+      "prefix": "item",
+      "description": "Item Declaration",
+      "body": [
+        "class ${1:ItemName}:stditem {",
+        "\tsetShort(\"${1:ItemName}\");",
+        "\twith($2);",
+        "\tmoveto($3);",
+        "\t$0",
+        "}"
+      ]
+    },
     "Abstract Item Declaration": {
       "prefix": "itemabstract",
       "description": "Abstract Item Declaration",
