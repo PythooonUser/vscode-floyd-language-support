@@ -1,12 +1,10 @@
 # Changelog
 
-## 1.0.0 (??.??.2020)
+## 0.2.0 (20.03.2020)
 
 - **Feature:** Adding more snippets (related to directives, statements etc.)
 - **Change:** Revising language configuration
 - **Change:** Simplifying existing snippets
-- **Change:** Updating readme
-- **Change:** Restructuring changelog
 
 ## 0.1.0 (14.05.2018)
 
