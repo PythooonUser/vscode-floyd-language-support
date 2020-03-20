@@ -3,7 +3,7 @@
   "displayName": "Floyd",
   "description": "Floyd Language Support for VS Code.",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "pythooonuser",
   "author": {
     "name": "Felix Siebeneicker"
