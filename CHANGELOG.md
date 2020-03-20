@@ -1,6 +1,6 @@
 # Changelog
 
-### v1.0.0 (??.??.2020)
+## 1.0.0 (??.??.2020)
 
 - **Feature:** Adding more snippets (related to directives, statements etc.)
 - **Change:** Revising language configuration
@@ -8,7 +8,7 @@
 - **Change:** Updating readme
 - **Change:** Restructuring changelog
 
-### v0.1.0 (14.05.2018)
+## 0.1.0 (14.05.2018)
 
 - **Feature:** Adding `onAction` snippet
 - **Feature:** Adding `main` snippet
@@ -16,7 +16,7 @@
 - **Change:** Rewriting readme text
 - **Change:** Rewriting changelog text
 
-### v0.0.2 (08.03.2018)
+## 0.0.2 (08.03.2018)
 
 - **Feature:** Adding syntax highlighting for operators
 - **Feature:** Adding syntax highlighting for item accesses
@@ -28,7 +28,7 @@
 - **Change:** Rewriting readme text
 - **Change:** Splitting-up keywords into function names
 
-### v0.0.1 (12.01.2018)
+## 0.0.1 (12.01.2018)
 
 - **Feature:** Adding syntax highlighting for comments
 - **Feature:** Adding syntax highlighting for string literals

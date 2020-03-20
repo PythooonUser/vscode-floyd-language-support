@@ -1,89 +1,164 @@
 {
   ".source.floyd": {
-    "Insert include directive": {
+    "Include Directive": {
       "prefix": "include",
-      "description": "Insert include directive",
-      "body": ["#include <$1.floyd>"]
+      "description": "Include Directive",
+      "body": ["#include <${1:library.floyd}>"]
     },
-    "Include standard library": {
-      "prefix": "include stdlib",
-      "description": "Include standard library",
+    "Include Standard Library": {
+      "prefix": "includestdlib",
+      "description": "Standard Library",
       "body": [
-        "#include <stdconst.floyd>",
-        "#include <stdlist.floyd>",
-        "#include <stdobject.floyd>",
-        "#include <stdcreature.floyd>",
-        "#include <stdroom.floyd>",
-        "#include <stditem.floyd>",
-        "#include <stdexit.floyd>",
-        "#include <stderror.floyd>"
+        "#include <$1stdconst.floyd>",
+        "#include <$1stdlist.floyd>",
+        "#include <$1stdobject.floyd>",
+        "#include <$1stdcreature.floyd>",
+        "#include <$1stdroom.floyd>",
+        "#include <$1stditem.floyd>",
+        "#include <$1stdexit.floyd>",
+        "#include <$1stderror.floyd>"
       ]
     },
-    "Insert define directive": {
-      "prefix": ["define", "action"],
-      "description": "Insert define directive",
-      "body": ["#define A_$1 $2"]
+    "Define Directive": {
+      "prefix": "define",
+      "description": "Define Directive",
+      "body": ["#define ${1:SYMBOL} ${2:100}"]
     },
-    "Insert verb statement": {
-      "prefix": "verb",
-      "description": "Insert verb statement",
-      "body": ["verb(\"$1\", A_$2, ${3|0,1|});"]
+    "Ifdef Directive": {
+      "prefix": "ifdef",
+      "description": "Ifdef Directive",
+      "body": ["#ifdef ${1:SYMBOL}", "$0", "#endif"]
     },
-    "Insert main function": {
-      "prefix": "main",
-      "body": [
-        "void main() {",
-        "    setPlayer($1);",
-        "    StatusLineFormat(${2|1,2,3|});",
-        "",
-        "    write(\"*** ${3:Titel} ***^Version \" + serial() + \", Geschrieben von ${4:Autor}^\");",
-        "    write(\"Floyd: Oliver Berse, Raimund Seisenberger^^\");",
-        "",
-        "    $1.moveto($5);",
-        "    $5.description();$0",
-        "}"
-      ],
-      "description": "Insert main Function"
+    "Ifndef Directive": {
+      "prefix": "ifndef",
+      "description": "Ifndef Directive",
+      "body": ["#ifndef ${1:SYMBOL}", "$0", "#endif"]
     },
-    "Insert room declaration": {
+    "Class Declaration": {
+      "prefix": "class",
+      "description": "Class Declaration",
+      "body": ["class ${1:ClassName} {", "\t$0", "}"]
+    },
+    "Abstract Class Declaration": {
+      "prefix": "classabstract",
+      "description": "Abstract Class Declaration",
+      "body": ["abstract class ${1:ClassName} {", "\t$0", "}"]
+    },
+    "Room Declaration": {
       "prefix": "room",
-      "description": "Insert room declaration",
-      "body": ["class $1:stdroom {", "    setShort(\"$2\");$0", "}"]
+      "description": "Room Declaration",
+      "body": [
+        "class ${1:RoomName}:stdroom {",
+        "\tsetShort(\"${1:RoomName}\");",
+        "\t$0",
+        "}"
+      ]
     },
-    "Insert exit declaration": {
+    "Abstract Room Declaration": {
+      "prefix": "roomabstract",
+      "description": "Abstract Room Declaration",
+      "body": [
+        "abstract class ${1:RoomName}:stdroom {",
+        "\tsetShort(\"${1:RoomName}\");",
+        "\t$0",
+        "}"
+      ]
+    },
+    "Exit Declaration": {
       "prefix": "exit",
-      "description": "Insert exit declaration",
-      "body": ["class $1:stdexit {$0}"]
+      "description": "Exit Declaration",
+      "body": ["class ${1:ExitName}:stdexit {", "\t$0", "}"]
     },
-    "Insert item declaration": {
-      "prefix": "item",
-      "description": "Insert item declaration",
+    "Abstract Exit Declaration": {
+      "prefix": "exitabstract",
+      "description": "Abstract Exit Declaration",
+      "body": ["abstract class ${1:ExitName}:stdexit {", "\t$0", "}"]
+    },
+    "Abstract Item Declaration": {
+      "prefix": "itemabstract",
+      "description": "Abstract Item Declaration",
       "body": [
-        "class $1:stditem {",
-        "    setShort(\"$2\");",
-        "    with($3);",
-        "    moveto($4);$0",
+        "abstract class ${1:ItemName}:stditem {",
+        "\tsetShort(\"${1:ItemName}\");",
+        "\twith($2);",
+        "\tmoveto($3);",
+        "\t$0",
         "}"
       ]
     },
-    "Insert creature declaration": {
+    "Creature Declaration": {
       "prefix": "creature",
-      "description": "Insert creature declaration",
-      "body": ["class $1:stdcreature {", "    setShort(\"$2\");$0", "}"]
-    },
-    "Insert onAction method": {
-      "prefix": "onAction",
-      "description": "Insert onAction method",
+      "description": "Creature Declaration",
       "body": [
-        "int onAction(int ${1:action}) {",
-        "   switch(${1:action}) {",
-        "       case($2);",
-        "           $0",
-        "       default;",
-        "           return super.onAction(${1:action});",
-        "   }",
+        "class ${1:CreatureName}:stdcreature {",
+        "\tsetShort(\"${1:CreatureName}\");",
+        "\tmoveto($2);",
+        "\t$0",
         "}"
       ]
+    },
+    "Abstract Creature Declaration": {
+      "prefix": "creatureabstract",
+      "description": "Abstract Creature Declaration",
+      "body": [
+        "abstract class ${1:CreatureName}:stdcreature {",
+        "\tsetShort(\"${1:CreatureName}\");",
+        "\tmoveto($2);",
+        "\t$0",
+        "}"
+      ]
+    },
+    "Verb Statement": {
+      "prefix": "verb",
+      "description": "Verb Statement",
+      "body": ["verb(\"$1\", ${2:SYMBOL}, ${3|0,1|});"]
+    },
+    "If Statement": {
+      "prefix": "if",
+      "description": "If Statement",
+      "body": ["if(${1:condition}) {", "\t$0", "}"]
+    },
+    "If-Else Statement": {
+      "prefix": "ifelse",
+      "description": "If-Else Statement",
+      "body": ["if(${1:condition}) {", "\t$0", "}", "else {", "\t", "}"]
+    },
+    "Switch Statement": {
+      "prefix": "switch",
+      "description": "Switch Statement",
+      "body": [
+        "switch(${1:key}) {",
+        "\tcase(${2:value});",
+        "\t\t$0",
+        "\t\tbreak;",
+        "\tdefault;",
+        "}"
+      ]
+    },
+    "Fetch Statement": {
+      "prefix": "fetch",
+      "description": "Fetch Statement",
+      "body": ["fetch(${1:object}, ${2:condition}, ${3|0,1|}) {", "\t$0", "}"]
+    },
+    "For Loop": {
+      "prefix": "for",
+      "description": "For Loop",
+      "body": [
+        "int ${1:index};",
+        "for(${1:index} = 0; ${1:index} < ${2:length}; ${1:index}++) {",
+        "\t$0",
+        "}"
+      ]
+    },
+    "While Loop": {
+      "prefix": "while",
+      "description": "While Loop",
+      "body": ["while(${1:condition}) {", "\t$0", "}"]
+    },
+    "Do-While Loop": {
+      "prefix": "dowhile",
+      "description": "Do-While Loop",
+      "body": ["do {", "\t$0", "} while(${1:condition});"]
     }
   }
 }
