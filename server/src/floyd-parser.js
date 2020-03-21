@@ -26,7 +26,7 @@ let Error = {
   },
   _diagnostic: function(message, range, severity) {
     Context.Errors.push({
-      message: `[floyd] ${message}`,
+      message: `${message}`,
       range: range,
       severity: severity
     });
@@ -114,7 +114,7 @@ let Symbol = {
   reserved: false,
   scope: null,
   nud: function() {
-    Error.warning("Undefined", this.range);
+    Error.warning(`${this.value} is undefined`, this.range);
     return this;
   },
   led: function(left) {

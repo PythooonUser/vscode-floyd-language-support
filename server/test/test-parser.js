@@ -70,7 +70,7 @@ describe("Parser", function() {
           const program = `int x, x, y;`;
 
           const expectedError = {
-            message: "[floyd] Already defined",
+            message: "Already defined",
             range: {
               start: { line: 0, character: 4 },
               end: { line: 0, character: 5 }
@@ -124,7 +124,7 @@ describe("Parser", function() {
           const program = `string a, a, b;`;
 
           const expectedError = {
-            message: "[floyd] Already defined",
+            message: "Already defined",
             range: {
               start: { line: 0, character: 7 },
               end: { line: 0, character: 8 }
@@ -181,7 +181,7 @@ describe("Parser", function() {
         const program = `void test() {} int test;`;
 
         const expectedError = {
-          message: "[floyd] Already defined",
+          message: "Already defined",
           range: {
             start: { line: 0, character: 5 },
             end: { line: 0, character: 9 }
