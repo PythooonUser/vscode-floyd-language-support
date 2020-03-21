@@ -442,6 +442,18 @@ Define.Symbol("else");
 Define.Symbol("(name)");
 Define.Symbol("(end)");
 
+Define.Symbol("this").nud = function() {
+  Context.Scope.reserve(this);
+  this.arity = "this";
+  return this;
+};
+
+Define.Symbol("super").nud = function() {
+  Context.Scope.reserve(this);
+  this.arity = "super";
+  return this;
+};
+
 Define.Infix("+", 50);
 Define.Infix("-", 50);
 Define.Infix("*", 60);
