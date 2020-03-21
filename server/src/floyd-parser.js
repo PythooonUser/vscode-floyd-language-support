@@ -815,6 +815,33 @@ Define.Statement("int", function() {
         definition.second = Parse.expression(0);
         definition.arity = "binary";
         definitions.push(definition);
+      } else if (Context.Token.id === "[") {
+        Parse.advance("[");
+        token.first = Parse.expression(0);
+        Parse.advance("]");
+
+        if (Context.Token.id === "=") {
+          let definition = Context.Token;
+          Parse.advance("=");
+          definition.first = token;
+
+          let elements = [];
+          Parse.advance("(");
+          if (Context.Token.id !== ")") {
+            while (true) {
+              elements.push(Parse.expression(0));
+              if (Context.Token.id !== ",") {
+                break;
+              }
+              Parse.advance(",");
+            }
+            Parse.advance(")");
+          }
+          definition.second = elements;
+
+          definition.arity = "binary";
+          definitions.push(definition);
+        }
       }
 
       if (Context.Token.id !== ",") {
@@ -896,6 +923,33 @@ Define.Statement("string", function() {
         definition.second = Parse.expression(0);
         definition.arity = "binary";
         definitions.push(definition);
+      } else if (Context.Token.id === "[") {
+        Parse.advance("[");
+        token.first = Parse.expression(0);
+        Parse.advance("]");
+
+        if (Context.Token.id === "=") {
+          let definition = Context.Token;
+          Parse.advance("=");
+          definition.first = token;
+
+          let elements = [];
+          Parse.advance("(");
+          if (Context.Token.id !== ")") {
+            while (true) {
+              elements.push(Parse.expression(0));
+              if (Context.Token.id !== ",") {
+                break;
+              }
+              Parse.advance(",");
+            }
+            Parse.advance(")");
+          }
+          definition.second = elements;
+
+          definition.arity = "binary";
+          definitions.push(definition);
+        }
       }
 
       if (Context.Token.id !== ",") {
@@ -977,6 +1031,33 @@ Define.Statement("object", function() {
         definition.second = Parse.expression(0);
         definition.arity = "binary";
         definitions.push(definition);
+      } else if (Context.Token.id === "[") {
+        Parse.advance("[");
+        token.first = Parse.expression(0);
+        Parse.advance("]");
+
+        if (Context.Token.id === "=") {
+          let definition = Context.Token;
+          Parse.advance("=");
+          definition.first = token;
+
+          let elements = [];
+          Parse.advance("(");
+          if (Context.Token.id !== ")") {
+            while (true) {
+              elements.push(Parse.expression(0));
+              if (Context.Token.id !== ",") {
+                break;
+              }
+              Parse.advance(",");
+            }
+            Parse.advance(")");
+          }
+          definition.second = elements;
+
+          definition.arity = "binary";
+          definitions.push(definition);
+        }
       }
 
       if (Context.Token.id !== ",") {

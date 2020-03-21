@@ -93,6 +93,12 @@ describe("Parser", function() {
           const actual = parse(program);
           assert.noErrors(actual);
         });
+
+        it("Should be able to define an integer array", function() {
+          const program = `int x[2] = (1, 2);`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
       });
 
       describe("Strings", function() {
@@ -135,6 +141,12 @@ describe("Parser", function() {
           const actual = parse(program);
           assert.noErrors(actual);
         });
+
+        it("Should be able to define a string array", function() {
+          const program = `string a[2] = ("Foo", "Bar");`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
       });
 
       describe("Objects", function() {
@@ -146,6 +158,12 @@ describe("Parser", function() {
 
         it("Should be able to init an object", function() {
           const program = `class y {} object x = y;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
+
+        it("Should be able to define an object array", function() {
+          const program = `class x {} class y {} object o[2] = (x, y);`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
