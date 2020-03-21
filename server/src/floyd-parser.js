@@ -645,10 +645,6 @@ Define.Statement("return", function() {
 
   Parse.advance(";");
 
-  if (Context.Token.id !== "}") {
-    Error.warning("Unreachable code.", this.range);
-  }
-
   this.arity = "statement";
   return this;
 });
@@ -709,8 +705,55 @@ Define.Statement("for", function() {
   return this;
 });
 
+Define.Statement("switch", function() {
+  Parse.advance("(");
+  this.first = Parse.expression(0);
+  Parse.advance(")");
+
+  this.second = Parse.block();
+
+  this.arity = "statement";
+  return this;
+});
+
+Define.Statement("case", function() {
+  Parse.advance("(");
+  this.first = Parse.expression(0);
+  Parse.advance(")");
+  Parse.advance(";");
+  this.arity = "statement";
+  return this;
+});
+
+Define.Statement("break", function() {
+  Parse.advance(";");
+  this.arity = "statement";
+  return this;
+});
+
+Define.Statement("default", function() {
+  Parse.advance(";");
+  this.arity = "statement";
+  return this;
+});
+
+Define.Statement("quit", function() {
+  Parse.advance(";");
+  this.arity = "statement";
+  return this;
+});
+
+Define.Statement("halt", function() {
+  Parse.advance("(");
+  this.first = Parse.expression(0);
+  Parse.advance(")");
+  Parse.advance(";");
+  this.arity = "statement";
+  return this;
+});
+
 Define.Statement("int", function() {
-  name = Context.Token;
+  let name = Context.Token;
   Parse.advance();
 
   if (Context.Token.value === "(") {
@@ -791,7 +834,7 @@ Define.Statement("int", function() {
 });
 
 Define.Statement("string", function() {
-  name = Context.Token;
+  let name = Context.Token;
   Parse.advance();
 
   if (Context.Token.value === "(") {
@@ -872,7 +915,7 @@ Define.Statement("string", function() {
 });
 
 Define.Statement("object", function() {
-  name = Context.Token;
+  let name = Context.Token;
   Parse.advance();
 
   if (Context.Token.value === "(") {
@@ -953,7 +996,7 @@ Define.Statement("object", function() {
 });
 
 Define.Statement("void", function() {
-  name = Context.Token;
+  let name = Context.Token;
   Context.Scope.define(name);
   name.arity = "function";
 

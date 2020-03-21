@@ -301,7 +301,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it.skip("Should handle switch statement", function() {
+      it("Should handle switch statement", function() {
         const program = `void test() {
           int i = 0;
           switch(i) {
@@ -314,6 +314,17 @@ describe("Parser", function() {
               break;
             default;
               i = 0;
+          }
+        }`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle quit statement", function() {
+        const program = `void test() {
+          int shouldQuit = 1;
+          if (shouldQuit) {
+            quit;
           }
         }`;
         const actual = parse(program);
