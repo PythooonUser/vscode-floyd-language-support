@@ -87,6 +87,12 @@ describe("Parser", function() {
           const actual = parse(program);
           assert.noErrors(actual);
         });
+
+        it("Should be able to inline integer assignments", function() {
+          const program = `int x = 0; x += 1; x -= 1; x /= 1; x *= 1; x++; x--;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
       });
 
       describe("Strings", function() {

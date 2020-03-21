@@ -503,6 +503,20 @@ Define.Assignment("-=");
 Define.Assignment("*=");
 Define.Assignment("/=");
 
+Define.Infix("++", 10, function(left) {
+  this.first = left;
+  this.assignment = true;
+  this.arity = "unary";
+  return this;
+});
+
+Define.Infix("--", 10, function(left) {
+  this.first = left;
+  this.assignment = true;
+  this.arity = "unary";
+  return this;
+});
+
 Define.Constant("NULL", null);
 Define.Symbol("(literal)").nud = function() {
   return this;
@@ -587,38 +601,6 @@ Define.Statement("verb", function() {
   Parse.advance(";");
 
   return this;
-});
-
-Define.Statement("(name)", function() {
-  let type = Context.PreviousToken;
-  if (
-    type.value !== "void" &&
-    type.value !== "int" &&
-    type.value !== "string" &&
-    type.value !== "object"
-  ) {
-    Error.error(
-      `Invalid type '${type.value}'. Use either void, int, string or object.`,
-      type.range
-    );
-  }
-
-  let name = Context.Token;
-  if (name.arity !== "name") {
-    Error.error(
-      `Expected ${
-        type.value === "void" ? "function" : "variable or function"
-      } name. Got '${name.value}'.`,
-      type.range
-    );
-  }
-
-  Parse.advance();
-  if (Context.Token.value === "(") {
-    return Parse.function(type, name);
-  } else {
-    return Parse.variable(type, name);
-  }
 });
 
 Define.Statement("class", function() {
@@ -710,6 +692,284 @@ Define.Statement("if", function() {
 
   this.arity = "statement";
   return this;
+});
+
+Define.Statement("int", function() {
+  name = Context.Token;
+  Parse.advance();
+
+  if (Context.Token.value === "(") {
+    Context.Scope.define(name);
+    name.arity = "function";
+
+    Parse.advance("(");
+    new Scope();
+    let parameters = [];
+
+    if (Context.Token.id !== ")") {
+      while (true) {
+        Parse.advance();
+        Context.Scope.define(Context.Token);
+        parameters.push(Context.Scope);
+
+        Parse.advance();
+        if (Context.Token.id !== ",") {
+          break;
+        }
+
+        Parse.advance(",");
+      }
+    }
+
+    name.first = parameters;
+
+    Parse.advance(")");
+    name.second = Parse.block();
+    Context.Scope.pop();
+
+    return name;
+  } else {
+    let definitions = [];
+    let first = true;
+
+    while (true) {
+      let token = null;
+
+      if (first) {
+        token = name;
+      } else {
+        token = Context.Token;
+      }
+
+      Context.Scope.define(token);
+
+      if (!first) {
+        Parse.advance();
+      } else {
+        first = false;
+      }
+
+      if (Context.Token.id === "=") {
+        let definition = Context.Token;
+        Parse.advance("=");
+        definition.first = token;
+        definition.second = Parse.expression(0);
+        definition.arity = "binary";
+        definitions.push(definition);
+      }
+
+      if (Context.Token.id !== ",") {
+        break;
+      }
+
+      Parse.advance(",");
+    }
+
+    Parse.advance(";");
+
+    return definitions.length === 0
+      ? null
+      : definitions.length === 1
+      ? definitions[0]
+      : definitions;
+  }
+});
+
+Define.Statement("string", function() {
+  name = Context.Token;
+  Parse.advance();
+
+  if (Context.Token.value === "(") {
+    Context.Scope.define(name);
+    name.arity = "function";
+
+    Parse.advance("(");
+    new Scope();
+    let parameters = [];
+
+    if (Context.Token.id !== ")") {
+      while (true) {
+        Parse.advance();
+        Context.Scope.define(Context.Token);
+        parameters.push(Context.Scope);
+
+        Parse.advance();
+        if (Context.Token.id !== ",") {
+          break;
+        }
+
+        Parse.advance(",");
+      }
+    }
+
+    name.first = parameters;
+
+    Parse.advance(")");
+    name.second = Parse.block();
+    Context.Scope.pop();
+
+    return name;
+  } else {
+    let definitions = [];
+    let first = true;
+
+    while (true) {
+      let token = null;
+
+      if (first) {
+        token = name;
+      } else {
+        token = Context.Token;
+      }
+
+      Context.Scope.define(token);
+
+      if (!first) {
+        Parse.advance();
+      } else {
+        first = false;
+      }
+
+      if (Context.Token.id === "=") {
+        let definition = Context.Token;
+        Parse.advance("=");
+        definition.first = token;
+        definition.second = Parse.expression(0);
+        definition.arity = "binary";
+        definitions.push(definition);
+      }
+
+      if (Context.Token.id !== ",") {
+        break;
+      }
+
+      Parse.advance(",");
+    }
+
+    Parse.advance(";");
+
+    return definitions.length === 0
+      ? null
+      : definitions.length === 1
+      ? definitions[0]
+      : definitions;
+  }
+});
+
+Define.Statement("object", function() {
+  name = Context.Token;
+  Parse.advance();
+
+  if (Context.Token.value === "(") {
+    Context.Scope.define(name);
+    name.arity = "function";
+
+    Parse.advance("(");
+    new Scope();
+    let parameters = [];
+
+    if (Context.Token.id !== ")") {
+      while (true) {
+        Parse.advance();
+        Context.Scope.define(Context.Token);
+        parameters.push(Context.Scope);
+
+        Parse.advance();
+        if (Context.Token.id !== ",") {
+          break;
+        }
+
+        Parse.advance(",");
+      }
+    }
+
+    name.first = parameters;
+
+    Parse.advance(")");
+    name.second = Parse.block();
+    Context.Scope.pop();
+
+    return name;
+  } else {
+    let definitions = [];
+    let first = true;
+
+    while (true) {
+      let token = null;
+
+      if (first) {
+        token = name;
+      } else {
+        token = Context.Token;
+      }
+
+      Context.Scope.define(token);
+
+      if (!first) {
+        Parse.advance();
+      } else {
+        first = false;
+      }
+
+      if (Context.Token.id === "=") {
+        let definition = Context.Token;
+        Parse.advance("=");
+        definition.first = token;
+        definition.second = Parse.expression(0);
+        definition.arity = "binary";
+        definitions.push(definition);
+      }
+
+      if (Context.Token.id !== ",") {
+        break;
+      }
+
+      Parse.advance(",");
+    }
+
+    Parse.advance(";");
+
+    return definitions.length === 0
+      ? null
+      : definitions.length === 1
+      ? definitions[0]
+      : definitions;
+  }
+});
+
+Define.Statement("void", function() {
+  name = Context.Token;
+  Context.Scope.define(name);
+  name.arity = "function";
+
+  Parse.advance();
+  Parse.advance("(");
+
+  new Scope();
+  let parameters = [];
+
+  if (Context.Token.id !== ")") {
+    while (true) {
+      Parse.advance();
+      Context.Scope.define(Context.Token);
+      parameters.push(Context.Scope);
+
+      Parse.advance();
+      if (Context.Token.id !== ",") {
+        break;
+      }
+
+      Parse.advance(",");
+    }
+  }
+
+  name.first = parameters;
+
+  Parse.advance(")");
+  name.second = Parse.block();
+  Context.Scope.pop();
+
+  return name;
 });
 
 exports.parse = function(program) {
