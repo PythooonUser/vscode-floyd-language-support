@@ -114,7 +114,7 @@ let Symbol = {
   reserved: false,
   scope: null,
   nud: function() {
-    Error.error("Undefined", this.range);
+    Error.warning("Undefined", this.range);
     return this;
   },
   led: function(left) {
@@ -490,6 +490,7 @@ Define.Infixr("||", 30);
 
 Define.Prefix("-");
 Define.Prefix("!");
+Define.Prefix("~");
 
 Define.Prefix("(", function() {
   let expression = Parse.expression(0);
