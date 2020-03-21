@@ -680,6 +680,25 @@ Define.Statement("while", function() {
   return this;
 });
 
+Define.Statement("if", function() {
+  Parse.advance("(");
+  this.first = Parse.expression(0);
+  Parse.advance(")");
+
+  this.second = Parse.block();
+
+  if (Context.Token.id === "else") {
+    Context.Scope.reserve(Context.Token);
+    Parse.advance("else");
+    this.third = Parse.block();
+  } else {
+    this.third = null;
+  }
+
+  this.arity = "statement";
+  return this;
+});
+
 exports.parse = function(program) {
   lexer = Lexer();
   lexer.setInput(program);

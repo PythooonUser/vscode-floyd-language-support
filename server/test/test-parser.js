@@ -260,7 +260,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it.skip("Should handle if statement", function() {
+      it("Should handle if statement", function() {
         const program = `void test() {
           int i = 0;
           if (i < 10) {}
@@ -269,7 +269,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it.skip("Should handle if-else statement", function() {
+      it("Should handle if-else statement", function() {
         const program = `void test() {
           int i = 0;
           if (i < 10) {}
@@ -279,7 +279,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it.skip("Should handle nested if-else statements", function() {
+      it("Should handle nested if-else statements", function() {
         const program = `void test() {
           int i = 0;
           if (i < 10) {
