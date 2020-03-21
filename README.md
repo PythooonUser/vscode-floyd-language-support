@@ -28,7 +28,7 @@ _Please note that development goes slowly since this is a free-time project only
 
 Basic syntax highlighting is applied to `.floyd` source code files. It introduces colors for comments, literals, all available keywords, class and function declarations etc.
 
-The following example is taken from the game _Nebelmond_ (Oliver Berse, 2002-2003) using the Dark+ color theme:
+The following example is taken from the game _Download_ (Oliver Berse, 2004) using the Dark+ color theme:
 
 ![Syntax Highlighting Example](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/syntax_highlighting.png)
 
@@ -36,17 +36,29 @@ The following example is taken from the game _Nebelmond_ (Oliver Berse, 2002-200
 
 The extension also adds several snippets in order to enhance the coding experience for power users by providing pre-defined code sections for common-used operations.
 
-#### Insert include directive
-
-![Insert include directive snippet](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/snippet_include.gif)
-
-#### Include standard library
-
-![Include standard library snippet](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/snippet_include_stdlib.gif)
-
-#### Insert define directive
-
-![Insert define directive snippet](https://raw.githubusercontent.com/PythooonUser/vscode-floyd-language-support/master/.media/snippet_define.gif)
+- Include Directive
+- Include Standard Library
+- Define Directive
+- Ifdef Directive
+- Ifndef Directive
+- Class Declaration
+- Abstract Class Declaration
+- Room Declaration
+- Abstract Room Declaration
+- Exit Declaration
+- Abstract Exit Declaration
+- Item Declaration
+- Abstract Item Declaration
+- Creature Declaration
+- Abstract Create Declaration
+- Verb Statement
+- If Statement
+- If-Else Statement
+- Switch Statement
+- Fetch Statement
+- For Loop
+- While Loop
+- Do-While Loop
 
 ## Known Issues
 

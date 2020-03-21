@@ -3,9 +3,16 @@
   "displayName": "Floyd",
   "description": "Floyd Language Support for VS Code.",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "pythooonuser",
-  "author": "Felix Siebeneicker",
+  "author": {
+    "name": "Felix Siebeneicker"
+  },
+  "icon": ".media/icon.png",
+  "galleryBanner": {
+    "color": "#8CAD08FF",
+    "theme": "dark"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pythooonuser/vscode-floyd-language-support"
