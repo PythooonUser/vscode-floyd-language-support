@@ -242,7 +242,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it.skip("Should handle do-while loop", function() {
+      it("Should handle do-while loop", function() {
         const program = `void test() {
           int i = 0;
           do { i++; } while(i < 5);

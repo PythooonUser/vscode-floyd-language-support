@@ -680,6 +680,19 @@ Define.Statement("while", function() {
   return this;
 });
 
+Define.Statement("do", function() {
+  this.first = Parse.block();
+
+  Parse.advance("while");
+  Parse.advance("(");
+  this.second = Parse.expression(0);
+  Parse.advance(")");
+  Parse.advance(";");
+
+  this.arity = "statement";
+  return this;
+});
+
 Define.Statement("if", function() {
   Parse.advance("(");
   this.first = Parse.expression(0);
