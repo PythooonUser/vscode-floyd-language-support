@@ -144,7 +144,11 @@ describe("Parser", function() {
           assert.noErrors(actual);
         });
 
-        it("Should be able to init an object");
+        it("Should be able to init an object", function() {
+          const program = `class y {} object x = y;`;
+          const actual = parse(program);
+          assert.noErrors(actual);
+        });
       });
     });
 
