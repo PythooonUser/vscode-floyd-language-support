@@ -706,6 +706,21 @@ Define.Statement("for", function() {
   return this;
 });
 
+Define.Statement("fetch", function() {
+  Parse.advance("(");
+  this.first = Parse.expression(0);
+  Parse.advance(",");
+  this.second = Parse.expression(0);
+  Parse.advance(",");
+  this.third = Parse.expression(0);
+  Parse.advance(")");
+
+  this.forth = Parse.block();
+
+  this.arity = "statement";
+  return this;
+});
+
 Define.Statement("switch", function() {
   Parse.advance("(");
   this.first = Parse.expression(0);
