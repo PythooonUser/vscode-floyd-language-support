@@ -694,6 +694,21 @@ Define.Statement("if", function() {
   return this;
 });
 
+Define.Statement("for", function() {
+  Parse.advance("(");
+  this.first = Parse.expression(0);
+  Parse.advance(";");
+  this.second = Parse.expression(0);
+  Parse.advance(";");
+  this.third = Parse.expression(0);
+  Parse.advance(")");
+
+  this.forth = Parse.block();
+
+  this.arity = "statement";
+  return this;
+});
+
 Define.Statement("int", function() {
   name = Context.Token;
   Parse.advance();

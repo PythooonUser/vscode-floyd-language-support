@@ -257,7 +257,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it.skip("Should handle for loop", function() {
+      it("Should handle for loop", function() {
         const program = `void test() {
           int i;
           for(i = 0; i < 10; i++) {}
