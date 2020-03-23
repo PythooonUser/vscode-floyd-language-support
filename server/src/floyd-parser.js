@@ -584,35 +584,15 @@ Define.Infix("(", 80, function(left) {
 
 Define.Statement("verb", function() {
   Parse.advance("(");
-
-  if (Context.Token.arity !== "literal") {
-    Error.error("Expected string literal.", Context.Token.range);
-  }
-
-  this.first = Context.Token;
-
-  Parse.advance();
+  this.first = Parse.expression(0);
   Parse.advance(",");
-
-  if (Context.Token.arity !== "name") {
-    Error.warning("Expected action identifier.", Context.Token.range);
-  }
-
-  this.second = Context.Token;
-
-  Parse.advance();
+  this.second = Parse.expression(0);
   Parse.advance(",");
-
-  if (Context.Token.arity !== "literal") {
-    Error.warning("Expected integer literal.", Context.Token.range);
-  }
-
-  this.third = Context.Token;
-
-  Parse.advance();
+  this.third = Parse.expression(0);
   Parse.advance(")");
   Parse.advance(";");
 
+  this.arity = "verb";
   return this;
 });
 
