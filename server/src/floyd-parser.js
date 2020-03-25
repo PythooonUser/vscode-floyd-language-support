@@ -204,7 +204,7 @@ let Parse = {
       Error.warning("Bad expression statement", expression.range);
     }
 
-    Parse.advance(";");
+    Recovery.expectSemicolon();
     return expression;
   },
   statements: function() {
@@ -336,6 +336,26 @@ let Parse = {
       : definitions;
   }
 };
+
+class Recovery {
+  static expectSemicolon() {
+    if (Context.Token.id !== ";") {
+      if (Context.PreviousToken) {
+        Error.error(`Missing semicolon`, Context.PreviousToken.range);
+      }
+    } else {
+      Parse.advance(";");
+    }
+  }
+
+  static advanceToNextToken(id) {
+    while (Context.Token.id !== id || Context.Token.id !== "(end)") {
+      Parse.advance();
+    }
+
+    return Context.Token;
+  }
+}
 
 let Define = {
   Symbol: function(id, bp) {
@@ -590,7 +610,7 @@ Define.Statement("verb", function() {
   Parse.advance(",");
   this.third = Parse.expression(0);
   Parse.advance(")");
-  Parse.advance(";");
+  Recovery.expectSemicolon();
 
   this.arity = "verb";
   return this;
@@ -636,7 +656,7 @@ Define.Statement("return", function() {
     this.first = Parse.expression(0);
   }
 
-  Parse.advance(";");
+  Recovery.expectSemicolon();
 
   this.arity = "statement";
   return this;
@@ -658,7 +678,7 @@ Define.Statement("do", function() {
   Parse.advance("(");
   this.second = Parse.expression(0);
   Parse.advance(")");
-  Parse.advance(";");
+  Recovery.expectSemicolon();
 
   this.arity = "statement";
   return this;
@@ -728,25 +748,25 @@ Define.Statement("case", function() {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(")");
-  Parse.advance(";");
+  Recovery.expectSemicolon();
   this.arity = "statement";
   return this;
 });
 
 Define.Statement("break", function() {
-  Parse.advance(";");
+  Recovery.expectSemicolon();
   this.arity = "statement";
   return this;
 });
 
 Define.Statement("default", function() {
-  Parse.advance(";");
+  Recovery.expectSemicolon();
   this.arity = "statement";
   return this;
 });
 
 Define.Statement("quit", function() {
-  Parse.advance(";");
+  Recovery.expectSemicolon();
   this.arity = "statement";
   return this;
 });
@@ -755,7 +775,7 @@ Define.Statement("halt", function() {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(")");
-  Parse.advance(";");
+  Recovery.expectSemicolon();
   this.arity = "statement";
   return this;
 });
@@ -858,7 +878,7 @@ Define.Statement("int", function() {
       Parse.advance(",");
     }
 
-    Parse.advance(";");
+    Recovery.expectSemicolon();
 
     return definitions.length === 0
       ? null
@@ -966,7 +986,7 @@ Define.Statement("string", function() {
       Parse.advance(",");
     }
 
-    Parse.advance(";");
+    Recovery.expectSemicolon();
 
     return definitions.length === 0
       ? null
@@ -1074,7 +1094,7 @@ Define.Statement("object", function() {
       Parse.advance(",");
     }
 
-    Parse.advance(";");
+    Recovery.expectSemicolon();
 
     return definitions.length === 0
       ? null
