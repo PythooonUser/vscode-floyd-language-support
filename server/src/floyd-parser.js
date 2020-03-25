@@ -144,6 +144,8 @@ let Parse = {
       }
     }
 
+    Context.PreviousToken = Context.Token;
+
     if (!token) {
       Context.Token = Context.SymbolTable["(end)"];
       return Context.Token;
@@ -167,8 +169,6 @@ let Parse = {
     } else {
       Error.error("Unexpected token", token.range);
     }
-
-    Context.PreviousToken = Context.Token;
 
     Context.Token = { ...prototypeSymbol };
     Context.Token.arity = arity;
@@ -200,11 +200,19 @@ let Parse = {
     }
 
     let expression = Parse.expression(0);
-    if (!expression.assignment && expression.id !== "(") {
-      Error.warning("Bad expression statement", expression.range);
+    Recovery.expectSemicolon();
+
+    if (
+      Context.PreviousToken.id === ";" &&
+      !expression.assignment &&
+      expression.id !== "("
+    ) {
+      Error.warning("Bad expression statement", {
+        start: expression.range.start,
+        end: Context.PreviousToken.range.end
+      });
     }
 
-    Recovery.expectSemicolon();
     return expression;
   },
   statements: function() {
@@ -340,9 +348,12 @@ let Parse = {
 class Recovery {
   static expectSemicolon() {
     if (Context.Token.id !== ";") {
-      if (Context.PreviousToken) {
-        Error.error(`Missing semicolon`, Context.PreviousToken.range);
-      }
+      Error.error(
+        `Missing semicolon`,
+        Context.PreviousToken
+          ? Context.PreviousToken.range
+          : Context.Token.range
+      );
     } else {
       Parse.advance(";");
     }
