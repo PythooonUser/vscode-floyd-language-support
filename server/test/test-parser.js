@@ -234,7 +234,7 @@ describe("Parser", function() {
 
     describe("Verbs", function() {
       it("Should be able to define a verb", function() {
-        const program = `verb("links", D_WEST, 0);`;
+        const program = `int D_WEST; verb("links", D_WEST, 0);`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
