@@ -136,8 +136,12 @@ let Parse = {
         token !== undefined &&
         (token.type === "comment" ||
           token.type === "whitespace" ||
-          token.type === "directive")
+          token.type === "directive" ||
+          token.type === "invalid")
       ) {
+        if (token.type === "invalid") {
+          Error.error(`Invalid character '${token.value}'`, token.range);
+        }
         token = lexer.lex();
       } else {
         break;
@@ -359,8 +363,15 @@ class Recovery {
     }
   }
 
-  static advanceToNextToken(id) {
-    while (Context.Token.id !== id || Context.Token.id !== "(end)") {
+  static advanceToNextToken(condition) {
+    Error.error(
+      `Unexpected token '${
+        Context.Token.arity === "name" ? Context.Token.value : Context.Token.id
+      }'`,
+      Context.Token.range
+    );
+
+    while (condition(Context.Token) && Context.Token.id !== "(end)") {
       Parse.advance();
     }
 

@@ -52,6 +52,7 @@ exports.Lexer = function() {
     processLexeme("operator")
   );
   lexer.addRule(/[\s]+/, processLexeme());
+  lexer.addRule(/./, processLexeme("invalid"));
 
   return lexer;
 };
