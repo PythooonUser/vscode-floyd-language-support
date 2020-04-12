@@ -677,6 +677,8 @@ Define.Statement("class", function () {
       Error.error("Expected super class name", Context.Token.range);
     }
     superClass = Context.Token;
+    superClass.scope = Context.Scope;
+    Context.Symbols.push(superClass);
     Parse.advance();
   }
 
