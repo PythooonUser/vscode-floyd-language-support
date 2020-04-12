@@ -196,6 +196,11 @@ let Parse = {
 
     return left;
   },
+  attribute: function () {
+    let token = Context.Token;
+
+    return token;
+  },
   statement: function () {
     let token = Context.Token;
 
@@ -1174,6 +1179,41 @@ Define.Statement("void", function () {
   Context.Scope.pop();
 
   return name;
+});
+
+Define.Statement("with", function () {
+  this.arity = "statement";
+
+  Parse.advance("(");
+
+  let attributes = [];
+
+  while (true) {
+    if (Context.Token.id === ")" || Context.Token.id === "(end)") {
+      break;
+    }
+
+    attributes.push(Parse.attribute());
+
+    if (Context.Token.id !== ",") {
+      break;
+    }
+    Parse.advance(",");
+  }
+
+  Parse.advance(")");
+
+  this.first = attributes;
+  if (attributes.length <= 0) {
+    Error.warning("Empty with statement", {
+      start: this.range.start,
+      end: Context.PreviousToken.range.end,
+    });
+  }
+
+  Parse.advance(";");
+
+  return this;
 });
 
 exports.parse = function (program) {

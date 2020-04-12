@@ -1,16 +1,16 @@
 const assert = require("assert");
 const _parse = require("../src/floyd-parser").parse;
 
-let parse = function(program) {
+let parse = function (program) {
   return _parse(program);
 };
 
-describe("Parser", function() {
-  assert.noErrors = function({ errors }) {
+describe("Parser", function () {
+  assert.noErrors = function ({ errors }) {
     assert.equal(errors.length, 0, "Parse errors occurred.");
   };
 
-  assert.positionsEqual = function(actual, expected) {
+  assert.positionsEqual = function (actual, expected) {
     assert.equal(actual.line, expected.line, "Line numbers should be equal.");
     assert.equal(
       actual.character,
@@ -19,7 +19,7 @@ describe("Parser", function() {
     );
   };
 
-  assert.rangesEqual = function(actual, expected) {
+  assert.rangesEqual = function (actual, expected) {
     assert.positionsEqual(
       actual.start,
       expected.start,
@@ -32,7 +32,7 @@ describe("Parser", function() {
     );
   };
 
-  assert.errorsEqual = function(actual, expected) {
+  assert.errorsEqual = function (actual, expected) {
     assert.equal(
       actual.message,
       expected.message,
@@ -45,36 +45,36 @@ describe("Parser", function() {
     );
   };
 
-  describe("Definitions", function() {
-    describe("Types", function() {
-      describe("Integers", function() {
-        it("Should be able to define an integer", function() {
+  describe("Definitions", function () {
+    describe("Types", function () {
+      describe("Integers", function () {
+        it("Should be able to define an integer", function () {
           const program = `int x;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to init an integer", function() {
+        it("Should be able to init an integer", function () {
           const program = `int x = 0;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to define multiple integers", function() {
+        it("Should be able to define multiple integers", function () {
           const program = `int x, y, z;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should not define integer variables with same name", function() {
+        it("Should not define integer variables with same name", function () {
           const program = `int x, x, y;`;
 
           const expectedError = {
             message: "Already defined",
             range: {
               start: { line: 0, character: 4 },
-              end: { line: 0, character: 5 }
-            }
+              end: { line: 0, character: 5 },
+            },
           };
 
           const actual = parse(program);
@@ -82,53 +82,53 @@ describe("Parser", function() {
           assert.errorsEqual(actual.errors[0], expectedError);
         });
 
-        it("Should be able to init multiple integers", function() {
+        it("Should be able to init multiple integers", function () {
           const program = `int x = 0, y, z = 1;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to inline integer assignments", function() {
+        it("Should be able to inline integer assignments", function () {
           const program = `int x = 0; x += 1; x -= 1; x /= 1; x *= 1; x++; x--;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to define an integer array", function() {
+        it("Should be able to define an integer array", function () {
           const program = `int x[2] = (1, 2);`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
       });
 
-      describe("Strings", function() {
-        it("Should be able to define a string", function() {
+      describe("Strings", function () {
+        it("Should be able to define a string", function () {
           const program = `string s;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to init a string", function() {
+        it("Should be able to init a string", function () {
           const program = `string s = "Hello World";`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to define multiple strings", function() {
+        it("Should be able to define multiple strings", function () {
           const program = `string a, b, c;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should not define string variables with same name", function() {
+        it("Should not define string variables with same name", function () {
           const program = `string a, a, b;`;
 
           const expectedError = {
             message: "Already defined",
             range: {
               start: { line: 0, character: 7 },
-              end: { line: 0, character: 8 }
-            }
+              end: { line: 0, character: 8 },
+            },
           };
 
           const actual = parse(program);
@@ -136,33 +136,33 @@ describe("Parser", function() {
           assert.errorsEqual(actual.errors[0], expectedError);
         });
 
-        it("Should be able to init multiple strings", function() {
+        it("Should be able to init multiple strings", function () {
           const program = `string a = "Foo", b, c = "Bar";`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to define a string array", function() {
+        it("Should be able to define a string array", function () {
           const program = `string a[2] = ("Foo", "Bar");`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
       });
 
-      describe("Objects", function() {
-        it("Should be able to define an object", function() {
+      describe("Objects", function () {
+        it("Should be able to define an object", function () {
           const program = `object x;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to init an object", function() {
+        it("Should be able to init an object", function () {
           const program = `class y {} object x = y;`;
           const actual = parse(program);
           assert.noErrors(actual);
         });
 
-        it("Should be able to define an object array", function() {
+        it("Should be able to define an object array", function () {
           const program = `class x {} class y {} object o[2] = (x, y);`;
           const actual = parse(program);
           assert.noErrors(actual);
@@ -170,22 +170,22 @@ describe("Parser", function() {
       });
     });
 
-    describe("Functions", function() {
-      it("Should be able to declare a function", function() {
+    describe("Functions", function () {
+      it("Should be able to declare a function", function () {
         const program = `void test() {}`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should not define variable with same name as function", function() {
+      it("Should not define variable with same name as function", function () {
         const program = `void test() {} int test;`;
 
         const expectedError = {
           message: "Already defined",
           range: {
             start: { line: 0, character: 5 },
-            end: { line: 0, character: 9 }
-          }
+            end: { line: 0, character: 9 },
+          },
         };
 
         const actual = parse(program);
@@ -193,47 +193,47 @@ describe("Parser", function() {
         assert.errorsEqual(actual.errors[0], expectedError);
       });
 
-      it("Should be able to declare a function with a parameter", function() {
+      it("Should be able to declare a function with a parameter", function () {
         const program = `void test(int x) {}`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should be able to declare a function with multiple parameters", function() {
+      it("Should be able to declare a function with multiple parameters", function () {
         const program = `void test(int x, string s, object o) {}`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should create new scope for parameters and body", function() {
+      it("Should create new scope for parameters and body", function () {
         const program = `void test(int x) {} int x = 0;`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
     });
 
-    describe("Classes", function() {
-      it("Should be able to declare a class", function() {
+    describe("Classes", function () {
+      it("Should be able to declare a class", function () {
         const program = `class Test {}`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should be able to declare an abstract class", function() {
+      it("Should be able to declare an abstract class", function () {
         const program = `class abstract Test {}`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should be able to declare a class with inheritance", function() {
-        const program = `class Test:Parent {}`;
+      it("Should be able to declare a class with inheritance", function () {
+        const program = `class Parent {} class Test:Parent {}`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
     });
 
-    describe("Verbs", function() {
-      it("Should be able to define a verb", function() {
+    describe("Verbs", function () {
+      it("Should be able to define a verb", function () {
         const program = `int D_WEST; verb("links", D_WEST, 0);`;
         const actual = parse(program);
         assert.noErrors(actual);
@@ -241,27 +241,27 @@ describe("Parser", function() {
     });
   });
 
-  describe("Statements", function() {
-    describe("Control Flow", function() {
-      it("Should handle return", function() {
+  describe("Statements", function () {
+    describe("Control Flow", function () {
+      it("Should handle return", function () {
         const program = `void test() { return; }`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should handle return with simple expression", function() {
+      it("Should handle return with simple expression", function () {
         const program = `void test() { return 0; }`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should handle return with complex expression", function() {
+      it("Should handle return with complex expression", function () {
         const program = `void test() { return (0 || test.property); }`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should handle while loop", function() {
+      it("Should handle while loop", function () {
         const program = `void test() {
           int i = 0;
           while(i < 5) {}
@@ -270,7 +270,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it("Should handle do-while loop", function() {
+      it("Should handle do-while loop", function () {
         const program = `void test() {
           int i = 0;
           do { i++; } while(i < 5);
@@ -279,7 +279,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it("Should handle for loop", function() {
+      it("Should handle for loop", function () {
         const program = `void test() {
           int i;
           for(i = 0; i < 10; i++) {}
@@ -288,7 +288,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it("Should handle if statement", function() {
+      it("Should handle if statement", function () {
         const program = `void test() {
           int i = 0;
           if (i < 10) {}
@@ -297,7 +297,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it("Should handle if-else statement", function() {
+      it("Should handle if-else statement", function () {
         const program = `void test() {
           int i = 0;
           if (i < 10) {}
@@ -307,7 +307,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it("Should handle nested if-else statements", function() {
+      it("Should handle nested if-else statements", function () {
         const program = `void test() {
           int i = 0;
           if (i < 10) {
@@ -323,7 +323,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it("Should handle switch statement", function() {
+      it("Should handle switch statement", function () {
         const program = `void test() {
           int i = 0;
           switch(i) {
@@ -342,7 +342,7 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
 
-      it("Should handle quit statement", function() {
+      it("Should handle quit statement", function () {
         const program = `void test() {
           int shouldQuit = 1;
           if (shouldQuit) {
@@ -353,23 +353,43 @@ describe("Parser", function() {
         assert.noErrors(actual);
       });
     });
+
+    describe("Other", function () {
+      it("Should handle with statement with one parameter", function () {
+        const program = `with(light);`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle with statement with one negated parameter", function () {
+        const program = `with(~light);`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle with statement with mixed parameters", function () {
+        const program = `with(light, ~hidden);`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+    });
   });
 
-  describe("Expressions", function() {
-    describe("Invokations", function() {
-      it("Should handle function invocation", function() {
+  describe("Expressions", function () {
+    describe("Invokations", function () {
+      it("Should handle function invocation", function () {
         const program = `void test() {} test();`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should handle function invocation with one parameter", function() {
+      it("Should handle function invocation with one parameter", function () {
         const program = `void test(int x) {} test(10);`;
         const actual = parse(program);
         assert.noErrors(actual);
       });
 
-      it("Should handle function invocation with multiple parameters", function() {
+      it("Should handle function invocation with multiple parameters", function () {
         const program = `void test(int x, string s, int y) {} test(10, "Hello", 0);`;
         const actual = parse(program);
         assert.noErrors(actual);
