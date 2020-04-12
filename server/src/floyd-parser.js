@@ -199,6 +199,15 @@ let Parse = {
   attribute: function () {
     let token = Context.Token;
 
+    if (token.id === "~") {
+      Parse.advance();
+
+      if (Context.Token.arity === "name") {
+        token.first = Context.Token;
+      }
+    }
+
+    Parse.advance();
     return token;
   },
   statement: function () {
