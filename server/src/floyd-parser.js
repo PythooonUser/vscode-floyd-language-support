@@ -11,6 +11,43 @@ let Context = {
   Errors: [],
 };
 
+const Language = [
+  "addExit",
+  "addScores",
+  "contentList",
+  "darkness",
+  "from",
+  "getKey",
+  "has",
+  "in",
+  "isLight",
+  "issecond",
+  "isverbose",
+  "location",
+  "menu",
+  "moves",
+  "moveto",
+  "name",
+  "objectsInside",
+  "player",
+  "random",
+  "room",
+  "scores",
+  "serial",
+  "setLong",
+  "setNoun",
+  "setPlayer",
+  "setShort",
+  "StatusLineFormat",
+  "stopDaemon",
+  "stopTimer",
+  "strlen",
+  "strstr",
+  "to",
+  "topic",
+  "write",
+];
+
 let Error = {
   error: function (message, range) {
     this._diagnostic(message, range, 1);
@@ -399,7 +436,10 @@ class Analysis {
   static undefinedSymbols(symbols) {
     for (const symbol of symbols) {
       const definition = symbol.scope.find(symbol.value);
-      if (definition.value !== symbol.value) {
+      if (
+        definition.value !== symbol.value &&
+        !Language.includes(symbol.value)
+      ) {
         Error.warning(`${symbol.value} is undefined`, symbol.range);
       }
     }
