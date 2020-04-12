@@ -8,29 +8,29 @@ let Context = {
   SymbolTable: {},
   Symbols: [],
   Scope: null,
-  Errors: []
+  Errors: [],
 };
 
 let Error = {
-  error: function(message, range) {
+  error: function (message, range) {
     this._diagnostic(message, range, 1);
   },
-  warning: function(message, range) {
+  warning: function (message, range) {
     this._diagnostic(message, range, 2);
   },
-  information: function(message, range) {
+  information: function (message, range) {
     this._diagnostic(message, range, 3);
   },
-  hint: function(message, range) {
+  hint: function (message, range) {
     this._diagnostic(message, range, 4);
   },
-  _diagnostic: function(message, range, severity) {
+  _diagnostic: function (message, range, severity) {
     Context.Errors.push({
       message: `${message}`,
       range: range,
-      severity: severity
+      severity: severity,
     });
-  }
+  },
 };
 
 class Scope {
@@ -53,7 +53,7 @@ class Scope {
 
     this.definitions[symbol.value] = symbol;
     symbol.reserved = false;
-    symbol.nud = function() {
+    symbol.nud = function () {
       return this;
     };
     symbol.led = null;
@@ -113,18 +113,20 @@ let Symbol = {
   assignment: false,
   reserved: false,
   scope: null,
-  nud: function() {
-    Error.warning(`${this.value} is undefined`, this.range);
+  nud: function () {
+    // Error.warning(`${this.value} is undefined`, this.range);
+    this.scope = Context.Scope;
+    Context.Symbols.push(this);
     return this;
   },
-  led: function(left) {
+  led: function (left) {
     Error.error("Missing operator", this.range);
   },
-  std: null
+  std: null,
 };
 
 let Parse = {
-  advance: function(id) {
+  advance: function (id) {
     if (id && Context.Token.id !== id) {
       Error.error(`Expected: ${id}`, Context.Token.range);
     }
@@ -181,7 +183,7 @@ let Parse = {
 
     return Context.Token;
   },
-  expression: function(rbp) {
+  expression: function (rbp) {
     let token = Context.Token;
     Parse.advance();
     let left = token.nud();
@@ -194,7 +196,7 @@ let Parse = {
 
     return left;
   },
-  statement: function() {
+  statement: function () {
     let token = Context.Token;
 
     if (token.std) {
@@ -213,13 +215,13 @@ let Parse = {
     ) {
       Error.warning("Bad expression statement", {
         start: expression.range.start,
-        end: Context.PreviousToken.range.end
+        end: Context.PreviousToken.range.end,
       });
     }
 
     return expression;
   },
-  statements: function() {
+  statements: function () {
     let statements = [];
 
     while (true) {
@@ -239,12 +241,12 @@ let Parse = {
       ? statements[0]
       : statements;
   },
-  block: function() {
+  block: function () {
     let token = Context.Token;
     Parse.advance("{");
     return token.std();
   },
-  function: function(type, name) {
+  function: function (type, name) {
     Context.Scope.define(name);
     name.arity = "function";
     name.name = name.value;
@@ -297,7 +299,7 @@ let Parse = {
 
     return name;
   },
-  variable: function(type, name) {
+  variable: function (type, name) {
     let definitions = [];
     let first = true;
 
@@ -346,7 +348,7 @@ let Parse = {
       : definitions.length === 1
       ? definitions[0]
       : definitions;
-  }
+  },
 };
 
 class Recovery {
@@ -379,8 +381,19 @@ class Recovery {
   }
 }
 
+class Analysis {
+  static undefinedSymbols(symbols) {
+    for (const symbol of symbols) {
+      const definition = symbol.scope.find(symbol.value);
+      if (definition.value !== symbol.value) {
+        Error.warning(`${symbol.value} is undefined`, symbol.range);
+      }
+    }
+  }
+}
+
 let Define = {
-  Symbol: function(id, bp) {
+  Symbol: function (id, bp) {
     let symbol = Context.SymbolTable[id];
     bp = bp || 0;
 
@@ -397,12 +410,12 @@ let Define = {
 
     return symbol;
   },
-  Infix: function(id, bp, led) {
+  Infix: function (id, bp, led) {
     let symbol = Define.Symbol(id, bp);
 
     symbol.led =
       led ||
-      function(left) {
+      function (left) {
         this.first = left;
         this.second = Parse.expression(bp);
         this.arity = "binary";
@@ -411,12 +424,12 @@ let Define = {
 
     return symbol;
   },
-  Infixr: function(id, bp, led) {
+  Infixr: function (id, bp, led) {
     let symbol = Define.Symbol(id, bp);
 
     symbol.led =
       led ||
-      function(left) {
+      function (left) {
         this.first = left;
         this.second = Parse.expression(bp - 1);
         this.arity = "binary";
@@ -425,12 +438,12 @@ let Define = {
 
     return symbol;
   },
-  Prefix: function(id, nud) {
+  Prefix: function (id, nud) {
     let symbol = Define.Symbol(id);
 
     symbol.nud =
       nud ||
-      function() {
+      function () {
         Context.Scope.reserve(this);
         this.first = Parse.expression(70);
         this.arity = "unary";
@@ -439,8 +452,8 @@ let Define = {
 
     return symbol;
   },
-  Assignment: function(id) {
-    return Define.Infixr(id, 10, function(left) {
+  Assignment: function (id) {
+    return Define.Infixr(id, 10, function (left) {
       if (left.id !== "." && left.id !== "[" && left.arity !== "name") {
         Error.error("Bad left value", left.range);
       }
@@ -453,10 +466,10 @@ let Define = {
       return this;
     });
   },
-  Constant: function(id, value) {
+  Constant: function (id, value) {
     let symbol = Define.Symbol(id);
 
-    symbol.nud = function() {
+    symbol.nud = function () {
       Context.Scope.reserve(this);
       this.value = Context.SymbolTable[this.id].value;
       this.arity = "literal";
@@ -466,11 +479,11 @@ let Define = {
     symbol.value = value;
     return symbol;
   },
-  Statement: function(id, std) {
+  Statement: function (id, std) {
     let symbol = Define.Symbol(id);
     symbol.std = std;
     return symbol;
-  }
+  },
 };
 
 Define.Symbol(":");
@@ -484,13 +497,13 @@ Define.Symbol("else");
 Define.Symbol("(name)");
 Define.Symbol("(end)");
 
-Define.Symbol("this").nud = function() {
+Define.Symbol("this").nud = function () {
   Context.Scope.reserve(this);
   this.arity = "this";
   return this;
 };
 
-Define.Symbol("super").nud = function() {
+Define.Symbol("super").nud = function () {
   Context.Scope.reserve(this);
   this.arity = "super";
   return this;
@@ -508,7 +521,7 @@ Define.Infix("<=", 40);
 Define.Infix(">", 40);
 Define.Infix(">=", 40);
 
-Define.Infix("?", 20, function(left) {
+Define.Infix("?", 20, function (left) {
   this.first = left;
   this.seconf = Parse.expression(0);
   Parse.advance(":");
@@ -517,7 +530,7 @@ Define.Infix("?", 20, function(left) {
   return this;
 });
 
-Define.Infix(".", 80, function(left) {
+Define.Infix(".", 80, function (left) {
   this.first = left;
 
   if (Context.Token.arity !== "name") {
@@ -531,7 +544,7 @@ Define.Infix(".", 80, function(left) {
   return this;
 });
 
-Define.Infix("[", 80, function(left) {
+Define.Infix("[", 80, function (left) {
   this.first = left;
   this.second = Parse.expression(0);
   this.arity = "binary";
@@ -546,7 +559,7 @@ Define.Prefix("-");
 Define.Prefix("!");
 Define.Prefix("~");
 
-Define.Prefix("(", function() {
+Define.Prefix("(", function () {
   let expression = Parse.expression(0);
   Parse.advance(")");
   return expression;
@@ -558,14 +571,14 @@ Define.Assignment("-=");
 Define.Assignment("*=");
 Define.Assignment("/=");
 
-Define.Infix("++", 10, function(left) {
+Define.Infix("++", 10, function (left) {
   this.first = left;
   this.assignment = true;
   this.arity = "unary";
   return this;
 });
 
-Define.Infix("--", 10, function(left) {
+Define.Infix("--", 10, function (left) {
   this.first = left;
   this.assignment = true;
   this.arity = "unary";
@@ -573,11 +586,11 @@ Define.Infix("--", 10, function(left) {
 });
 
 Define.Constant("NULL", null);
-Define.Symbol("(literal)").nud = function() {
+Define.Symbol("(literal)").nud = function () {
   return this;
 };
 
-Define.Statement("{", function() {
+Define.Statement("{", function () {
   new Scope();
   let statements = Parse.statements();
   Parse.advance("}");
@@ -585,7 +598,7 @@ Define.Statement("{", function() {
   return statements;
 });
 
-Define.Infix("(", 80, function(left) {
+Define.Infix("(", 80, function (left) {
   let expressions = [];
 
   if (left.id === "." || left.id === "[") {
@@ -624,7 +637,7 @@ Define.Infix("(", 80, function(left) {
   return this;
 });
 
-Define.Statement("verb", function() {
+Define.Statement("verb", function () {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(",");
@@ -638,7 +651,7 @@ Define.Statement("verb", function() {
   return this;
 });
 
-Define.Statement("class", function() {
+Define.Statement("class", function () {
   let abstract = false;
 
   if (Context.Token.value === "abstract") {
@@ -673,7 +686,7 @@ Define.Statement("class", function() {
   return token;
 });
 
-Define.Statement("return", function() {
+Define.Statement("return", function () {
   if (Context.Token.id !== ";") {
     this.first = Parse.expression(0);
   }
@@ -684,7 +697,7 @@ Define.Statement("return", function() {
   return this;
 });
 
-Define.Statement("while", function() {
+Define.Statement("while", function () {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(")");
@@ -693,7 +706,7 @@ Define.Statement("while", function() {
   return this;
 });
 
-Define.Statement("do", function() {
+Define.Statement("do", function () {
   this.first = Parse.block();
 
   Parse.advance("while");
@@ -706,7 +719,7 @@ Define.Statement("do", function() {
   return this;
 });
 
-Define.Statement("if", function() {
+Define.Statement("if", function () {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(")");
@@ -725,7 +738,7 @@ Define.Statement("if", function() {
   return this;
 });
 
-Define.Statement("for", function() {
+Define.Statement("for", function () {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(";");
@@ -740,7 +753,7 @@ Define.Statement("for", function() {
   return this;
 });
 
-Define.Statement("fetch", function() {
+Define.Statement("fetch", function () {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(",");
@@ -755,7 +768,7 @@ Define.Statement("fetch", function() {
   return this;
 });
 
-Define.Statement("switch", function() {
+Define.Statement("switch", function () {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(")");
@@ -766,7 +779,7 @@ Define.Statement("switch", function() {
   return this;
 });
 
-Define.Statement("case", function() {
+Define.Statement("case", function () {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(")");
@@ -775,25 +788,25 @@ Define.Statement("case", function() {
   return this;
 });
 
-Define.Statement("break", function() {
+Define.Statement("break", function () {
   Recovery.expectSemicolon();
   this.arity = "statement";
   return this;
 });
 
-Define.Statement("default", function() {
+Define.Statement("default", function () {
   Recovery.expectSemicolon();
   this.arity = "statement";
   return this;
 });
 
-Define.Statement("quit", function() {
+Define.Statement("quit", function () {
   Recovery.expectSemicolon();
   this.arity = "statement";
   return this;
 });
 
-Define.Statement("halt", function() {
+Define.Statement("halt", function () {
   Parse.advance("(");
   this.first = Parse.expression(0);
   Parse.advance(")");
@@ -802,7 +815,7 @@ Define.Statement("halt", function() {
   return this;
 });
 
-Define.Statement("int", function() {
+Define.Statement("int", function () {
   let name = Context.Token;
   Parse.advance();
 
@@ -910,7 +923,7 @@ Define.Statement("int", function() {
   }
 });
 
-Define.Statement("string", function() {
+Define.Statement("string", function () {
   let name = Context.Token;
   Parse.advance();
 
@@ -1018,7 +1031,7 @@ Define.Statement("string", function() {
   }
 });
 
-Define.Statement("object", function() {
+Define.Statement("object", function () {
   let name = Context.Token;
   Parse.advance();
 
@@ -1126,7 +1139,7 @@ Define.Statement("object", function() {
   }
 });
 
-Define.Statement("void", function() {
+Define.Statement("void", function () {
   let name = Context.Token;
   Context.Scope.define(name);
   name.arity = "function";
@@ -1161,7 +1174,7 @@ Define.Statement("void", function() {
   return name;
 });
 
-exports.parse = function(program) {
+exports.parse = function (program) {
   lexer = Lexer();
   lexer.setInput(program);
 
@@ -1171,13 +1184,15 @@ exports.parse = function(program) {
     SymbolTable: { ...Context.SymbolTable },
     Symbols: [],
     Scope: new Scope(),
-    Errors: []
+    Errors: [],
   };
 
   Parse.advance();
   const ast = Parse.statements();
   const scope = Context.Scope;
   Context.Scope.pop();
+
+  Analysis.undefinedSymbols(Context.Symbols);
 
   return { ast, scope, symbols: Context.Symbols, errors: Context.Errors };
 };
