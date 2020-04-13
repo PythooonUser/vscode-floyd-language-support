@@ -8,6 +8,7 @@ let Context = {
   SymbolTable: {},
   Symbols: [],
   Scope: null,
+  RootScope: null,
   Errors: [],
 };
 
@@ -43,6 +44,7 @@ const Language = [
   "stopTimer",
   "strlen",
   "strstr",
+  "substr",
   "to",
   "topic",
   "write",
@@ -201,7 +203,7 @@ let Parse = {
 
     if (arity === "name") {
       prototypeSymbol = Context.Scope.find(value);
-    } else if (arity === "operator") {
+    } else if (arity === "operator" || arity === "define") {
       prototypeSymbol = Context.SymbolTable[value];
       if (!prototypeSymbol) {
         Error.error("Unkown operator", token.range);
@@ -217,6 +219,11 @@ let Parse = {
     Context.Token.arity = arity;
     Context.Token.value = value;
     Context.Token.range = token.range;
+
+    if (Context.Token.did) {
+      Context.Token.did();
+      return;
+    }
 
     return Context.Token;
   },
@@ -536,6 +543,11 @@ let Define = {
   Statement: function (id, std) {
     let symbol = Define.Symbol(id);
     symbol.std = std;
+    return symbol;
+  },
+  Directive: function (id, did) {
+    let symbol = Define.Symbol(id);
+    symbol.did = did;
     return symbol;
   },
 };
@@ -1265,6 +1277,16 @@ Define.Statement("with", function () {
   return this;
 });
 
+Define.Directive("#define", function () {
+  const name = Parse.advance();
+  Context.RootScope.define(name);
+
+  Parse.advance();
+  if (Context.Token.arity === "literal") {
+    Parse.advance();
+  }
+});
+
 exports.parse = function (program) {
   lexer = Lexer();
   lexer.setInput(program);
@@ -1275,6 +1297,7 @@ exports.parse = function (program) {
     SymbolTable: { ...Context.SymbolTable },
     Symbols: [],
     Scope: new Scope(),
+    RootScope: Context.Scope,
     Errors: [],
   };
 

@@ -396,4 +396,20 @@ describe("Parser", function () {
       });
     });
   });
+
+  describe("Directives", function () {
+    describe("Define", function () {
+      it("Should handle definition with parameter", function () {
+        const program = `#define A_ACTION 100\nvoid main() {if(A_ACTION == 100) {}}`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+
+      it("Should handle definition without parameter", function () {
+        const program = `#define A_ACTION\nvoid main() {if(A_ACTION == 100) {}}`;
+        const actual = parse(program);
+        assert.noErrors(actual);
+      });
+    });
+  });
 });

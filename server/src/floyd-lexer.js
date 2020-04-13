@@ -1,12 +1,12 @@
 const Lexer = require("lex");
 
-exports.Lexer = function() {
+exports.Lexer = function () {
   let line = 0;
   let character = 0;
   let lastPosition = { line, character };
   let currentPosition = { line, character };
 
-  let updatePosition = function(lexeme) {
+  let updatePosition = function (lexeme) {
     lastPosition = currentPosition;
 
     for (let i = 0; i < lexeme.length; i++) {
@@ -21,16 +21,16 @@ exports.Lexer = function() {
     currentPosition = { line, character };
   };
 
-  let createToken = function(type, value) {
+  let createToken = function (type, value) {
     return {
       type: type,
       value: value,
-      range: { start: lastPosition, end: currentPosition }
+      range: { start: lastPosition, end: currentPosition },
     };
   };
 
-  let processLexeme = function(type) {
-    return function(lexeme) {
+  let processLexeme = function (type) {
+    return function (lexeme) {
       updatePosition(lexeme);
       if (type) return createToken(type, lexeme);
     };
@@ -44,9 +44,10 @@ exports.Lexer = function() {
   lexer.addRule(/[0-9]+/, processLexeme("integer"));
   lexer.addRule(/"[^"]*"/, processLexeme("string"));
   lexer.addRule(
-    /#(include|define|ifdef|ifndef|endif)[^\r\n]*/,
+    /#(include|ifdef|ifndef|endif)[^\r\n]*/,
     processLexeme("directive")
   );
+  lexer.addRule(/#define/, processLexeme("define"));
   lexer.addRule(
     /<<|>>|\+\+|--|&&|&|\|\||\||\^|<=|>=|<|>|!=|==|!|~|%=|\/=|\*=|\+=|-=|\+|-|%|\/|\*|=|\(|\)|{|}|\[|\]|,|:|\?|;|\./,
     processLexeme("operator")
