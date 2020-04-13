@@ -185,15 +185,7 @@
             "1": {
               "name": "punctuation.definition.comment.floyd"
             }
-          },
-          "patterns": [
-            {
-              "include": "#comment-line-continuation"
-            },
-            {
-              "include": "#comment-tag"
-            }
-          ]
+          }
         }
       ]
     },
@@ -215,28 +207,9 @@
           },
           "patterns": [
             {
-              "include": "#comment-line-continuation"
-            },
-            {
-              "include": "#comment-tag"
+              "match": "\n"
             }
           ]
-        }
-      ]
-    },
-    "comment-line-continuation": {
-      "patterns": [
-        {
-          "name": "constant.character.floyd",
-          "match": "\n"
-        }
-      ]
-    },
-    "comment-tag": {
-      "patterns": [
-        {
-          "name": "keyword.other.floyd",
-          "match": "\\b(FIXME|TODO):"
         }
       ]
     },
