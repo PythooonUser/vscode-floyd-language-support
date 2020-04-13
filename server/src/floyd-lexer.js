@@ -43,11 +43,9 @@ exports.Lexer = function () {
   lexer.addRule(/[a-zA-Z_][a-zA-Z0-9_]*/, processLexeme("name"));
   lexer.addRule(/[0-9]+/, processLexeme("integer"));
   lexer.addRule(/"[^"]*"/, processLexeme("string"));
-  lexer.addRule(
-    /#(include|ifdef|ifndef|endif)[^\r\n]*/,
-    processLexeme("directive")
-  );
+  lexer.addRule(/#(ifdef|ifndef|endif)[^\r\n]*/, processLexeme("directive"));
   lexer.addRule(/#define/, processLexeme("define"));
+  lexer.addRule(/#include/, processLexeme("include"));
   lexer.addRule(
     /<<|>>|\+\+|--|&&|&|\|\||\||\^|<=|>=|<|>|!=|==|!|~|%=|\/=|\*=|\+=|-=|\+|-|%|\/|\*|=|\(|\)|{|}|\[|\]|,|:|\?|;|\./,
     processLexeme("operator")

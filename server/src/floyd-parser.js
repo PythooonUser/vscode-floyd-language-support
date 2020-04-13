@@ -203,7 +203,11 @@ let Parse = {
 
     if (arity === "name") {
       prototypeSymbol = Context.Scope.find(value);
-    } else if (arity === "operator" || arity === "define") {
+    } else if (
+      arity === "operator" ||
+      arity === "define" ||
+      arity === "include"
+    ) {
       prototypeSymbol = Context.SymbolTable[value];
       if (!prototypeSymbol) {
         Error.error("Unkown operator", token.range);
@@ -1285,6 +1289,31 @@ Define.Directive("#define", function () {
   if (Context.Token.arity === "literal") {
     Parse.advance();
   }
+});
+
+Define.Directive("#include", function () {
+  const token = Context.Token;
+
+  Parse.advance();
+  Parse.advance("<");
+
+  let path = "";
+
+  while (true) {
+    if (Context.Token.id === ">" || Context.Token.id === "(end)") {
+      break;
+    }
+
+    path += Context.Token.value;
+    Parse.advance();
+  }
+
+  Error.information(`Path: '${path}'`, {
+    start: token.range.start,
+    end: Context.Token.range.end,
+  });
+
+  Parse.advance(">");
 });
 
 exports.parse = function (program) {
