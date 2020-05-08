@@ -26,7 +26,7 @@ _Please note that development goes slowly since this is a free-time project only
 
 ### Syntax Highlighting
 
-Basic syntax highlighting is applied to `.floyd` source code files. It introduces colors for comments, literals, all available keywords, class and function declarations etc.
+Advanced syntax highlighting is applied to `.floyd` source code files, including string colorization for verb definitions, short names and class name display.
 
 The following example is taken from the game _Download_ (Oliver Berse, 2004) using the Dark+ color theme:
 

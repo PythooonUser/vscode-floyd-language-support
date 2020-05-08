@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 (08.05.2020)
+
+- **Change:** Rewriting language grammar from scratch to improve syntax highlighting
+
 ## 0.2.0 (20.03.2020)
 
 - **Feature:** Adding more snippets (related to directives, statements etc.)

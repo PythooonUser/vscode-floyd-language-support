@@ -51,5 +51,11 @@
         "path": "./snippets/floyd.json"
       }
     ]
+  },
+  "devDependencies": {
+    "js-yaml": "^3.13.1"
+  },
+  "scripts": {
+    "grammar": "js-yaml syntaxes/floyd.tmLanguage.yaml > syntaxes/floyd.tmLanguage.json"
   }
 }
