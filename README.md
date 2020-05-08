@@ -1,6 +1,7 @@
 # vscode-floyd-language-support
 
 [![Language](https://img.shields.io/badge/language-floyd-green.svg?style=flat-square)](http://oliver-berse.de/)
+[![Marketplace](https://img.shields.io/badge/vscode-marketplace-green.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=pythooonuser.vscode-floyd-language-support)
 [![Twitter](https://img.shields.io/badge/twitter-pythooonuser-green.svg?style=flat-square)](https://twitter.com/pythooonuser/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](./LICENSE)
 
