@@ -1,4 +1,5 @@
 .gitignore
+.github/
 .vscode/
 .media/*.svg
 .prettierrc

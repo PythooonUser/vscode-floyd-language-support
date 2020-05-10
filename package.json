@@ -3,7 +3,7 @@
   "displayName": "Floyd",
   "description": "Floyd Language Support for VS Code.",
   "license": "MIT",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "pythooonuser",
   "author": {
     "name": "Felix Siebeneicker"
@@ -69,6 +69,7 @@
     ]
   },
   "scripts": {
+    "grammar": "js-yaml syntaxes/floyd.tmLanguage.yaml > syntaxes/floyd.tmLanguage.json",
     "vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
@@ -78,6 +79,7 @@
   "devDependencies": {
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.30",
+    "js-yaml": "^3.13.1",
     "tslint": "^5.16.0",
     "typescript": "^3.8.3"
   }

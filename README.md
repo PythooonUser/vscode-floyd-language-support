@@ -1,6 +1,7 @@
 # vscode-floyd-language-support
 
 [![Language](https://img.shields.io/badge/language-floyd-green.svg?style=flat-square)](http://oliver-berse.de/)
+[![Marketplace](https://img.shields.io/badge/vscode-marketplace-green.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=pythooonuser.vscode-floyd-language-support)
 [![Twitter](https://img.shields.io/badge/twitter-pythooonuser-green.svg?style=flat-square)](https://twitter.com/pythooonuser/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](./LICENSE)
 
@@ -26,7 +27,7 @@ _Please note that development goes slowly since this is a free-time project only
 
 ### Syntax Highlighting
 
-Basic syntax highlighting is applied to `.floyd` source code files. It introduces colors for comments, literals, all available keywords, class and function declarations etc.
+Advanced syntax highlighting is applied to `.floyd` source code files, including string colorization for verb definitions, short names and class name display.
 
 The following example is taken from the game _Download_ (Oliver Berse, 2004) using the Dark+ color theme:
 

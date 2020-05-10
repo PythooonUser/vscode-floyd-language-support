@@ -1,0 +1,625 @@
+---
+$schema: https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json
+name: Floyd
+scopeName: source.floyd
+patterns:
+  - include: "#comment"
+  - include: "#preprocessor"
+  - include: "#class-declaration"
+  - include: "#function-or-method-declaration"
+  - include: "#variable-declaration"
+  - include: "#verb-statement"
+repository:
+  comment:
+    patterns:
+      - name: "comment.block.floyd"
+        begin: "/\\*"
+        end: "\\*/"
+      - name: "comment.line.double-slash.floyd"
+        begin: "//"
+        end: "$"
+  preprocessor:
+    name: "meta.preprocessor.floyd"
+    begin: "^\\s*(\\#)\\s*"
+    beginCaptures:
+      1:
+        name: "punctuation.separator.hash.floyd"
+    end: "$"
+    patterns:
+      - include: "#comment"
+      - include: "#preprocessor-define"
+      - include: "#preprocessor-ifdef-or-ifndef"
+      - include: "#preprocessor-endif"
+      - include: "#preprocessor-include"
+      - include: "#preprocessor-semicolon"
+  preprocessor-define:
+    match: "\\b(define)\\b\\s*\\b([_[:alpha:]][_[:alnum:]]*)\\b(?:\\s*\\b([0-9]+)\\b)?"
+    captures:
+      1:
+        name: "keyword.other.preprocessor.define.floyd"
+      2:
+        name: "entity.name.variable.preprocessor.symbol.floyd"
+      3:
+        name: "constant.numeric.floyd"
+  preprocessor-ifdef-or-ifndef:
+    match: "\\b(?:(ifdef)|(ifndef))\\b\\s*\\b([_[:alpha:]][_[:alnum:]]*)\\b"
+    captures:
+      1:
+        name: "keyword.other.preprocessor.ifdef.floyd"
+      2:
+        name: "keyword.other.preprocessor.ifndef.floyd"
+      3:
+        name: "entity.name.variable.floyd"
+  preprocessor-endif:
+    match: "\\b(endif)\\b"
+    captures:
+      1:
+        name: "keyword.other.preprocessor.endif.floyd"
+  preprocessor-include:
+    begin: "\\b(include)\\b"
+    beginCaptures:
+      1:
+        name: "keyword.other.preprocessor.include.floyd"
+    end: "$"
+    patterns:
+      - name: "string.quoted.preprocessor.path.floyd"
+        begin: "<"
+        beginCaptures:
+          0:
+            name: "punctuation.definition.string.begin.floyd"
+        end: ">"
+        endCaptures:
+          0:
+            name: "punctuation.definition.string.end.floyd"
+  preprocessor-semicolon:
+    match: ";"
+    captures:
+      0:
+        name: "invalid.illegal.floyd"
+  class-declaration:
+    begin: "(?=\\bclass\\b)"
+    end: "(?<=\\})"
+    patterns:
+      - begin: "\\b(class)\\b(?:\\s*\\b(abstract)\\b)?\\s*\\b([_[:alpha:]][_[:alnum:]]*)\\b\\s*"
+        beginCaptures:
+          1:
+            name: "keyword.other.class.floyd"
+          2:
+            name: "storage.modifier.floyd"
+          3:
+            name: "entity.name.type.class.floyd"
+        end: "(?=\\{)"
+        patterns:
+          - include: "#comment"
+          - include: "#base-type"
+      - begin: "\\{"
+        beginCaptures:
+          0:
+            name: "punctuation.curlybrace.open.floyd"
+        end: "\\}"
+        endCaptures:
+          0:
+            name: "punctuation.curlybrace.close.floyd"
+        patterns:
+          - include: "#class-member"
+      - include: "#comment"
+      - include: "#preprocessor"
+  base-type:
+    begin: ":"
+    beginCaptures:
+      0:
+        name: "punctuation.separator.colon.floyd"
+    end: "(?=\\{)"
+    patterns:
+      - match: "[_[:alpha:]][_[:alnum:]]*"
+        captures:
+          0:
+            name: "entity.other.inherited-class"
+  class-member:
+    patterns:
+      - include: "#comment"
+      - include: "#preprocessor"
+      - include: "#function-or-method-declaration"
+      - include: "#statement"
+  function-or-method-declaration:
+    begin: "\\b(void|int|string|object)\\b\\s*\\b([_[:alpha:]][_[:alnum:]]*)\\s*(?=\\()"
+    beginCaptures:
+      1:
+        name: "keyword.type.floyd"
+      2:
+        name: "entity.name.function.floyd"
+    end: "(?<=\\})"
+    patterns:
+      - include: "#parenthesized-parameter-list"
+      - include: "#block"
+  function-or-method-member:
+    patterns:
+      - include: "#comment"
+      - include: "#function-or-method-declaration"
+      - include: "#statement"
+  variable-declaration:
+    begin: "\\b(int|string|object)\\b\\s*\\b([_[:alpha:]][_[:alnum:]]*)(?!=\\()"
+    beginCaptures:
+      1:
+        name: "keyword.type.floyd"
+      2:
+        name: "entity.name.variable.local.floyd"
+    end: "(?=;)"
+    patterns:
+      - match: "[_[:alpha:]][_[:alnum:]]*"
+        captures:
+          0:
+            name: "entity.name.variable.local.floyd"
+      - begin: "\\["
+        beginCaptures:
+          0:
+            name: "punctuation.squarebracket.open.floyd"
+        end: "\\]"
+        endCaptures:
+          0:
+            name: "punctuation.squarebracket.close.floyd"
+        patterns:
+          - include: "#expression"
+      - include: "#punctuation-comma"
+      - include: "#variable-initializer"
+  variable-initializer:
+    begin: "(?<!=|!)(=)(?!=)"
+    beginCaptures:
+      1:
+        name: "keyword.operator.assignment.floyd"
+    end: "(?=[,\\)\\]\\};])"
+    patterns:
+      - include: "#expression"
+  statement:
+    patterns:
+      - include: "#comment"
+      - include: "#preprocessor"
+      - include: "#while-statement"
+      - include: "#do-statement"
+      - include: "#for-statement"
+      - include: "#if-statement"
+      - include: "#else-part"
+      - include: "#switch-statement"
+      - include: "#fetch-statement"
+      - include: "#verb-statement"
+      - include: "#return-statement"
+      - include: "#quit-statement"
+      - include: "#halt-statement"
+      - include: "#break-statement"
+      - include: "#variable-declaration"
+      - include: "#block"
+      - include: "#expression"
+      - include: "#punctuation-semicolon"
+  while-statement:
+    begin: "\\b(while)\\b\\s*(?=\\()"
+    beginCaptures:
+      1:
+        name: "keyword.control.loop.while.floyd"
+    end: "(?<=\\})|(?=;)"
+    patterns:
+      - begin: "\\("
+        beginCaptures:
+          0:
+            name: "punctuation.parenthesis.open.floyd"
+        end: "\\)"
+        endCaptures:
+          0:
+            name: "punctuation.parenthesis.close.floyd"
+        patterns:
+          - include: "#expression"
+      - include: "#statement"
+  do-statement:
+    name: "DO"
+    begin: "\\b(do)\\b"
+    beginCaptures:
+      1:
+        name: "keyword.control.loop.do.floyd"
+    end: "(?=\\}|;)"
+    patterns:
+      - include: "#statement"
+  for-statement:
+    begin: "\\b(for)\\b\\s*(?=\\()"
+    beginCaptures:
+      1:
+        name: "keyword.control.loop.for.floyd"
+    end: "(?<=\\})"
+    patterns:
+      - begin: "\\("
+        beginCaptures:
+          0:
+            name: "punctuation.parenthesis.open.floyd"
+        end: "\\)"
+        endCaptures:
+          0:
+            name: "punctuation.parenthesis.close.floyd"
+        patterns:
+          - include: "#expression"
+          - include: "#punctuation-semicolon"
+      - include: "#statement"
+  if-statement:
+    begin: "\\b(if)\\b\\s*(?=\\()"
+    beginCaptures:
+      1:
+        name: "keyword.control.conditional.if.floyd"
+    end: "(?<=\\})"
+    patterns:
+      - begin: "\\("
+        beginCaptures:
+          0:
+            name: "punctuation.parenthesis.open.floyd"
+        end: "\\)"
+        endCaptures:
+          0:
+            name: "punctuation.parenthesis.close.floyd"
+        patterns:
+          - include: "#expression"
+      - include: "#statement"
+  else-part:
+    begin: "\\b(else)\\b"
+    beginCaptures:
+      1:
+        name: "keyword.control.conditional.else.floyd"
+    end: "(?<=\\})"
+    patterns:
+      - include: "#statement"
+  switch-statement:
+    begin: "\\b(switch)\\b\\s*(?=\\()"
+    beginCaptures:
+      1:
+        name: "keyword.control.switch.floyd"
+    end: "(?<=\\})"
+    patterns:
+      - begin: "\\("
+        beginCaptures:
+          0:
+            name: "punctuation.parenthesis.open.floyd"
+        end: "\\)"
+        endCaptures:
+          0:
+            name: "punctuation.parenthesis.close.floyd"
+        patterns:
+          - include: "#expression"
+      - begin: "\\{"
+        beginCaptures:
+          0:
+            name: "punctuation.curlybrace.open.floyd"
+        end: "\\}"
+        endCaptures:
+          0:
+            name: "punctuation.curlybrace.close.floyd"
+        patterns:
+          - include: "#switch-label"
+          - include: "#statement"
+  switch-label:
+    patterns:
+      - begin: "\\b(case)\\b\\s*(?=\\()"
+        beginCaptures:
+          1:
+            name: "keyword.control.case.floyd"
+        end: ";"
+        endCaptures:
+          0:
+            name: "punctuation.separator.semicolon.floyd"
+        patterns:
+          - begin: "\\("
+            beginCaptures:
+              0:
+                name: "punctuation.parenthesis.open.floyd"
+            end: "\\)"
+            endCaptures:
+              0:
+                name: "punctuation.parenthesis.close.floyd"
+            patterns:
+              - include: "#expression"
+      - match: "\\b(default)\\b\\s*(;)"
+        captures:
+          1:
+            name: "keyword.control.default"
+          2:
+            name: "punctuation.separator.semicolon.floyd"
+  fetch-statement:
+    begin: "\\b(fetch)\\b\\s*(?=\\()"
+    beginCaptures:
+      1:
+        name: "keyword.control.loop.fetch.floyd"
+    end: "(?<=\\})"
+    patterns:
+      - begin: "\\("
+        beginCaptures:
+          0:
+            name: "punctuation.parenthesis.open.floyd"
+        end: "\\)"
+        endCaptures:
+          0:
+            name: "punctuation.parenthesis.close.floyd"
+        patterns:
+          - include: "#expression"
+          - include: "#punctuation-comma"
+      - include: "#statement"
+  verb-statement:
+    begin: "\\b(verb)\\b\\s*(?=\\()"
+    beginCaptures:
+      1:
+        name: "entity.name.function.verb.floyd"
+    end: "(?<=;)"
+    patterns:
+      - include: "#argument-list"
+      - include: "#punctuation-semicolon"
+  return-statement:
+    begin: "\\b(return)\\b"
+    beginCaptures:
+      1:
+        name: "keyword.control.flow.return.floyd"
+    end: "(?=;)"
+    patterns:
+      - include: "#expression"
+  quit-statement:
+    begin: "\\b(quit)\\b"
+    beginCaptures:
+      1:
+        name: "keyword.control.flow.quit.floyd"
+    end: "(?=;)"
+    patterns:
+      - include: "#punctuation-semicolon"
+  halt-statement:
+    begin: "\\b(halt)\\b"
+    beginCaptures:
+      1:
+        name: "keyword.control.flow.halt.floyd"
+    end: "(?=;)"
+    patterns:
+      - include: "#expression"
+  break-statement:
+    match: "\\b(break)\\b"
+    captures:
+      1:
+        name: "keyword.control.flow.break.floyd"
+  block:
+    begin: "\\{"
+    beginCaptures:
+      0:
+        name: "punctuation.curlybrace.open.floyd"
+    end: "\\}"
+    endCaptures:
+      0:
+        name: "punctuation.curlybrace.close.floyd"
+    patterns:
+      - include: "#statement"
+  expression:
+    patterns:
+      - include: "#comment"
+      - include: "#preprocessor"
+      - include: "#this-or-super-expression"
+      - include: "#conditional-operator"
+      - include: "#expression-operator"
+      - include: "#array-creation-expression"
+      - include: "#invocation-expression"
+      - include: "#member-access-expression"
+      - include: "#element-access-expression"
+      - include: "#literal"
+      - include: "#parenthesized-expression"
+      - include: "#identifier"
+  this-or-super-expression:
+    match: "\\b(?:(this)|(super))\\b"
+    captures:
+      1:
+        name: "keyword.other.this.floyd"
+      2:
+        name: "keyword.other.super.floyd"
+  conditional-operator:
+    begin: "\\?"
+    beginCaptures:
+      0:
+        name: "keyword.operator.conditional.question-mark.floyd"
+    end: ":"
+    endCaptures:
+      0:
+        name: "keyword.operator.conditional.colon.floyd"
+    patterns:
+      - include: "#expression"
+  expression-operator:
+    patterns:
+      - match: "\\*=|/=|\\+=|-=|%="
+        name: "keyword.operator.assignment.compound.floyd"
+      - match: "<<|>>"
+        name: "keyword.operator.bitwise.shift.floyd"
+      - match: "==|!="
+        name: "keyword.operator.comparison.floyd"
+      - match: "<=|>=|<|>"
+        name: "keyword.operator.relational.floyd"
+      - match: "\\!|&&|\\|\\|"
+        name: "keyword.operator.logical.floyd"
+      - match: "\\&|~|\\^|\\|"
+        name: "keyword.operator.bitwise.floyd"
+      - match: "\\="
+        name: "keyword.operator.assignment.floyd"
+      - match: "--"
+        name: "keyword.operator.decrement.floyd"
+      - match: "\\+\\+"
+        name: "keyword.operator.increment.floyd"
+      - match: "\\*|/|\\+|-|%"
+        name: "keyword.operator.arithmetic.floyd"
+  array-creation-expression:
+    begin: "(?<==)\\s*(?=\\()"
+    end: "(?<=\\))"
+    patterns:
+      - include: "#argument-list"
+  invocation-expression:
+    begin: "(?:(\\.)\\s*)?([_[:alpha:]][_[:alnum:]]*)\\s*(?=\\()"
+    beginCaptures:
+      1:
+        name: "punctuation.accessor.floyd"
+      2:
+        name: "entity.name.function.floyd"
+    end: "(?<=\\))"
+    patterns:
+      - include: "#argument-list"
+  member-access-expression:
+    match: "(\\.)\\s*([_[:alpha:]][_[:alnum:]]*)\\s*(?!\\(|\\[)"
+    captures:
+      1:
+        name: "punctuation.accessor.floyd"
+      2:
+        name: "variable.other.object.property.floyd"
+  element-access-expression:
+    begin: "(?:(\\.)\\s*)?(?:([_[:alpha:]][_[:alnum:]]*)\\s*)?(?=\\[)"
+    beginCaptures:
+      1:
+        name: "punctuation.accessor.floyd"
+      2:
+        name: "variable.other.object.property.floyd"
+    end: "(?<=\\])"
+    patterns:
+      - include: "#bracketed-argument-list"
+  argument-list:
+    begin: "\\("
+    beginCaptures:
+      0:
+        name: "punctuation.parenthesis.open.floyd"
+    end: "\\)"
+    endCaptures:
+      0:
+        name: "punctuation.parenthesis.close.floyd"
+    patterns:
+      - include: "#argument"
+      - include: "#punctuation-comma"
+  bracketed-argument-list:
+    begin: "\\["
+    beginCaptures:
+      0:
+        name: "punctuation.squarebracket.open.floyd"
+    end: "\\]"
+    endCaptures:
+      0:
+        name: "punctuation.squarebracket.close.floyd"
+    patterns:
+      - include: "#argument"
+  argument:
+    patterns:
+      - include: "#expression"
+  parenthesized-parameter-list:
+    begin: "\\("
+    beginCaptures:
+      0:
+        name: "punctuation.parenthesis.open.floyd"
+    end: "\\)"
+    endCaptures:
+      0:
+        name: "punctuation.parenthesis.close.floyd"
+    patterns:
+      - include: "#comment"
+      - include: "#parameter"
+      - include: "#punctuation-comma"
+  parameter:
+    match: "(int|string|object)\\b\\s+\\b([_[:alpha:]][_[:alnum:]]*)\\s*"
+    captures:
+      1:
+        name: "keyword.type.floyd"
+      2:
+        name: "entity.name.variable.parameter.floyd"
+  punctuation-comma:
+    match: ","
+    captures:
+      0:
+        name: "punctuation.separator.comma.floyd"
+  punctuation-semicolon:
+    match: ";"
+    captures:
+      0:
+        name: "punctuation.separator.semicolon.floyd"
+  literal:
+    patterns:
+      - include: "#null-literal"
+      - include: "#numeric-literal"
+      - include: "#string-literal"
+  parenthesized-expression:
+    begin: "\\("
+    beginCaptures:
+      0:
+        name: "punctuation.parenthesis.open.floyd"
+    end: "\\)"
+    endCaptures:
+      0:
+        name: "punctuation.parenthesis.close.floyd"
+    patterns:
+      - include: "#expression"
+  identifier:
+    match: "[_[:alpha:]][_[:alnum:]]*"
+    captures:
+      0:
+        name: "variable.other.floyd"
+  null-literal:
+    match: "\\b(NULL)\\b"
+    captures:
+      1:
+        name: "constant.language.null.floyd"
+  numeric-literal:
+    match: "\\b([0-9]+)\\b"
+    captures:
+      1:
+        name: "constant.numeric.decimal.floyd"
+  string-literal:
+    patterns:
+      - name: "string.quoted.double.verb.floyd"
+        begin: '(?<=verb\()(")'
+        beginCaptures:
+          1:
+            name: "punctuation.definition.string.begin.floyd"
+        end: '"'
+        endCaptures:
+          0:
+            name: "punctuation.definition.string.end.floyd"
+        patterns:
+          - match: "\\|"
+            captures:
+              0:
+                name: "punctuation.separator.pipe.floyd"
+          - match: "#quote|#topic|#number|#noun|#oos|#single|#multi|#held|#reachable|#inside|#function"
+            captures:
+              0:
+                name: "keyword.other.placeholder.floyd"
+      - name: "string.quoted.double.name.short.floyd"
+        begin: '(?<=setShort\()(")'
+        beginCaptures:
+          1:
+            name: "punctuation.definition.string.begin.floyd"
+        end: '"'
+        endCaptures:
+          0:
+            name: "punctuation.definition.string.end.floyd"
+        patterns:
+          - match: "\\$|\\+|-|&|\\*"
+            captures:
+              0:
+                name: "keyword.other.floyd"
+      - name: "string.quoted.double.floyd"
+        begin: '"'
+        beginCaptures:
+          0:
+            name: "punctuation.definition.string.begin.floyd"
+        end: '"'
+        endCaptures:
+          0:
+            name: "punctuation.definition.string.end.floyd"
+        patterns:
+          - include: "#string-character-escape"
+          - include: "#string-class-name"
+  string-character-escape:
+    match: "\\\\n|\\^"
+    captures:
+      0:
+        name: "constant.character.escape.floyd"
+  string-class-name:
+    begin: "<"
+    end: ">"
+    patterns:
+      - match: "\\s*[~!]?\\s*([dD]er|[dD]en|[dD]es|[dD]em|[eE]in|[eE]inen|[eE]ines|[eE]inem)\\b\\s*\\b(?:(this)|(actor)|([_[:alpha:]][_[:alnum:]]*))[^>]*"
+        captures:
+          1:
+            name: "keyword.other.article.floyd"
+          2:
+            name: "keyword.other.this.floyd"
+          3:
+            name: "keyword.other.actor.floyd"
+          4:
+            name: "entity.name.variable.local.floyd"
