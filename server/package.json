@@ -2,7 +2,7 @@
   "name": "vscode-floyd-language-support-server",
   "description": "Floyd Language Support for VS Code - Server.",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "author": "Felix Siebeneicker",
   "publisher": "pythooonuser",
   "repository": {
