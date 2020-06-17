@@ -1,18 +1,18 @@
 let assert = require("assert");
 let Lexer = require("../src/floyd-lexer").Lexer;
 
-describe("Lexer", function() {
+describe("Lexer", function () {
   let lexer;
 
-  this.beforeEach(function() {
+  this.beforeEach(function () {
     lexer = Lexer();
   });
 
-  this.afterEach(function() {
+  this.afterEach(function () {
     lexer = null;
   });
 
-  assert.tokenPositionsEqual = function(expected, actual) {
+  assert.tokenPositionsEqual = function (expected, actual) {
     assert.equal(
       expected.line,
       actual.line,
@@ -25,7 +25,7 @@ describe("Lexer", function() {
     );
   };
 
-  assert.tokenRangesEqual = function(expected, actual) {
+  assert.tokenRangesEqual = function (expected, actual) {
     assert.tokenPositionsEqual(
       expected.start,
       actual.start,
@@ -38,7 +38,7 @@ describe("Lexer", function() {
     );
   };
 
-  assert.tokensEqual = function(expected, actual) {
+  assert.tokensEqual = function (expected, actual) {
     assert.equal(expected.type, actual.type, "Token types should be equal.");
     assert.equal(expected.value, actual.value, "Token values should be equal.");
     assert.tokenRangesEqual(
@@ -48,7 +48,7 @@ describe("Lexer", function() {
     );
   };
 
-  assert.tokenArraysEqual = function(expected, actual) {
+  assert.tokenArraysEqual = function (expected, actual) {
     assert.equal(
       expected.length,
       actual.length,
@@ -60,13 +60,13 @@ describe("Lexer", function() {
     }
   };
 
-  let getToken = function(program) {
+  let getToken = function (program) {
     lexer.setInput(program);
 
     return lexer.lex();
   };
 
-  let getTokens = function(program) {
+  let getTokens = function (program) {
     lexer.setInput(program);
 
     let tokens = [];
@@ -80,8 +80,8 @@ describe("Lexer", function() {
     return tokens;
   };
 
-  describe("Directives", function() {
-    it("Should handle #include directive", function() {
+  describe("Directives", function () {
+    it("Should handle #include directive", function () {
       const program = `#include <stditem.floyd>`;
 
       const expected = [
@@ -100,7 +100,7 @@ describe("Lexer", function() {
       assert.tokenArraysEqual(expected, actual);
     });
 
-    it("Should handle #define directive", function() {
+    it("Should handle #define directive", function () {
       const program = `#define A_EXAMINE 101`;
 
       const expected = [
@@ -119,7 +119,7 @@ describe("Lexer", function() {
       assert.tokenArraysEqual(expected, actual);
     });
 
-    it("Should handle #ifdef directive", function() {
+    it("Should handle #ifdef directive", function () {
       const program = `#ifdef A_EXAMINE`;
 
       const expected = [
@@ -138,7 +138,7 @@ describe("Lexer", function() {
       assert.tokenArraysEqual(expected, actual);
     });
 
-    it("Should handle #ifndef directive", function() {
+    it("Should handle #ifndef directive", function () {
       const program = `#ifndef A_EXAMINE`;
 
       const expected = [
@@ -157,7 +157,7 @@ describe("Lexer", function() {
       assert.tokenArraysEqual(expected, actual);
     });
 
-    it("Should handle #endif directive", function() {
+    it("Should handle #endif directive", function () {
       const program = `#endif`;
 
       const expected = [
@@ -177,8 +177,8 @@ describe("Lexer", function() {
     });
   });
 
-  describe("Names", function() {
-    it("Should handle names", function() {
+  describe("Names", function () {
+    it("Should handle names", function () {
       const program = `testname test_name _testName testName0`;
 
       const expected = [
@@ -222,9 +222,9 @@ describe("Lexer", function() {
     });
   });
 
-  describe("Literals", function() {
-    describe("Integers", function() {
-      it("Should handle integers", function() {
+  describe("Literals", function () {
+    describe("Integers", function () {
+      it("Should handle integers", function () {
         const program = `0 1 1234`;
 
         const expected = [
@@ -260,8 +260,8 @@ describe("Lexer", function() {
       });
     });
 
-    describe("Strings", function() {
-      it("Should handle single-line strings", function() {
+    describe("Strings", function () {
+      it("Should handle single-line strings", function () {
         const program = `"Hello World!"`;
 
         const expected = {
@@ -278,7 +278,7 @@ describe("Lexer", function() {
         assert.tokensEqual(expected, actual);
       });
 
-      it("Should handle multiline strings", function() {
+      it("Should handle multiline strings", function () {
         const program = `"Hello\nWorld!"`;
 
         const expected = {
@@ -297,8 +297,8 @@ describe("Lexer", function() {
     });
   });
 
-  describe("Operators", function() {
-    it("Should handle operators", function() {
+  describe("Operators", function () {
+    it("Should handle operators", function () {
       const program = `<< >> ++ -- && & || | ^ <= >= < > != == ! ~ %= /= *= += -= + - % / * = ( ) { } [ ] , : ? ; .`;
 
       const expected = [
@@ -622,8 +622,8 @@ describe("Lexer", function() {
     });
   });
 
-  describe("Whitespace", function() {
-    it("Should ignore whitespace", function() {
+  describe("Whitespace", function () {
+    it("Should ignore whitespace", function () {
       const program = ` \t\r\nfoo`;
 
       const expected = {
@@ -641,8 +641,8 @@ describe("Lexer", function() {
     });
   });
 
-  describe("Comments", function() {
-    it("Should ignore line comments", function() {
+  describe("Comments", function () {
+    it("Should ignore line comments", function () {
       const program = `// This is a line comment\nfoo`;
 
       const expected = {
@@ -659,7 +659,7 @@ describe("Lexer", function() {
       assert.tokensEqual(expected, actual);
     });
 
-    it("Should ignore block comments", function() {
+    it("Should ignore block comments", function () {
       const program = `/**\n * This is a block comment.\n */\n/* This is a block comment. */\n/*************/\nfoo`;
 
       const expected = {

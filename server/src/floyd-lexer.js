@@ -25,7 +25,7 @@ exports.Lexer = function () {
     return {
       type: type,
       value: value,
-      range: { start: lastPosition, end: currentPosition },
+      range: { start: lastPosition, end: currentPosition }
     };
   };
 

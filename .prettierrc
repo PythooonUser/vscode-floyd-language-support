@@ -3,5 +3,5 @@
   "useTabs": false,
   "singleQuote": false,
   "arrowParens": "avoid",
-  "trailingComma": "es5"
+  "trailingComma": "none"
 }
