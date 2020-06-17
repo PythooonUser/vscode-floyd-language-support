@@ -78,9 +78,9 @@
   },
   "devDependencies": {
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.12.30",
-    "js-yaml": "^3.13.1",
+    "@types/node": "^12.12.47",
+    "js-yaml": "^3.14.0",
     "tslint": "^5.16.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.5"
   }
 }
