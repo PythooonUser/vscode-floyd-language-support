@@ -9,7 +9,7 @@ let Context = {
   Symbols: [],
   Scope: null,
   RootScope: null,
-  Errors: [],
+  Errors: []
 };
 
 const Language = [
@@ -47,7 +47,7 @@ const Language = [
   "substr",
   "to",
   "topic",
-  "write",
+  "write"
 ];
 
 let Error = {
@@ -67,9 +67,9 @@ let Error = {
     Context.Errors.push({
       message: `${message}`,
       range: range,
-      severity: severity,
+      severity: severity
     });
-  },
+  }
 };
 
 class Scope {
@@ -161,7 +161,7 @@ let Symbol = {
   led: function (left) {
     Error.error("Missing operator", this.range);
   },
-  std: null,
+  std: null
 };
 
 let Parse = {
@@ -277,7 +277,7 @@ let Parse = {
     ) {
       Error.warning("Bad expression statement", {
         start: expression.range.start,
-        end: Context.PreviousToken.range.end,
+        end: Context.PreviousToken.range.end
       });
     }
 
@@ -410,7 +410,7 @@ let Parse = {
       : definitions.length === 1
       ? definitions[0]
       : definitions;
-  },
+  }
 };
 
 class Recovery {
@@ -553,7 +553,7 @@ let Define = {
     let symbol = Define.Symbol(id);
     symbol.did = did;
     return symbol;
-  },
+  }
 };
 
 Define.Symbol(":");
@@ -1272,7 +1272,7 @@ Define.Statement("with", function () {
   if (attributes.length <= 0) {
     Error.warning("Empty with statement", {
       start: this.range.start,
-      end: Context.PreviousToken.range.end,
+      end: Context.PreviousToken.range.end
     });
   }
 
@@ -1310,7 +1310,7 @@ Define.Directive("#include", function () {
 
   Error.information(`Path: '${path}'`, {
     start: token.range.start,
-    end: Context.Token.range.end,
+    end: Context.Token.range.end
   });
 
   Parse.advance(">");
@@ -1327,7 +1327,7 @@ exports.parse = function (program) {
     Symbols: [],
     Scope: new Scope(),
     RootScope: Context.Scope,
-    Errors: [],
+    Errors: []
   };
 
   Parse.advance();

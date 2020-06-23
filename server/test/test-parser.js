@@ -73,8 +73,8 @@ describe("Parser", function () {
             message: "Already defined",
             range: {
               start: { line: 0, character: 4 },
-              end: { line: 0, character: 5 },
-            },
+              end: { line: 0, character: 5 }
+            }
           };
 
           const actual = parse(program);
@@ -127,8 +127,8 @@ describe("Parser", function () {
             message: "Already defined",
             range: {
               start: { line: 0, character: 7 },
-              end: { line: 0, character: 8 },
-            },
+              end: { line: 0, character: 8 }
+            }
           };
 
           const actual = parse(program);
@@ -184,8 +184,8 @@ describe("Parser", function () {
           message: "Already defined",
           range: {
             start: { line: 0, character: 5 },
-            end: { line: 0, character: 9 },
-          },
+            end: { line: 0, character: 9 }
+          }
         };
 
         const actual = parse(program);
