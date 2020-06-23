@@ -3,14 +3,15 @@ import {
   TextDocuments,
   ProposedFeatures,
   InitializeParams,
-  TextDocument,
-  Diagnostic
+  TextDocument
 } from "vscode-languageserver";
 
-import { parse } from "./floyd-parser";
+import { FloydDocumentManager } from "./floyd-document-manager";
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
+
+let documentManager = new FloydDocumentManager();
 
 connection.onInitialize((params: InitializeParams) => {
   return {
@@ -21,31 +22,12 @@ connection.onInitialize((params: InitializeParams) => {
 });
 
 documents.onDidChangeContent(change => {
-  validateTextDocument(change.document);
+  const textDocument: TextDocument = change.document;
+  documentManager.updateDocument(textDocument);
+
+  const diagnostics = documentManager.getDiagnostics(textDocument.uri);
+  connection.sendDiagnostics(diagnostics);
 });
-
-async function validateTextDocument(textDocument: TextDocument): Promise<void> {
-  const { errors } = parse(textDocument.getText());
-
-  let diagnostics: Diagnostic[] = [];
-
-  errors.forEach((error: { severity: any; range: any; message: any }) => {
-    let diagnostic: Diagnostic = {
-      severity: error.severity,
-      range: error.range,
-      message: error.message,
-      source: "floyd",
-      code: 100
-    };
-
-    diagnostics.push(diagnostic);
-  });
-
-  connection.sendDiagnostics({
-    uri: textDocument.uri,
-    diagnostics
-  });
-}
 
 documents.listen(connection);
 connection.listen();
