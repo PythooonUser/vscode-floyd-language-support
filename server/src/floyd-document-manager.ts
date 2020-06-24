@@ -1,4 +1,5 @@
 import * as path from "path";
+import * as fs from "fs";
 import { TextDocument, Diagnostic } from "vscode-languageserver";
 import { parse } from "./floyd-parser";
 
@@ -7,6 +8,7 @@ interface CacheItem {
   version: number;
   valid: boolean;
   errors: any;
+  imports: any;
 }
 
 export class FloydDocumentManager {
@@ -16,7 +18,7 @@ export class FloydDocumentManager {
     this.documents = {};
   }
 
-  updateDocument(document: TextDocument): void {
+  updateDocument(document: TextDocument) {
     console.log(
       `Updating document: ${document.uri} (version ${document.version})`
     );
@@ -30,7 +32,8 @@ export class FloydDocumentManager {
         uri: document.uri,
         version: 0,
         valid: false,
-        errors: null
+        errors: null,
+        imports: null
       };
     }
 
@@ -44,6 +47,17 @@ export class FloydDocumentManager {
     cacheItem.version = document.version;
     cacheItem.valid = true;
     cacheItem.errors = parseInfo.errors;
+    cacheItem.imports = parseInfo.imports;
+
+    // Parse imports
+    const root = path.dirname(path.normalize(this.fromVSCodeUri(document.uri)));
+    for (const uri of cacheItem.imports) {
+      const importUri = path.join(root, uri);
+      const textDocument: TextDocument = this.createTextDocument(importUri);
+      this.updateDocument(textDocument);
+    }
+
+    // TODO: Perform static code analysis using available imports
   }
 
   getDiagnostics(uri: string): { uri: string; diagnostics: Diagnostic[] } {
@@ -63,5 +77,24 @@ export class FloydDocumentManager {
     );
 
     return { uri, diagnostics };
+  }
+
+  createTextDocument(uri: string): TextDocument {
+    uri = path.normalize(uri);
+    let content: string = fs.readFileSync(uri, "utf-8");
+    return TextDocument.create(this.toVSCodeUri(uri), "floyd", 1, content);
+  }
+
+  fromVSCodeUri(uri: string): string {
+    uri = uri.replace(/file:[\\/]+/, "");
+    uri = uri.replace("%3A", ":");
+    return path.normalize(uri);
+  }
+
+  toVSCodeUri(uri: string): string {
+    uri = uri.replace(/\\/g, path.posix.sep);
+    uri = uri.replace(":", "%3A");
+    uri = "file:" + path.posix.sep + path.posix.sep + path.posix.sep + uri;
+    return uri;
   }
 }

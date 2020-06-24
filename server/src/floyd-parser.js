@@ -9,7 +9,8 @@ let Context = {
   Symbols: [],
   Scope: null,
   RootScope: null,
-  Errors: []
+  Errors: [],
+  Imports: []
 };
 
 const Language = [
@@ -1308,10 +1309,7 @@ Define.Directive("#include", function () {
     Parse.advance();
   }
 
-  Error.information(`Path: '${path}'`, {
-    start: token.range.start,
-    end: Context.Token.range.end
-  });
+  Context.Imports.push(path);
 
   Parse.advance(">");
 });
@@ -1327,7 +1325,8 @@ exports.parse = function (program) {
     Symbols: [],
     Scope: new Scope(),
     RootScope: Context.Scope,
-    Errors: []
+    Errors: [],
+    Imports: []
   };
 
   Parse.advance();
@@ -1337,5 +1336,11 @@ exports.parse = function (program) {
 
   Analysis.undefinedSymbols(Context.Symbols);
 
-  return { ast, scope, symbols: Context.Symbols, errors: Context.Errors };
+  return {
+    ast,
+    scope,
+    symbols: Context.Symbols,
+    errors: Context.Errors,
+    imports: Context.Imports
+  };
 };
