@@ -1,14 +1,31 @@
 import * as path from "path";
 import * as fs from "fs";
-import { TextDocument, Diagnostic } from "vscode-languageserver";
+import {
+  TextDocument,
+  Diagnostic,
+  PublishDiagnosticsParams
+} from "vscode-languageserver";
 import { parse } from "./floyd-parser";
 
 interface CacheItem {
   uri: string;
   version: number;
-  valid: boolean;
   errors: any;
   imports: any;
+}
+
+interface ProgramInfo {
+  ast: any;
+  scope: any;
+  symbols: any;
+  errors: any;
+  imports: any;
+}
+
+interface ProgramError {
+  severity: 1 | 2 | 3 | 4 | undefined;
+  range: any;
+  message: string;
 }
 
 export class FloydDocumentManager {
@@ -19,64 +36,48 @@ export class FloydDocumentManager {
   }
 
   updateDocument(document: TextDocument) {
-    console.log(
-      `Updating document: ${document.uri} (version ${document.version})`
-    );
+    const uri: string = this.fromVSCodeUri(document.uri);
+    console.log(`Updating document ${uri} (version ${document.version})`);
 
-    // Get the document from cache
-    let cacheItem = this.documents[document.uri];
+    let cacheItem: CacheItem = this.documents[uri];
 
-    // If not present in cache add it to cache
-    if (!cacheItem) {
-      cacheItem = this.documents[document.uri] = {
-        uri: document.uri,
-        version: 0,
-        valid: false,
-        errors: null,
-        imports: null
+    if (!cacheItem || cacheItem.version < document.version) {
+      const programInfo: ProgramInfo = parse(document.getText());
+
+      cacheItem = {
+        uri,
+        version: document.version,
+        errors: programInfo.errors,
+        imports: programInfo.imports
       };
+
+      this.documents[uri] = cacheItem;
     }
-
-    // Abort if document has no updates
-    if (document.version <= cacheItem.version) {
-      return;
-    }
-
-    // Parse document and add info to cache item
-    const parseInfo = parse(document.getText());
-    cacheItem.version = document.version;
-    cacheItem.valid = true;
-    cacheItem.errors = parseInfo.errors;
-    cacheItem.imports = parseInfo.imports;
-
-    // Parse imports
-    const root = path.dirname(path.normalize(this.fromVSCodeUri(document.uri)));
-    for (const uri of cacheItem.imports) {
-      const importUri = path.join(root, uri);
-      const textDocument: TextDocument = this.createTextDocument(importUri);
-      this.updateDocument(textDocument);
-    }
-
-    // TODO: Perform static code analysis using available imports
   }
 
-  getDiagnostics(uri: string): { uri: string; diagnostics: Diagnostic[] } {
-    let diagnostics: Diagnostic[] = [];
+  getDiagnosticsAll(): PublishDiagnosticsParams[] {
+    let diagnosticsAll: PublishDiagnosticsParams[] = [];
 
-    this.documents[uri].errors.forEach(
-      (error: { severity: any; range: any; message: string }) => {
-        let diagnostic: Diagnostic = {
+    for (let uri in this.documents) {
+      let cacheItem: CacheItem = this.documents[uri];
+      let diagnostics: Diagnostic[] = [];
+
+      cacheItem.errors.forEach((error: ProgramError) => {
+        diagnostics.push({
           severity: error.severity,
           range: error.range,
           message: error.message,
           source: "floyd"
-        };
+        });
+      });
 
-        diagnostics.push(diagnostic);
-      }
-    );
+      diagnosticsAll.push({
+        uri: this.toVSCodeUri(uri),
+        diagnostics
+      });
+    }
 
-    return { uri, diagnostics };
+    return diagnosticsAll;
   }
 
   createTextDocument(uri: string): TextDocument {

@@ -3,7 +3,7 @@ import {
   TextDocuments,
   ProposedFeatures,
   InitializeParams,
-  TextDocument
+  PublishDiagnosticsParams
 } from "vscode-languageserver";
 
 import { FloydDocumentManager } from "./floyd-document-manager";
@@ -12,6 +12,14 @@ let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
 
 let documentManager = new FloydDocumentManager();
+
+const sendDiagnostics = (): void => {
+  const diagnosticsAll: PublishDiagnosticsParams[] = documentManager.getDiagnosticsAll();
+
+  for (const diagnostics of diagnosticsAll) {
+    connection.sendDiagnostics(diagnostics);
+  }
+};
 
 connection.onInitialize((params: InitializeParams) => {
   return {
@@ -22,11 +30,8 @@ connection.onInitialize((params: InitializeParams) => {
 });
 
 documents.onDidChangeContent(change => {
-  const textDocument: TextDocument = change.document;
-  documentManager.updateDocument(textDocument);
-
-  const diagnostics = documentManager.getDiagnostics(textDocument.uri);
-  connection.sendDiagnostics(diagnostics);
+  documentManager.updateDocument(change.document);
+  sendDiagnostics();
 });
 
 documents.listen(connection);
