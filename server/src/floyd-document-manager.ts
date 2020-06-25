@@ -52,6 +52,29 @@ export class FloydDocumentManager {
       };
 
       this.documents[uri] = cacheItem;
+
+      this.updateImports(cacheItem.imports, uri);
+    }
+  }
+
+  updateImports(uris: string[], root: string) {
+    root = path.dirname(root);
+
+    for (let uri of uris) {
+      uri = path.normalize(path.join(root, uri));
+
+      if (!(uri in this.documents)) {
+        if (fs.existsSync(uri)) {
+          let content: string = fs.readFileSync(uri, "utf-8");
+          let document = TextDocument.create(
+            this.toVSCodeUri(uri),
+            "floyd",
+            1,
+            content
+          );
+          this.updateDocument(document);
+        }
+      }
     }
   }
 
@@ -78,12 +101,6 @@ export class FloydDocumentManager {
     }
 
     return diagnosticsAll;
-  }
-
-  createTextDocument(uri: string): TextDocument {
-    uri = path.normalize(uri);
-    let content: string = fs.readFileSync(uri, "utf-8");
-    return TextDocument.create(this.toVSCodeUri(uri), "floyd", 1, content);
   }
 
   fromVSCodeUri(uri: string): string {
