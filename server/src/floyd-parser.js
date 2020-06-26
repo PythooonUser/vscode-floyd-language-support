@@ -25,6 +25,7 @@ const Language = [
   "isLight",
   "issecond",
   "isverbose",
+  "items",
   "location",
   "menu",
   "moves",
@@ -40,12 +41,16 @@ const Language = [
   "setNoun",
   "setPlayer",
   "setShort",
+  "setTime",
+  "startDaemon",
   "StatusLineFormat",
+  "stdobject",
   "stopDaemon",
   "stopTimer",
   "strlen",
   "strstr",
   "substr",
+  "time",
   "to",
   "topic",
   "write"
@@ -445,14 +450,25 @@ class Recovery {
 }
 
 class Analysis {
-  static undefinedSymbols(symbols) {
+  static undefinedSymbols(symbols, scopes) {
     for (const symbol of symbols) {
-      const definition = symbol.scope.find(symbol.value);
+      let definition = symbol.scope.find(symbol.value);
       if (
         definition.value !== symbol.value &&
         !Language.includes(symbol.value)
       ) {
-        Error.warning(`${symbol.value} is undefined`, symbol.range);
+        let found = false;
+        for (const scope of scopes) {
+          definition = scope.scope.find(symbol.value);
+          if (definition.value === symbol.value) {
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          Error.warning(`${symbol.value} is undefined`, symbol.range);
+        }
       }
     }
   }
@@ -1334,8 +1350,6 @@ exports.parse = function (program) {
   const scope = Context.Scope;
   Context.Scope.pop();
 
-  Analysis.undefinedSymbols(Context.Symbols);
-
   return {
     ast,
     scope,
@@ -1343,4 +1357,20 @@ exports.parse = function (program) {
     errors: Context.Errors,
     imports: Context.Imports
   };
+};
+
+exports.analyseUndefinedSymbols = function (symbols, scopes) {
+  Context = {
+    Token: null,
+    PreviousToken: null,
+    SymbolTable: { ...Context.SymbolTable },
+    Symbols: [],
+    Scope: new Scope(),
+    RootScope: Context.Scope,
+    Errors: [],
+    Imports: []
+  };
+
+  Analysis.undefinedSymbols(symbols, scopes);
+  return Context.Errors;
 };

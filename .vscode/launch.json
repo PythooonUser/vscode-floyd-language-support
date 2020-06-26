@@ -3,6 +3,13 @@
   "version": "0.1.0",
   "configurations": [
     {
+      "name": "Attach by Process ID",
+      "processId": "${command:PickProcess}",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "pwa-node"
+    },
+    {
       "name": "Extension",
       "type": "extensionHost",
       "request": "launch",

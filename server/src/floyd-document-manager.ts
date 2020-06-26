@@ -5,11 +5,13 @@ import {
   Diagnostic,
   PublishDiagnosticsParams
 } from "vscode-languageserver";
-import { parse } from "./floyd-parser";
+import { parse, analyseUndefinedSymbols } from "./floyd-parser";
 
 interface CacheItem {
   uri: string;
   version: number;
+  symbols: any;
+  scope: any;
   errors: any;
   imports: any;
 }
@@ -47,6 +49,8 @@ export class FloydDocumentManager {
       cacheItem = {
         uri,
         version: document.version,
+        symbols: programInfo.symbols,
+        scope: programInfo.scope,
         errors: programInfo.errors,
         imports: programInfo.imports
       };
@@ -54,6 +58,7 @@ export class FloydDocumentManager {
       this.documents[uri] = cacheItem;
 
       this.updateImports(cacheItem.imports, uri);
+      this.analyseUndefinedSymbols(cacheItem);
     }
   }
 
@@ -76,6 +81,22 @@ export class FloydDocumentManager {
         }
       }
     }
+  }
+
+  analyseUndefinedSymbols(cacheItem: CacheItem): void {
+    const symbols = cacheItem.symbols;
+
+    let imports: CacheItem[] = [];
+    for (let uri of cacheItem.imports) {
+      uri = path.normalize(path.join(path.dirname(cacheItem.uri), uri));
+
+      if (fs.existsSync(uri)) {
+        imports.push(this.documents[uri]);
+      }
+    }
+
+    let errors = analyseUndefinedSymbols(symbols, imports);
+    cacheItem.errors = cacheItem.errors.concat(errors);
   }
 
   getDiagnosticsAll(): PublishDiagnosticsParams[] {
