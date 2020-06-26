@@ -453,13 +453,16 @@ class Analysis {
   static undefinedSymbols(symbols, scopes) {
     for (const symbol of symbols) {
       let definition = symbol.scope.find(symbol.value);
+
       if (
         definition.value !== symbol.value &&
         !Language.includes(symbol.value)
       ) {
         let found = false;
+
         for (const scope of scopes) {
           definition = scope.scope.find(symbol.value);
+
           if (definition.value === symbol.value) {
             found = true;
             break;
