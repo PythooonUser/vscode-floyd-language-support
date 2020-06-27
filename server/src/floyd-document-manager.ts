@@ -3,7 +3,8 @@ import * as fs from "fs";
 import {
   TextDocument,
   Diagnostic,
-  PublishDiagnosticsParams
+  PublishDiagnosticsParams,
+  DidChangeTextDocumentNotification
 } from "vscode-languageserver";
 import { parse, analyseUndefinedSymbols } from "./floyd-parser";
 
@@ -57,15 +58,17 @@ export class FloydDocumentManager {
 
       this.documents[uri] = cacheItem;
 
-      this.updateImports(cacheItem.imports, uri);
+      this.updateImports(cacheItem, uri);
       this.analyseUndefinedSymbols(cacheItem);
     }
   }
 
-  updateImports(uris: string[], root: string) {
+  updateImports(cacheItem: CacheItem, root: string) {
     root = path.dirname(root);
+    const imports = cacheItem.imports;
 
-    for (let uri of uris) {
+    for (let i of imports) {
+      let uri = i.first.path;
       uri = path.normalize(path.join(root, uri));
 
       if (!(uri in this.documents)) {
@@ -78,6 +81,12 @@ export class FloydDocumentManager {
             content
           );
           this.updateDocument(document);
+        } else {
+          cacheItem.errors.push({
+            message: `Imported file does not exist`,
+            range: i.first.range,
+            severity: 1
+          });
         }
       }
     }
@@ -87,7 +96,8 @@ export class FloydDocumentManager {
     const symbols = cacheItem.symbols;
 
     let imports: CacheItem[] = [];
-    for (let uri of cacheItem.imports) {
+    for (let i of cacheItem.imports) {
+      let uri = i.first.path;
       uri = path.normalize(path.join(path.dirname(cacheItem.uri), uri));
 
       if (fs.existsSync(uri)) {

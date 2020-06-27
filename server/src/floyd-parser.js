@@ -1313,6 +1313,7 @@ Define.Directive("#define", function () {
 
 Define.Directive("#include", function () {
   const token = Context.Token;
+  token.arity = "import";
 
   Parse.advance();
   Parse.advance("<");
@@ -1328,7 +1329,11 @@ Define.Directive("#include", function () {
     Parse.advance();
   }
 
-  Context.Imports.push(path);
+  token.first = {
+    path,
+    range: { start: token.range.start, end: Context.Token.range.end }
+  };
+  Context.Imports.push(token);
 
   Parse.advance(">");
 });
